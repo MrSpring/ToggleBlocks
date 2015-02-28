@@ -59,6 +59,19 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
         int newState = worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord) ? 1 : 0;
         if (newState != this.state)
             this.setState(newState);
+
+        this.checkStorage();
+    }
+
+    public void checkStorage()
+    {
+        for (int i = 0; i < storage.length; i++)
+        {
+            ItemStack inStorage = storage[i];
+            if (inStorage != null)
+                if (inStorage.stackSize == 0)
+                    storage[i] = null;
+        }
     }
 
     public void setState(int state)
@@ -88,6 +101,9 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
             {
 //                ItemStack[] result =
                 action.performAction(worldObj, pos.x, pos.y, pos.z, 0, getFakePlayer(), placing, this);
+                if (placing != null)
+                    if (placing.stackSize == 0)
+                        placing = null;
 //                this.addItemStacksToStorage(result);
             }
         }
