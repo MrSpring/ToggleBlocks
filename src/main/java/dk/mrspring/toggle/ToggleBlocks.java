@@ -24,6 +24,8 @@ public class ToggleBlocks
     @Mod.EventHandler
     public static void preInit(FMLPreInitializationEvent event)
     {
+        ToggleRegistry.initialize();
+
         network = NetworkRegistry.INSTANCE.newSimpleChannel("toggleBlocks");
         network.registerMessage(MessageSetMode.MessageHandler.class, MessageSetMode.class, 0, Side.SERVER);
         network.registerMessage(MessageSetOverride.MessageHandler.class, MessageSetOverride.class, 1, Side.SERVER);

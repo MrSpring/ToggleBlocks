@@ -1,5 +1,6 @@
 package dk.mrspring.toggle.tileentity;
 
+import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,7 +20,7 @@ import java.util.Random;
 /**
  * Created by Konrad on 27-02-2015.
  */
-public class TileEntityToggleBlock extends TileEntity implements IInventory
+public class TileEntityToggleBlock extends TileEntity implements IInventory, IToggleController
 {
     int state = OFF;
     Mode currentMode = Mode.EDITING;
@@ -77,21 +78,20 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
 
     public void updateChangeBlocks()
     {
-//        if (this.getCurrentMode() == Mode.EDITING)
-//            placing = new ItemStack(BlockBase.change_block, 200); // TODO: Set metadata for custom blocks and stuff, stack size should be max number of change blocks
-        for (ChangeBlockInfo pos : this.changeBlockPosList)
-        {
-            ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
-            if (pos.overridesState(this.state))
+        if (this.isReady())
+            for (ChangeBlockInfo pos : this.changeBlockPosList)
             {
-                ItemStack override = pos.getOverrideForState(this.state);
-                placing = requestItemFromStorage(override);
+                ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
+                if (pos.overridesState(this.state))
+                {
+                    ItemStack override = pos.getOverrideForState(this.state);
+                    placing = requestItemFromStorage(override);
+                }
+                ChangeBlockInfo.BlockToggleAction action;
+                action = pos.getAction(this.state);
+                if (action != null)
+                    action.performAction(worldObj, pos.x, pos.y, pos.z, 0, getFakePlayer(), placing, this);
             }
-            ChangeBlockInfo.BlockToggleAction action;
-            action = pos.getAction(this.state);
-            if (action != null)
-                action.performAction(worldObj, pos.x, pos.y, pos.z, 0, getFakePlayer(), placing, this);
-        }
     }
 
     public void placeChangeBlocks()
@@ -107,6 +107,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
         }
     }
 
+    @Override
     public void addItemStacksToStorage(ItemStack[] stacks)
     {
         if (stacks != null)
@@ -118,6 +119,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
             }
     }
 
+    @Override
     public ItemStack addItemStackToStorage(ItemStack stack)
     {
         for (int i = 0; i < storage.length; i++)
@@ -142,7 +144,8 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
         return stack;
     }
 
-    private void dropItem(ItemStack stack)
+    @Override
+    public void dropItem(ItemStack stack)
     {
         if (stack != null)
         {
@@ -155,25 +158,54 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
         }
     }
 
-    public void registerChangeBlock(int x, int y, int z)
+    @Override
+    public ChangeBlockInfo registerChangeBlock(int x, int y, int z)
     {
         ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z);
         this.changeBlockPosList.add(blockInfo);
+        return blockInfo;
+    }
+
+    @Override
+    public ChangeBlockInfo unregisterChangeBlock(int x, int y, int z)
+    {
+        for (ChangeBlockInfo pos : changeBlockPosList)
+            if (pos.x == x && pos.y == y && pos.z == z)
+            {
+                changeBlockPosList.remove(pos);
+                return pos;
+            }
+        return null;
     }
 
     /**
      * @param item The item being requested. Simply use something like: "new ItemStack(Items.item)
      * @return If there is an equal item in storage, that stack will be returned. Null otherwise.
      */
+    @Override
     public ItemStack requestItemFromStorage(ItemStack item)
     {
         if (item == null)
             return null;
-        for (ItemStack stack : storage)
+        for (ItemStack stack : getAllStorage())
             if (stack != null)
                 if (stack.isItemEqual(item))
                     return stack;
         return null;
+    }
+
+    @Override
+    public ItemStack requestToolFromStorage(String toolType)
+    {
+        for (ItemStack stack : getAllStorage())
+            if (stack.getItem().getToolClasses(stack).contains(toolType))
+                return stack;
+        return null;
+    }
+
+    public ItemStack[] getAllStorage()
+    {
+        return storage; // TODO: Get from containers as well
     }
 
     public boolean isReady()
@@ -186,6 +218,12 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
         if (this.currentMode == Mode.EDITING)
             this.setCurrentMode(Mode.READY);
         else this.setCurrentMode(Mode.EDITING);
+    }
+
+    @Override
+    public int getState()
+    {
+        return state;
     }
 
     public Mode getCurrentMode()
@@ -353,6 +391,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
                     return mode;
             return EDITING;
         }
+
     }
 
     @Override

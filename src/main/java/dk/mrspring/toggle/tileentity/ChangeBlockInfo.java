@@ -1,6 +1,9 @@
 package dk.mrspring.toggle.tileentity;
 
 import com.mojang.authlib.GameProfile;
+import dk.mrspring.toggle.ToggleRegistry;
+import dk.mrspring.toggle.api.IBlockToggleAction;
+import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -139,21 +142,21 @@ public class ChangeBlockInfo
         return overrideStates;
     }
 
-    public static class BlockToggleAction
+    public static class BlockToggleAction implements IBlockToggleAction
     {
         /**
-         * @param world                 World object
-         * @param x                     The X coordinate of the block to change
-         * @param y                     The Y coordinate of the block to change
-         * @param z                     The Z coordinate of the block to change
-         * @param direction             The direction the change block is configured with
-         * @param player                The player
-         * @param placing               The ItemStack to place, remember to reduce stack size! When null the block
-         *                              should simply be left as air.
-         * @param tileEntityToggleBlock The TileEntity of the toggle block
+         * @param world      World object
+         * @param x          The X coordinate of the block to change
+         * @param y          The Y coordinate of the block to change
+         * @param z          The Z coordinate of the block to change
+         * @param direction  The direction the change block is configured with
+         * @param player     The player
+         * @param placing    The ItemStack to place, remember to reduce stack size! When null the block
+         *                   should simply be left as air
+         * @param tileEntity The TileEntity of the toggle block
          */
-        public void performAction(World world, int x, int y, int z, int direction, EntityPlayer player,
-                                  ItemStack placing, TileEntityToggleBlock tileEntityToggleBlock)
+        public boolean performAction(World world, int x, int y, int z, int direction, EntityPlayer player,
+                                     ItemStack placing, IToggleController tileEntity)
         {
             int metadata = world.getBlockMetadata(x, y, z);
             List<ItemStack> drops = world.getBlock(x, y, z).getDrops(world, x, y, z, metadata, 0);
@@ -165,16 +168,33 @@ public class ChangeBlockInfo
                         iterator.remove();
             }
             ItemStack[] items = drops.toArray(new ItemStack[drops.size()]);
-            tileEntityToggleBlock.addItemStacksToStorage(items);
+            tileEntity.addItemStacksToStorage(items);
             world.setBlockToAir(x, y, z);
             if (placing != null)
             {
                 player.setItemInUse(placing, 0);
-                if (placing.tryPlaceItemIntoWorld(player, world, x, y, z, direction, 0, 0, 0))
+                if (placing.tryPlaceItemIntoWorld(player, world, x, y, z, 0, 0, 0, 0))
                 {
 //                    placing.stackSize--;
-                } // TODO: Use how if seeds etc.
+                    // TODO: Use how if seeds etc.
+                } else
+                {
+                    List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
+                    for (IBlockToggleAction action : actions)
+                    {
+                        if (action.useWithItem(world, x, y, z, placing, tileEntity))
+                            if (action.performAction(world, x, y, z, direction, player, placing, tileEntity)) break;
+                    }
+                }
             }
+
+            return true;
+        }
+
+        @Override
+        public boolean useWithItem(World world, int x, int y, int z, ItemStack placing, IToggleController tileEntity)
+        {
+            return true;
         }
     }
 
