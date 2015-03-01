@@ -1,9 +1,15 @@
 package dk.mrspring.toggle.tileentity;
 
+import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
 import java.util.ArrayList;
@@ -18,7 +24,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
     int state = OFF;
     Mode currentMode = Mode.EDITING;
     List<ChangeBlockInfo> changeBlockPosList = new ArrayList<ChangeBlockInfo>();
-    // on is 0, off is 1
+    // on is 1, off is 0
     ItemStack[] states = new ItemStack[2];
     ItemStack[] storage = new ItemStack[9];
     ChangeBlockInfo.FakePlayer fakePlayer;
@@ -36,20 +42,6 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
             this.setupFakePlayer();
         return this.fakePlayer;
     }
-
-    /*public void updateSignal()
-    {
-        System.out.println("Updating");
-        if (worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord))
-        {
-            System.out.println("Setting on!");
-            this.setState(ON);
-        } else
-        {
-            System.out.println("Setting off");
-            this.setState(OFF);
-        }
-    }*/
 
     @Override
     public void updateEntity()
@@ -85,29 +77,18 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
 
     public void updateChangeBlocks()
     {
-//        if (this.isReady())
-//        {
-//        System.out.println("this.getStackInSlot(this.state).getDisplayName() = " + this.getStackInSlot(this.state).getDisplayName());
         ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
+        if (this.getCurrentMode() == Mode.EDITING)
+            placing = new ItemStack(BlockBase.change_block, 200); // TODO: Set metadata for custom blocks and stuff, stack size should be max number of change blocks
         for (ChangeBlockInfo pos : this.changeBlockPosList)
         {
-//            System.out.println("Doing it! " + placing.getDisplayName() + ", " + placing.stackSize);
-            System.out.println("state = " + state);
             ChangeBlockInfo.BlockToggleAction action;
             if (this.state == ON)
                 action = pos.getOnAction();
             else action = pos.getOffAction();
             if (action != null)
-            {
-//                ItemStack[] result =
                 action.performAction(worldObj, pos.x, pos.y, pos.z, 0, getFakePlayer(), placing, this);
-                if (placing != null)
-                    if (placing.stackSize == 0)
-                        placing = null;
-//                this.addItemStacksToStorage(result);
-            }
         }
-//        } // TODO: If not then set change blocks, ready for configuring
     }
 
     public void addItemStacksToStorage(ItemStack[] stacks)
@@ -115,8 +96,6 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
         if (stacks != null)
             for (ItemStack stack : stacks)
             {
-                if (stack != null)
-                    System.out.println("stack.getDisplayName() = " + stack.getDisplayName() + ", stack.stackSize = " + stack.stackSize);
                 ItemStack remainder = this.addItemStackToStorage(stack);
                 if (remainder != null)
                     this.dropItem(remainder);
@@ -186,6 +165,120 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
         return this.currentMode == Mode.READY;
     }
 
+    public void toggleMode()
+    {
+        if (this.currentMode == Mode.EDITING)
+            this.setCurrentMode(Mode.READY);
+        else this.setCurrentMode(Mode.EDITING);
+    }
+
+    public Mode getCurrentMode()
+    {
+        return currentMode;
+    }
+
+    public void setCurrentMode(Mode currentMode)
+    {
+        this.currentMode = currentMode;
+        this.updateChangeBlocks();
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound compound) // TODO: Clean up
+    {
+        super.writeToNBT(compound);
+
+        NBTTagList changeBlockList = new NBTTagList();
+        for (ChangeBlockInfo info : this.changeBlockPosList)
+            if (info != null)
+            {
+                NBTTagCompound changeBlockCompound = new NBTTagCompound();
+                info.writeToNBT(changeBlockCompound);
+                changeBlockList.appendTag(changeBlockCompound);
+            }
+
+        compound.setTag("ChangeBlocks", changeBlockList);
+        compound.setInteger("State", this.state);
+        compound.setString("Mode", this.getCurrentMode().name());
+
+        NBTTagList storageList = new NBTTagList();
+
+        for (int i = 0; i < this.storage.length; ++i)
+        {
+            if (this.storage[i] != null)
+            {
+                NBTTagCompound storageCompound = new NBTTagCompound();
+                storageCompound.setByte("Slot", (byte) i);
+                this.storage[i].writeToNBT(storageCompound);
+                storageList.appendTag(storageCompound);
+            }
+        }
+
+        compound.setTag("Storage", storageList);
+
+        if (this.states[1] != null)
+        {
+            NBTTagCompound onCompound = new NBTTagCompound();
+            this.states[1].writeToNBT(onCompound);
+            compound.setTag("OnState", onCompound);
+        }
+
+        if (this.states[0] != null)
+        {
+            NBTTagCompound offCompound = new NBTTagCompound();
+            this.states[0].writeToNBT(offCompound);
+            compound.setTag("OffState", offCompound);
+        }
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound compound) // TODO: Clean up
+    {
+        super.readFromNBT(compound);
+
+        NBTTagList changeBlockList = compound.getTagList("ChangeBlocks", 10);
+        this.changeBlockPosList = new ArrayList<ChangeBlockInfo>();
+        for (int i = 0; i < changeBlockList.tagCount(); i++)
+        {
+            NBTTagCompound changeBlockCompound = changeBlockList.getCompoundTagAt(i);
+            ChangeBlockInfo info = new ChangeBlockInfo(changeBlockCompound);
+            this.changeBlockPosList.add(info);
+        }
+
+        this.state = compound.getInteger("State");
+        this.currentMode = Mode.valueOf(compound.getString("Mode"));
+
+        NBTTagList storageList = compound.getTagList("Storage", 10);
+        this.storage = new ItemStack[9];
+
+        for (int i = 0; i < storageList.tagCount(); i++)
+        {
+            NBTTagCompound itemCompound = storageList.getCompoundTagAt(i);
+            ItemStack fromCompound = ItemStack.loadItemStackFromNBT(itemCompound);
+            this.storage[itemCompound.getByte("Slot")] = fromCompound;
+        }
+
+        this.states = new ItemStack[2];
+        ItemStack tempStack = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("OnState"));
+        this.states[1] = tempStack;
+        tempStack = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("OffState"));
+        this.states[0] = tempStack;
+    }
+
+    @Override
+    public Packet getDescriptionPacket()
+    {
+        NBTTagCompound compound = new NBTTagCompound();
+        this.writeToNBT(compound);
+        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 2, compound);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    {
+        this.readFromNBT(pkt.func_148857_g());
+    }
+
     public class StorageItem
     {
         public ItemStack itemStack;
@@ -200,7 +293,27 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
 
     public enum Mode
     {
-        READY, EDITING
+        READY(0), EDITING(1);
+
+        int id;
+
+        private Mode(int id)
+        {
+            this.id = id;
+        }
+
+        public int getId()
+        {
+            return this.id;
+        }
+
+        public static Mode fromInt(int id)
+        {
+            for (Mode mode : values())
+                if (mode.getId() == id)
+                    return mode;
+            return EDITING;
+        }
     }
 
     @Override
@@ -212,7 +325,6 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-//        System.out.println("slot = " + slot);
         if (slot < 2)
             return states[slot];
         else return storage[slot - 2];

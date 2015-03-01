@@ -18,18 +18,25 @@ public class ContainerToggleBlock extends Container
     {
         this.tileEntity = tileEntityToggleBlock;
 
-        addSlotToContainer(new SingleItemSlot(this.tileEntity, 0, 5, 2));
-        addSlotToContainer(new SingleItemSlot(this.tileEntity, 1, 5, 22));
+        addSlotToContainer(new SingleItemSlot(this.tileEntity, 0, 8, 17));
+        addSlotToContainer(new SingleItemSlot(this.tileEntity, 1, 8, 39));
+
+        int x = 98, y=8;
 
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                addSlotToContainer(new Slot(this.tileEntity, 2 + j + i * 3, 62 + j * 18, 17 + i * 18));
+                addSlotToContainer(new Slot(this.tileEntity, 2 + j + i * 3, x + j * 18, y + i * 18));
             }
         }
 
         bindPlayerInventory(inventoryPlayer);
+    }
+
+    public TileEntityToggleBlock getTileEntity()
+    {
+        return this.tileEntity;
     }
 
     public class SingleItemSlot extends Slot

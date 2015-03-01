@@ -1,6 +1,7 @@
 package dk.mrspring.toggle.tileentity;
 
 import com.mojang.authlib.GameProfile;
+import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,6 +9,7 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +28,13 @@ public class ChangeBlockInfo
         this.z = z;
         this.setOnAction(new BlockToggleAction());
         this.setOffAction(new BlockToggleAction());
+    }
+
+    public ChangeBlockInfo(NBTTagCompound compound)
+    {
+        this.setOnAction(new BlockToggleAction());
+        this.setOffAction(new BlockToggleAction());
+        this.readFromNBT(compound);
     }
 
     public ChangeBlockInfo setOnAction(BlockToggleAction on)
@@ -57,6 +66,13 @@ public class ChangeBlockInfo
         compound.setInteger("Y", z);
     }
 
+    public void readFromNBT(NBTTagCompound compound)
+    {
+        this.x = compound.getInteger("X");
+        this.y = compound.getInteger("Y");
+        this.z = compound.getInteger("Z");
+    }
+
     public class BlockToggleAction
     {
         /**
@@ -71,13 +87,19 @@ public class ChangeBlockInfo
          * @param tileEntityToggleBlock The TileEntity of the toggle block
          */
         public void performAction(World world, int x, int y, int z, int direction, EntityPlayer player,
-                                         ItemStack placing, TileEntityToggleBlock tileEntityToggleBlock)
+                                  ItemStack placing, TileEntityToggleBlock tileEntityToggleBlock)
         {
             int metadata = world.getBlockMetadata(x, y, z);
             List<ItemStack> drops = world.getBlock(x, y, z).getDrops(world, x, y, z, metadata, 0);
+            for (Iterator<ItemStack> iterator = drops.iterator(); iterator.hasNext(); )
+            {
+                ItemStack stack = iterator.next();
+                if (stack != null)
+                    if (stack.isItemEqual(new ItemStack(BlockBase.change_block)))
+                        iterator.remove();
+            }
             ItemStack[] items = drops.toArray(new ItemStack[drops.size()]);
             tileEntityToggleBlock.addItemStacksToStorage(items);
-            System.out.println("drops.size() = " + drops.size());
             world.setBlockToAir(x, y, z);
             if (placing != null)
             {
