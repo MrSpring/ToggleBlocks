@@ -16,7 +16,7 @@ public class BlockBase
     public static void registerBlocks()
     {
         GameRegistry.registerBlock(toggle_block, "toggle_block");
-        GameRegistry.registerBlock(change_block, "change_block");
+        GameRegistry.registerBlock(change_block, ItemBlockChangeBlock.class, "change_block");
         GameRegistry.registerTileEntity(TileEntityToggleBlock.class, "tileEntityToggleBlock");
         GameRegistry.registerTileEntity(TileEntityChangeBlock.class, "tileEntityChangeBlock");
     }

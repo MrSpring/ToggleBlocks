@@ -181,6 +181,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
     {
         this.currentMode = currentMode;
         this.updateChangeBlocks();
+        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     }
 
     @Override
