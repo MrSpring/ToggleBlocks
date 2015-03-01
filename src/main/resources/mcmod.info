@@ -1,14 +1,14 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "tb",
+  "name": "Toggle Blocks",
+  "description": "An updated version of TheApathetic's mod Toggle Blocks.",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
+  "url": "http://mrspring.dk/beta2/mods/tb",
+  "updateUrl": "http://bdl.mrspring.dk?r&m=tb&v=l",
+  "authorList": ["MrSpring", "TheApathetic"],
+  "credits": "Original concept by TheApathetic, updated by MrSpring",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
