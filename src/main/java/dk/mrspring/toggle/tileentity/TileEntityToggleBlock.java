@@ -25,7 +25,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
     Mode currentMode = Mode.EDITING;
     List<ChangeBlockInfo> changeBlockPosList = new ArrayList<ChangeBlockInfo>();
     // on is 1, off is 0
-    ItemStack[] states = new ItemStack[2];
+    ItemStack[] states = new ItemStack[2]; // TODO: More states?
     ItemStack[] storage = new ItemStack[9];
     ChangeBlockInfo.FakePlayer fakePlayer;
     private static final int ON = 1;
@@ -77,17 +77,33 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
 
     public void updateChangeBlocks()
     {
-        ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
-        if (this.getCurrentMode() == Mode.EDITING)
-            placing = new ItemStack(BlockBase.change_block, 200); // TODO: Set metadata for custom blocks and stuff, stack size should be max number of change blocks
+//        if (this.getCurrentMode() == Mode.EDITING)
+//            placing = new ItemStack(BlockBase.change_block, 200); // TODO: Set metadata for custom blocks and stuff, stack size should be max number of change blocks
         for (ChangeBlockInfo pos : this.changeBlockPosList)
         {
+            ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
+            if (pos.overridesState(this.state))
+            {
+                ItemStack override = pos.getOverrideForState(this.state);
+                placing = requestItemFromStorage(override);
+            }
             ChangeBlockInfo.BlockToggleAction action;
-            if (this.state == ON)
-                action = pos.getOnAction();
-            else action = pos.getOffAction();
+            action = pos.getAction(this.state);
             if (action != null)
                 action.performAction(worldObj, pos.x, pos.y, pos.z, 0, getFakePlayer(), placing, this);
+        }
+    }
+
+    public void placeChangeBlocks()
+    {
+        for (ChangeBlockInfo pos : this.changeBlockPosList)
+        {
+            ChangeBlockInfo.BlockToggleAction action = new ChangeBlockInfo.BlockToggleAction();
+            int x = pos.x, y = pos.y, z = pos.z;
+            action.performAction(worldObj, x, y, z, 0, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
+//            worldObj.addTileEntity(new TileEntityChangeBlock(x, y, z, pos));
+            TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
+            tileEntity.loadFromBlockInfo(pos);
         }
     }
 
@@ -180,8 +196,30 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory
     public void setCurrentMode(Mode currentMode)
     {
         this.currentMode = currentMode;
-        this.updateChangeBlocks();
+        if (currentMode == Mode.READY)
+        {
+            this.collectChangeBlockInfo();
+            this.updateChangeBlocks();
+        } else this.placeChangeBlocks();
         worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+    }
+
+    public void collectChangeBlockInfo()
+    {
+        for (ChangeBlockInfo info : changeBlockPosList)
+        {
+            int x = info.x, y = info.y, z = info.z;
+            if (worldObj.getTileEntity(x, y, z) instanceof TileEntityChangeBlock)
+            {
+                TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
+                ChangeBlockInfo newInfo = tileEntity.getBlockInfo();
+                System.out.println("FOunttie");
+                System.out.println("newInfo.getOverrides()[0] = " + newInfo.getOverrides()[0]);
+                System.out.println("newInfo.getOverrides()[1] = " + newInfo.getOverrides()[1]);
+                info.setOverride(newInfo.getOverrides());
+                info.setOverrideStates(newInfo.getOverrideStates());
+            }
+        }
     }
 
     @Override

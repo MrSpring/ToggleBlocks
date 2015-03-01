@@ -5,6 +5,7 @@ import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
@@ -20,6 +21,8 @@ public class ChangeBlockInfo
 {
     public int x, y, z;
     BlockToggleAction on, off;
+    boolean[] override;
+    ItemStack[] overrideStates;
 
     public ChangeBlockInfo(int x, int y, int z)
     {
@@ -28,6 +31,18 @@ public class ChangeBlockInfo
         this.z = z;
         this.setOnAction(new BlockToggleAction());
         this.setOffAction(new BlockToggleAction());
+        this.override = new boolean[]{false, false};
+        this.overrideStates = new ItemStack[override.length];
+    }
+
+    public void setOverride(boolean[] override)
+    {
+        this.override = override;
+    }
+
+    public void setOverrideStates(ItemStack[] overrideStates)
+    {
+        this.overrideStates = overrideStates;
     }
 
     public ChangeBlockInfo(NBTTagCompound compound)
@@ -49,14 +64,11 @@ public class ChangeBlockInfo
         return this;
     }
 
-    public BlockToggleAction getOnAction()
+    public BlockToggleAction getAction(int state)
     {
-        return on;
-    }
-
-    public BlockToggleAction getOffAction()
-    {
-        return off;
+        if (state == 1)
+            return on;
+        else return off;
     }
 
     public void writeToNBT(NBTTagCompound compound)
@@ -64,6 +76,19 @@ public class ChangeBlockInfo
         compound.setInteger("X", x);
         compound.setInteger("Z", y);
         compound.setInteger("Y", z);
+        NBTTagList overrideList = new NBTTagList();
+        for (int i = 0; i < override.length; i++)
+        {
+            boolean overrides = override[i];
+            ItemStack overridesWith = getOverrideForState(i);
+            NBTTagCompound stateCompound = new NBTTagCompound();
+            stateCompound.setInteger("State", i);
+            stateCompound.setBoolean("Overrides", overrides);
+            if (overrides && overridesWith != null)
+                overridesWith.writeToNBT(stateCompound);
+            overrideList.appendTag(stateCompound);
+        }
+        compound.setTag("OverrideList", overrideList);
     }
 
     public void readFromNBT(NBTTagCompound compound)
@@ -71,9 +96,50 @@ public class ChangeBlockInfo
         this.x = compound.getInteger("X");
         this.y = compound.getInteger("Y");
         this.z = compound.getInteger("Z");
+        NBTTagList overrideList = compound.getTagList("OverrideList", 10);
+        if (overrideList.tagCount() > 0)
+        {
+            this.override = new boolean[overrideList.tagCount()];
+            this.overrideStates = new ItemStack[this.override.length];
+            for (int i = 0; i < overrideList.tagCount(); i++)
+            {
+                NBTTagCompound stateCompound = overrideList.getCompoundTagAt(i);
+                if (stateCompound != null)
+                {
+                    int state = stateCompound.getInteger("State");
+                    boolean overrides = stateCompound.getBoolean("Overrides");
+                    ItemStack stack = ItemStack.loadItemStackFromNBT(stateCompound);
+
+                    this.override[state] = overrides;
+                    overrideStates[state] = stack;
+                }
+            }
+        }
     }
 
-    public class BlockToggleAction
+    public boolean overridesState(int state)
+    {
+        if (state >= 0 && state < this.override.length)
+            return this.override[state];
+        else return false;
+    }
+
+    public ItemStack getOverrideForState(int state)
+    {
+        return this.overrideStates[state];
+    }
+
+    public boolean[] getOverrides()
+    {
+        return override;
+    }
+
+    public ItemStack[] getOverrideStates()
+    {
+        return overrideStates;
+    }
+
+    public static class BlockToggleAction
     {
         /**
          * @param world                 World object

@@ -39,20 +39,6 @@ public class ContainerToggleBlock extends Container
         return this.tileEntity;
     }
 
-    public class SingleItemSlot extends Slot
-    {
-        public SingleItemSlot(IInventory p_i1824_1_, int p_i1824_2_, int p_i1824_3_, int p_i1824_4_)
-        {
-            super(p_i1824_1_, p_i1824_2_, p_i1824_3_, p_i1824_4_);
-        }
-
-        @Override
-        public int getSlotStackLimit()
-        {
-            return 0;
-        }
-    }
-
     private void bindPlayerInventory(InventoryPlayer inventoryPlayer)
     {
         for (int i = 0; i < 3; i++)

@@ -77,10 +77,4 @@ public class BlockToggleBlock extends BlockContainer
     {
         return new TileEntityToggleBlock();
     }
-
-    @Override
-    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
-    {
-        return super.getDrops(world, x, y, z, metadata, fortune);
-    }
 }
