@@ -33,12 +33,11 @@ public interface IBlockToggleAction
      * @param placing    The ItemStack to place, remember to reduce stack size! When null the block should simply
      *                   be left as air
      * @param controller The TileEntity of the toggle block
-     * @return Returns true if the action was performed successfully, false if not.
      */
-    public boolean performAction(World world, int x, int y, int z, ForgeDirection direction, EntityPlayer player,
-                                 ItemStack placing, IToggleController controller);
+    public void placeBlock(World world, int x, int y, int z, ForgeDirection direction, EntityPlayer player,
+                              ItemStack placing, IToggleController controller);
 
-    public boolean canPerformAction(World world, int x, int y, int z, ItemStack placing, IToggleController controller);
+    public boolean canPlaceBlock(World world, int x, int y, int z, ItemStack placing, IToggleController controller);
 
     public boolean canHarvestBlock(World world, int x, int y, int z, IToggleController controller);
 }

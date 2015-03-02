@@ -16,6 +16,8 @@ public interface IToggleController
 
     public ItemStack requestToolFromStorage(String toolType);
 
+    public boolean removeItemFromStorage(ItemStack stack);
+
     public void dropItem(ItemStack stack);
 
     public ChangeBlockInfo registerChangeBlock(int x, int y, int z);

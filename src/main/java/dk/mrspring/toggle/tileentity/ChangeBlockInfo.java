@@ -82,14 +82,14 @@ public class ChangeBlockInfo
         boolean placed = false;
         if (placing != null)
             for (IBlockToggleAction action : actions)
-                if (action.canPerformAction(world, x, y, z, placing, controller))
+                if (action.canPlaceBlock(world, x, y, z, placing, controller))
                 {
-                    action.performAction(world, x, y, z, getDirection(), player, placing, controller);
+                    action.placeBlock(world, x, y, z, getDirection(), player, placing, controller);
                     placed = true;
                     break;
                 }
         if (!placed)
-            FALLBACK_ACTION.performAction(world, x, y, z, getDirection(), player, placing, controller);
+            FALLBACK_ACTION.placeBlock(world, x, y, z, getDirection(), player, placing, controller);
     }
 
     public void replaceWithChangeBlock(World world, IToggleController controller)

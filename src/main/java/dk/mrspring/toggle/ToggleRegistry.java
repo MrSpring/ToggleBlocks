@@ -2,6 +2,7 @@ package dk.mrspring.toggle;
 
 import dk.mrspring.toggle.api.IBlockToggleAction;
 import dk.mrspring.toggle.api.IBlockToggleRegistry;
+import dk.mrspring.toggle.comp.vanilla.BucketToggleAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +21,12 @@ public class ToggleRegistry implements IBlockToggleRegistry
 
     static void registerVanilla()
     {
+        instance.registerToggleAction(new BucketToggleAction());
+
 //        instance.registerToggleAction(new IBlockToggleAction()
 //        {
 //            @Override
-//            public boolean performAction(World world, int x, int y, int z, int direction, EntityPlayer player,
+//            public boolean placeBlock(World world, int x, int y, int z, int direction, EntityPlayer player,
 //                                         ItemStack placing, IToggleController tileEntityToggleBlock)
 //            {
 //                world.setBlock(x, y - 1, z, Blocks.farmland);
@@ -37,7 +40,7 @@ public class ToggleRegistry implements IBlockToggleRegistry
 //            }
 //
 //            @Override
-//            public boolean canPerformAction(World world, int x, int y, int z, ItemStack placing,
+//            public boolean canPlaceBlock(World world, int x, int y, int z, ItemStack placing,
 //                                       IToggleController tileEntity)
 //            {
 //                return (world.getBlock(x, y - 1, z) == Blocks.dirt || world.getBlock(x, y - 1, z) == Blocks.grass) &&

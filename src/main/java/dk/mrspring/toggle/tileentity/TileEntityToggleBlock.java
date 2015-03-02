@@ -91,7 +91,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 //                ChangeBlockInfo.BasicBlockToggleAction action;
 //                action = pos.getAction(this.state);
 //                if (action != null)
-//                    action.performAction(worldObj, pos.x, pos.y, pos.z, pos.getDirection(), getFakePlayer(), placing, this);
+//                    action.placeBlock(worldObj, pos.x, pos.y, pos.z, pos.getDirection(), getFakePlayer(), placing, this);
             }
     }
 
@@ -102,7 +102,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             pos.replaceWithChangeBlock(worldObj, this);
 //            ChangeBlockInfo.BasicBlockToggleAction action = new ChangeBlockInfo.BasicBlockToggleAction();
 //            int x = pos.x, y = pos.y, z = pos.z;
-//            action.performAction(worldObj, x, y, z, ForgeDirection.UP, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
+//            action.placeBlock(worldObj, x, y, z, ForgeDirection.UP, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
 //            worldObj.addTileEntity(new TileEntityChangeBlock(x, y, z, pos));
 //            TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
 //            tileEntity.loadFromBlockInfo(pos);
@@ -119,6 +119,21 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
                 if (remainder != null)
                     this.dropItem(remainder);
             }
+    }
+
+    @Override
+    public boolean removeItemFromStorage(ItemStack toRemove)
+    {
+        for (int i = 0; i < storage.length; i++)
+        {
+            ItemStack stack = storage[i];
+            if (ItemStack.areItemStacksEqual(stack, toRemove))
+            {
+                storage[i] = null;
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

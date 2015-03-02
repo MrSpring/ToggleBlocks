@@ -1,6 +1,5 @@
 package dk.mrspring.toggle.tileentity;
 
-import dk.mrspring.toggle.ToggleRegistry;
 import dk.mrspring.toggle.api.IBlockToggleAction;
 import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.block.BlockBase;
@@ -54,30 +53,20 @@ public class BasicBlockToggleAction implements IBlockToggleAction
     }
 
     @Override
-    public boolean performAction(World world, int x, int y, int z, ForgeDirection direction, EntityPlayer player,
-                                 ItemStack placing, IToggleController tileEntity)
+    public void placeBlock(World world, int x, int y, int z, ForgeDirection direction, EntityPlayer player,
+                           ItemStack placing, IToggleController tileEntity)
     {
         if (placing != null)
         {
             player.setItemInUse(placing, 0);
             int[] placingPos = translateForDirection(direction, x, y, z);
-            if (!placing.tryPlaceItemIntoWorld(player, world, placingPos[0], placingPos[1], placingPos[2],
-                    direction.getOpposite().ordinal(), 0, 0, 0))
-            {
-                List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
-                for (IBlockToggleAction action : actions)
-                {
-                    if (action.canPerformAction(world, x, y, z, placing, tileEntity))
-                        if (action.performAction(world, x, y, z, direction, player, placing, tileEntity)) break;
-                }
-            }
+            placing.tryPlaceItemIntoWorld(player, world, placingPos[0], placingPos[1], placingPos[2],
+                    direction.getOpposite().ordinal(), 0, 0, 0);
         }
-
-        return true;
     }
 
     @Override
-    public boolean canPerformAction(World world, int x, int y, int z, ItemStack placing, IToggleController tileEntity)
+    public boolean canPlaceBlock(World world, int x, int y, int z, ItemStack placing, IToggleController tileEntity)
     {
         return true;
     }
