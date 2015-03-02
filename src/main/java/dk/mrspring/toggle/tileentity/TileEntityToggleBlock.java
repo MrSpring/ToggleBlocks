@@ -52,10 +52,11 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         if (newState != this.state)
             this.setState(newState);
 
-        this.checkStorage();
+        this.validateStorage();
     }
 
-    public void checkStorage()
+    @Override
+    public void validateStorage()
     {
         for (int i = 0; i < storage.length; i++)
         {
@@ -99,7 +100,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     {
         for (ChangeBlockInfo pos : this.changeBlockPosList)
         {
-            pos.replaceWithChangeBlock(worldObj, this);
+            pos.replaceWithChangeBlock(worldObj, getFakePlayer(), this);
 //            ChangeBlockInfo.BasicBlockToggleAction action = new ChangeBlockInfo.BasicBlockToggleAction();
 //            int x = pos.x, y = pos.y, z = pos.z;
 //            action.placeBlock(worldObj, x, y, z, ForgeDirection.UP, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
@@ -142,18 +143,19 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         for (int i = 0; i < storage.length; i++)
         {
             ItemStack inStorage = storage[i];
+            int maxStackSize = stack.getMaxStackSize();
             if (inStorage == null)
             {
                 storage[i] = stack;
                 return null;
-            } else if (stack.isItemEqual(inStorage) && inStorage.stackSize < 64)
+            } else if (stack.isItemEqual(inStorage) && inStorage.stackSize < maxStackSize)
             {
                 inStorage.stackSize += stack.stackSize;
-                if (inStorage.stackSize > 64)
+                if (inStorage.stackSize > maxStackSize)
                 {
                     ItemStack remainder = stack.copy();
-                    remainder.stackSize = inStorage.stackSize - 64;
-                    inStorage.stackSize = 64;
+                    remainder.stackSize = inStorage.stackSize - maxStackSize;
+                    inStorage.stackSize = maxStackSize;
                     return this.addItemStackToStorage(remainder);
                 } else return null;
             }
@@ -257,7 +259,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             this.collectChangeBlockInfo();
             this.updateChangeBlocks();
         } else this.placeChangeBlocks();
-        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+//        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     }
 
     public void collectChangeBlockInfo()

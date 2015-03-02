@@ -10,6 +10,8 @@ public interface IToggleController
 {
     public void addItemStacksToStorage(ItemStack[] stacks);
 
+    public void validateStorage();
+
     public ItemStack addItemStackToStorage(ItemStack stack);
 
     public ItemStack requestItemFromStorage(ItemStack item);

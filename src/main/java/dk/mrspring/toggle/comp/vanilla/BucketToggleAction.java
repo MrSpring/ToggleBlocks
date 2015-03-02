@@ -3,27 +3,42 @@ package dk.mrspring.toggle.comp.vanilla;
 import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.tileentity.BasicBlockToggleAction;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 
 /**
  * Created by MrSpring on 02-03-2015 for ToggleBlocks.
  */
-public class BucketToggleAction extends BasicBlockToggleAction
+public class BucketToggleAction extends BasicBlockToggleAction // TODO: FML Fluid support
 {
     @Override
     public ItemStack[] harvestBlock(World world, int x, int y, int z, EntityPlayer player, IToggleController controller)
     {
-        ItemStack
+        System.out.println("Harvesting");
+        ItemStack emptyBucket = controller.requestItemFromStorage(new ItemStack(Items.bucket));
+        if (emptyBucket != null)
+        {
+            Block block = world.getBlock(x, y, z);
+            if (block != null && (block == Blocks.water || block == Blocks.lava))
+            {
+                emptyBucket.stackSize--;
+                ItemStack filledBucket;
+                if (block == Blocks.water)
+                    filledBucket = new ItemStack(Items.water_bucket);
+                else filledBucket = new ItemStack(Items.lava_bucket);
+                world.setBlockToAir(x, y, z);
+                System.out.println("Returning");
+                return new ItemStack[]{filledBucket};
+            }
+            System.out.println("Block was null or not water/lava");
+        }
+        System.out.println("Bucket stack was null");
+        return null;
         /*Block block = world.getBlock(x, y, z);
         Fluid fromBlock = FluidRegistry.lookupFluidForBlock(block);
         if (fromBlock == null)
@@ -72,7 +87,12 @@ public class BucketToggleAction extends BasicBlockToggleAction
 //            }
 //        }
 
-        ((ItemBucket) placing.getItem()).tryPlaceContainedLiquid(world, x, y, z);
+        if (((ItemBucket) placing.getItem()).tryPlaceContainedLiquid(world, x, y, z))
+        {
+            placing.stackSize--;
+            controller.validateStorage();
+            controller.addItemStackToStorage(new ItemStack(Items.bucket));
+        }
     }
 
     @Override
@@ -86,7 +106,7 @@ public class BucketToggleAction extends BasicBlockToggleAction
     public boolean canHarvestBlock(World world, int x, int y, int z, IToggleController controller)
     {
         Block block = world.getBlock(x, y, z);
-        return block != null && block instanceof BlockLiquid;
+        return block != null && (block == Blocks.water || block == Blocks.lava);
 
         /*Block block = world.getBlock(x, y, z);
         if (block == null)

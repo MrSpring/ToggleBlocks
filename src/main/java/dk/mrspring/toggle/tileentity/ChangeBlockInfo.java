@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import dk.mrspring.toggle.ToggleRegistry;
 import dk.mrspring.toggle.api.IBlockToggleAction;
 import dk.mrspring.toggle.api.IToggleController;
+import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -55,23 +56,9 @@ public class ChangeBlockInfo
     public void doAction(World world, int state, EntityPlayer player, ItemStack defaultPlacing,
                          IToggleController controller)
     {
-        boolean harvested = false;
-        List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
-        for (IBlockToggleAction action : actions)
-        {
-            if (action.canHarvestBlock(world, x, y, z, controller))
-            {
-                ItemStack[] fromBlock = action.harvestBlock(world, x, y, z, player, controller);
-                controller.addItemStacksToStorage(fromBlock);
-                harvested = true;
-                break;
-            }
-        }
-        if (!harvested)
-        {
-            ItemStack[] fromBlock = FALLBACK_ACTION.harvestBlock(world, x, y, z, player, controller);
-            controller.addItemStacksToStorage(fromBlock);
-        }
+        ItemStack[] harvested = this.harvest(world, player, controller);
+        if (harvested != null)
+            controller.addItemStacksToStorage(harvested);
 
         ItemStack placing = controller.requestItemFromStorage(defaultPlacing);
         if (overridesState(state))
@@ -79,6 +66,13 @@ public class ChangeBlockInfo
             ItemStack overrider = getOverrideForState(state);
             placing = controller.requestItemFromStorage(overrider);
         }
+
+        this.place(world, player, placing, controller);
+    }
+
+    private void place(World world, EntityPlayer player, ItemStack placing, IToggleController controller)
+    {
+        List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
         boolean placed = false;
         if (placing != null)
             for (IBlockToggleAction action : actions)
@@ -92,9 +86,24 @@ public class ChangeBlockInfo
             FALLBACK_ACTION.placeBlock(world, x, y, z, getDirection(), player, placing, controller);
     }
 
-    public void replaceWithChangeBlock(World world, IToggleController controller)
+    private ItemStack[] harvest(World world, EntityPlayer player, IToggleController controller)
     {
+        List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
+        for (IBlockToggleAction action : actions)
+        {
+            if (action.canHarvestBlock(world, x, y, z, controller))
+            {
+                return action.harvestBlock(world, x, y, z, player, controller);
+            }
+        }
+        return FALLBACK_ACTION.harvestBlock(world, x, y, z, player, controller);
+    }
 
+    public void replaceWithChangeBlock(World world, EntityPlayer player, IToggleController controller)
+    {
+        controller.addItemStacksToStorage(this.harvest(world, player, controller));
+        world.setBlock(x, y, z, BlockBase.change_block);
+        world.setTileEntity(x, y, z, new TileEntityChangeBlock(x, y, z, this));
     }
 
     /*public BlockToggleAction getAction(int state)
