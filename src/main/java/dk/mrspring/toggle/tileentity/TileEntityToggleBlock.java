@@ -1,7 +1,6 @@
 package dk.mrspring.toggle.tileentity;
 
 import dk.mrspring.toggle.api.IToggleController;
-import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -81,16 +80,18 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         if (this.isReady())
             for (ChangeBlockInfo pos : this.changeBlockPosList)
             {
-                ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
-                if (pos.overridesState(this.state))
-                {
-                    ItemStack override = pos.getOverrideForState(this.state);
-                    placing = requestItemFromStorage(override);
-                }
-                ChangeBlockInfo.BlockToggleAction action;
-                action = pos.getAction(this.state);
-                if (action != null)
-                    action.performAction(worldObj, pos.x, pos.y, pos.z, 0, getFakePlayer(), placing, this);
+                ItemStack stateStack = states[getState()];
+                pos.doAction(worldObj, getState(), getFakePlayer(), stateStack, this);
+//                ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
+//                if (pos.overridesState(this.state))
+//                {
+//                    ItemStack override = pos.getOverrideForState(this.state);
+//                    placing = requestItemFromStorage(override);
+//                }
+//                ChangeBlockInfo.BasicBlockToggleAction action;
+//                action = pos.getAction(this.state);
+//                if (action != null)
+//                    action.performAction(worldObj, pos.x, pos.y, pos.z, pos.getDirection(), getFakePlayer(), placing, this);
             }
     }
 
@@ -98,12 +99,13 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     {
         for (ChangeBlockInfo pos : this.changeBlockPosList)
         {
-            ChangeBlockInfo.BlockToggleAction action = new ChangeBlockInfo.BlockToggleAction();
-            int x = pos.x, y = pos.y, z = pos.z;
-            action.performAction(worldObj, x, y, z, 0, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
+            pos.replaceWithChangeBlock(worldObj, this);
+//            ChangeBlockInfo.BasicBlockToggleAction action = new ChangeBlockInfo.BasicBlockToggleAction();
+//            int x = pos.x, y = pos.y, z = pos.z;
+//            action.performAction(worldObj, x, y, z, ForgeDirection.UP, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
 //            worldObj.addTileEntity(new TileEntityChangeBlock(x, y, z, pos));
-            TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
-            tileEntity.loadFromBlockInfo(pos);
+//            TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
+//            tileEntity.loadFromBlockInfo(pos);
         }
     }
 
@@ -161,6 +163,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     @Override
     public ChangeBlockInfo registerChangeBlock(int x, int y, int z)
     {
+        System.out.println("Registering change block: " + x + ", " + y + ", " + z);
         ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z);
         this.changeBlockPosList.add(blockInfo);
         return blockInfo;

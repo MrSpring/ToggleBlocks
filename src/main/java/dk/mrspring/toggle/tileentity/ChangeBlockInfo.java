@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import dk.mrspring.toggle.ToggleRegistry;
 import dk.mrspring.toggle.api.IBlockToggleAction;
 import dk.mrspring.toggle.api.IToggleController;
-import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,8 +11,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,18 +21,18 @@ import java.util.UUID;
  */
 public class ChangeBlockInfo
 {
+    public static final IBlockToggleAction FALLBACK_ACTION = new BasicBlockToggleAction();
+
     public int x, y, z;
-    BlockToggleAction on, off;
     boolean[] override;
     ItemStack[] overrideStates;
+    ForgeDirection direction = ForgeDirection.DOWN;
 
     public ChangeBlockInfo(int x, int y, int z)
     {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.setOnAction(new BlockToggleAction());
-        this.setOffAction(new BlockToggleAction());
         this.override = new boolean[]{false, false};
         this.overrideStates = new ItemStack[override.length];
     }
@@ -50,35 +49,66 @@ public class ChangeBlockInfo
 
     public ChangeBlockInfo(NBTTagCompound compound)
     {
-        this.setOnAction(new BlockToggleAction());
-        this.setOffAction(new BlockToggleAction());
         this.readFromNBT(compound);
     }
 
-    public ChangeBlockInfo setOnAction(BlockToggleAction on)
+    public void doAction(World world, int state, EntityPlayer player, ItemStack defaultPlacing,
+                         IToggleController controller)
     {
-        this.on = on;
-        return this;
+        boolean harvested = false;
+        List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
+        for (IBlockToggleAction action : actions)
+        {
+            if (action.canHarvestBlock(world, x, y, z, controller))
+            {
+                ItemStack[] fromBlock = action.harvestBlock(world, x, y, z, player, controller);
+                controller.addItemStacksToStorage(fromBlock);
+                harvested = true;
+                break;
+            }
+        }
+        if (!harvested)
+        {
+            ItemStack[] fromBlock = FALLBACK_ACTION.harvestBlock(world, x, y, z, player, controller);
+            controller.addItemStacksToStorage(fromBlock);
+        }
+
+        ItemStack placing = controller.requestItemFromStorage(defaultPlacing);
+        if (overridesState(state))
+        {
+            ItemStack overrider = getOverrideForState(state);
+            placing = controller.requestItemFromStorage(overrider);
+        }
+        boolean placed = false;
+        if (placing != null)
+            for (IBlockToggleAction action : actions)
+                if (action.canPerformAction(world, x, y, z, placing, controller))
+                {
+                    action.performAction(world, x, y, z, getDirection(), player, placing, controller);
+                    placed = true;
+                    break;
+                }
+        if (!placed)
+            FALLBACK_ACTION.performAction(world, x, y, z, getDirection(), player, placing, controller);
     }
 
-    public ChangeBlockInfo setOffAction(BlockToggleAction off)
+    public void replaceWithChangeBlock(World world, IToggleController controller)
     {
-        this.off = off;
-        return this;
+
     }
 
-    public BlockToggleAction getAction(int state)
+    /*public BlockToggleAction getAction(int state)
     {
         if (state == 1)
             return on;
         else return off;
-    }
+    }*/
 
     public void writeToNBT(NBTTagCompound compound)
     {
         compound.setInteger("X", x);
-        compound.setInteger("Z", y);
-        compound.setInteger("Y", z);
+        compound.setInteger("Y", y);
+        compound.setInteger("Z", z);
         NBTTagList overrideList = new NBTTagList();
         for (int i = 0; i < override.length; i++)
         {
@@ -92,6 +122,7 @@ public class ChangeBlockInfo
             overrideList.appendTag(stateCompound);
         }
         compound.setTag("OverrideList", overrideList);
+        compound.setInteger("Direction", direction.ordinal());
     }
 
     public void readFromNBT(NBTTagCompound compound)
@@ -118,6 +149,7 @@ public class ChangeBlockInfo
                 }
             }
         }
+        direction = ForgeDirection.getOrientation(compound.getInteger("Direction"));
     }
 
     public boolean overridesState(int state)
@@ -142,60 +174,9 @@ public class ChangeBlockInfo
         return overrideStates;
     }
 
-    public static class BlockToggleAction implements IBlockToggleAction
+    public ForgeDirection getDirection()
     {
-        /**
-         * @param world      World object
-         * @param x          The X coordinate of the block to change
-         * @param y          The Y coordinate of the block to change
-         * @param z          The Z coordinate of the block to change
-         * @param direction  The direction the change block is configured with
-         * @param player     The player
-         * @param placing    The ItemStack to place, remember to reduce stack size! When null the block
-         *                   should simply be left as air
-         * @param tileEntity The TileEntity of the toggle block
-         */
-        public boolean performAction(World world, int x, int y, int z, int direction, EntityPlayer player,
-                                     ItemStack placing, IToggleController tileEntity)
-        {
-            int metadata = world.getBlockMetadata(x, y, z);
-            List<ItemStack> drops = world.getBlock(x, y, z).getDrops(world, x, y, z, metadata, 0);
-            for (Iterator<ItemStack> iterator = drops.iterator(); iterator.hasNext(); )
-            {
-                ItemStack stack = iterator.next();
-                if (stack != null)
-                    if (stack.isItemEqual(new ItemStack(BlockBase.change_block)))
-                        iterator.remove();
-            }
-            ItemStack[] items = drops.toArray(new ItemStack[drops.size()]);
-            tileEntity.addItemStacksToStorage(items);
-            world.setBlockToAir(x, y, z);
-            if (placing != null)
-            {
-                player.setItemInUse(placing, 0);
-                if (placing.tryPlaceItemIntoWorld(player, world, x, y, z, 0, 0, 0, 0))
-                {
-//                    placing.stackSize--;
-                    // TODO: Use how if seeds etc.
-                } else
-                {
-                    List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
-                    for (IBlockToggleAction action : actions)
-                    {
-                        if (action.useWithItem(world, x, y, z, placing, tileEntity))
-                            if (action.performAction(world, x, y, z, direction, player, placing, tileEntity)) break;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public boolean useWithItem(World world, int x, int y, int z, ItemStack placing, IToggleController tileEntity)
-        {
-            return true;
-        }
+        return direction;
     }
 
     public static class FakePlayer extends EntityPlayer
@@ -223,4 +204,6 @@ public class ChangeBlockInfo
             return null;
         }
     }
+
+
 }

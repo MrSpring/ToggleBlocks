@@ -1,8 +1,8 @@
 package dk.mrspring.toggle.block;
 
 import dk.mrspring.toggle.ToggleBlocks;
+import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
-import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
@@ -51,13 +51,15 @@ public class BlockChangeBlock extends BlockContainer
                 int controllerZ = controllerInfo.getInteger("Z");
                 TileEntity tileEntity = world.getTileEntity(controllerX, controllerY, controllerZ);
                 if (tileEntity != null)
-                    if (tileEntity instanceof TileEntityToggleBlock)
+                    if (tileEntity instanceof IToggleController)
                     {
-                        TileEntityToggleBlock entity = (TileEntityToggleBlock) tileEntity;
+                        IToggleController entity = (IToggleController) tileEntity;
                         entity.registerChangeBlock(x, y, z);
                     }
             }
     }
+
+    // TODO: Break block; unregister with controller
 
     @Override
     public TileEntity createNewTileEntity(World world, int metadata)
