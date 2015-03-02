@@ -3,6 +3,7 @@ package dk.mrspring.toggle;
 import dk.mrspring.toggle.api.IBlockToggleAction;
 import dk.mrspring.toggle.api.IBlockToggleRegistry;
 import dk.mrspring.toggle.comp.vanilla.BucketToggleAction;
+import dk.mrspring.toggle.comp.vanilla.PlantableToggleAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class ToggleRegistry implements IBlockToggleRegistry
     static void registerVanilla()
     {
         instance.registerToggleAction(new BucketToggleAction());
+        instance.registerToggleAction(new PlantableToggleAction());
 
 //        instance.registerToggleAction(new IBlockToggleAction()
 //        {

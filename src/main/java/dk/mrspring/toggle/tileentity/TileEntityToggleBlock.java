@@ -4,7 +4,7 @@ import dk.mrspring.toggle.api.IToggleController;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
@@ -13,6 +13,7 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -21,6 +22,16 @@ import java.util.Random;
  */
 public class TileEntityToggleBlock extends TileEntity implements IInventory, IToggleController
 {
+    public static HashMap<String, Class<? extends Item>> toolTypeClasses = new HashMap<String, Class<? extends Item>>();
+
+    static
+    {
+        toolTypeClasses.put("hoe", ItemHoe.class);
+        toolTypeClasses.put("pick", ItemPickaxe.class);
+        toolTypeClasses.put("pickaxe", ItemPickaxe.class);
+        toolTypeClasses.put("axe", ItemAxe.class);
+    }
+
     int state = OFF;
     Mode currentMode = Mode.EDITING;
     List<ChangeBlockInfo> changeBlockPosList = new ArrayList<ChangeBlockInfo>();
@@ -218,8 +229,14 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public ItemStack requestToolFromStorage(String toolType)
     {
         for (ItemStack stack : getAllStorage())
-            if (stack.getItem().getToolClasses(stack).contains(toolType))
-                return stack;
+            if (stack != null)
+                if (stack.getItem().getToolClasses(stack).contains(toolType))
+                    return stack;
+                else if (toolTypeClasses.containsKey(toolType) && stack.getItem().getClass() == toolTypeClasses.get(toolType))
+                {
+                    System.out.println("Returning type: "+toolType);
+                    return stack;
+                }
         return null;
     }
 
@@ -259,7 +276,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             this.collectChangeBlockInfo();
             this.updateChangeBlocks();
         } else this.placeChangeBlocks();
-//        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     }
 
     public void collectChangeBlockInfo()
