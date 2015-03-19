@@ -4,7 +4,6 @@ import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 
 /**
@@ -21,7 +20,7 @@ public class ContainerToggleBlock extends Container
         addSlotToContainer(new SingleItemSlot(this.tileEntity, 0, 8, 17));
         addSlotToContainer(new SingleItemSlot(this.tileEntity, 1, 8, 39));
 
-        int x = 98, y=8;
+        int x = 107, y = 17;
 
         for (int i = 0; i < 3; i++)
         {
