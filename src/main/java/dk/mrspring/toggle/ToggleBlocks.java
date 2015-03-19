@@ -1,7 +1,9 @@
 package dk.mrspring.toggle;
 
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -21,6 +23,9 @@ public class ToggleBlocks
     @Mod.Instance(ModInfo.MOD_ID)
     public static ToggleBlocks instance;
 
+    @SidedProxy(clientSide = "dk.mrspring.toggle.ClientProxy", serverSide = "dk.mrspring.toggle.CommonProxy")
+    public static CommonProxy proxy;
+
     @Mod.EventHandler
     public static void preInit(FMLPreInitializationEvent event)
     {
@@ -38,6 +43,7 @@ public class ToggleBlocks
     @Mod.EventHandler
     public static void init(FMLInitializationEvent event)
     {
-
+        proxy.registerRenderer();
+        FMLInterModComms.sendRuntimeMessage(ModInfo.MOD_ID, "VersionChecker", "addVersionCheck", "http://mrspring.dk/mods/tb/versions.json");
     }
 }
