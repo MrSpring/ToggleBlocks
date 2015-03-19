@@ -1,16 +1,19 @@
 [
-{
-  "modid": "tb",
-  "name": "Toggle Blocks",
-  "description": "An updated version of TheApathetic's mod Toggle Blocks.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "http://mrspring.dk/download/?m=tb",
-  "updateUrl": "http://mrspring.dk/changelog/?m=tb&v=l",
-  "authorList": ["MrSpring", "TheApathetic"],
-  "credits": "Original concept by TheApathetic, updated by MrSpring",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+  {
+    "modid": "tb",
+    "name": "Toggle Blocks",
+    "description": "An updated version of TheApathetic's mod Toggle Blocks.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "http://mrspring.dk/download/?m=tb",
+    "updateUrl": "http://mrspring.dk/changelog/?m=tb&v=l",
+    "authorList": [
+      "MrSpring",
+      "TheApathetic"
+    ],
+    "credits": "Original concept by TheApathetic, updated by MrSpring",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
 ]
