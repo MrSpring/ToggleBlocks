@@ -3,6 +3,7 @@ package dk.mrspring.toggle.tileentity;
 import com.mojang.authlib.GameProfile;
 import dk.mrspring.toggle.ToggleRegistry;
 import dk.mrspring.toggle.api.IBlockToggleAction;
+import dk.mrspring.toggle.api.IChangeBlockInfo;
 import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,7 +21,7 @@ import java.util.UUID;
 /**
  * Created by Konrad on 27-02-2015.
  */
-public class ChangeBlockInfo
+public class ChangeBlockInfo implements IChangeBlockInfo
 {
     public static final IBlockToggleAction FALLBACK_ACTION = new BasicBlockToggleAction();
 
@@ -43,31 +44,20 @@ public class ChangeBlockInfo
         };
     }
 
-//    public void setOverride(boolean[] override)
-//    {
-//        this.override = override;
-//    }
-//
-//    public void setOverrideStates(ItemStack[] overrideStates)
-//    {
-//        this.overrideStates = overrideStates;
-//    }
-
     public ChangeBlockInfo(NBTTagCompound compound)
     {
         this.readFromNBT(compound, true);
     }
 
-    public ChangeBlockInfo updateCoordinates(int newX, int newY, int newZ)
+    public void setCoordinates(int newX, int newY, int newZ)
     {
         this.x = newX;
         this.y = newY;
         this.z = newZ;
-        return this;
     }
 
-    public void doAction(World world, int state, EntityPlayer player, ItemStack defaultPlacing,
-                         IToggleController controller)
+    public void doActionForState(World world, int state, EntityPlayer player, ItemStack defaultPlacing,
+                                 IToggleController controller)
     {
         ItemStack[] harvested = this.harvest(world, player, controller);
         if (harvested != null)
@@ -112,19 +102,12 @@ public class ChangeBlockInfo
         return FALLBACK_ACTION.harvestBlock(world, x, y, z, player, controller);
     }
 
-    public void replaceWithChangeBlock(World world, EntityPlayer player, IToggleController controller)
+    public void placeChangeBlock(World world, EntityPlayer player, IToggleController controller)
     {
         controller.addItemStacksToStorage(this.harvest(world, player, controller));
         world.setBlock(x, y, z, BlockBase.change_block);
         world.setTileEntity(x, y, z, new TileEntityChangeBlock(x, y, z, this));
     }
-
-    /*public BlockToggleAction getAction(int state)
-    {
-        if (state == 1)
-            return on;
-        else return off;
-    }*/
 
     public void writeToNBT(NBTTagCompound compound, boolean writeCoords)
     {

@@ -12,6 +12,10 @@ public interface IToggleController
 
     public void validateStorage();
 
+    public IChangeBlockInfo getChangeBlockInfo(int index);
+
+    public IChangeBlockInfo[] getChangeBlocks();
+
     public ItemStack addItemStackToStorage(ItemStack stack);
 
     public ItemStack requestItemFromStorage(ItemStack item);

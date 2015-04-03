@@ -1,5 +1,6 @@
 package dk.mrspring.toggle.tileentity;
 
+import dk.mrspring.toggle.api.IChangeBlockInfo;
 import dk.mrspring.toggle.api.IToggleController;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -78,6 +79,20 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         }
     }
 
+    @Override
+    public IChangeBlockInfo getChangeBlockInfo(int index)
+    {
+        if (index >= 0 && index < changeBlocks.size())
+            return changeBlocks.get(index);
+        return null;
+    }
+
+    @Override
+    public IChangeBlockInfo[] getChangeBlocks()
+    {
+        return changeBlocks.toArray(new IChangeBlockInfo[changeBlocks.size()]);
+    }
+
     public void setState(int state)
     {
         if (state >= 0 && state < 2)
@@ -93,7 +108,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             for (ChangeBlockInfo pos : this.changeBlocks)
             {
                 ItemStack stateStack = states[getState()];
-                pos.doAction(worldObj, getState(), getFakePlayer(), stateStack, this);
+                pos.doActionForState(worldObj, getState(), getFakePlayer(), stateStack, this);
 //                ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
 //                if (pos.overridesState(this.state))
 //                {
@@ -111,7 +126,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     {
         for (ChangeBlockInfo pos : this.changeBlocks)
         {
-            pos.replaceWithChangeBlock(worldObj, getFakePlayer(), this);
+            pos.placeChangeBlock(worldObj, getFakePlayer(), this);
 //            ChangeBlockInfo.BasicBlockToggleAction action = new ChangeBlockInfo.BasicBlockToggleAction();
 //            int x = pos.x, y = pos.y, z = pos.z;
 //            action.placeBlock(worldObj, x, y, z, ForgeDirection.UP, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
