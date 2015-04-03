@@ -25,8 +25,9 @@ public class ChangeBlockInfo
     public static final IBlockToggleAction FALLBACK_ACTION = new BasicBlockToggleAction();
 
     public int x, y, z;
-    boolean[] override;
-    ItemStack[] overrideStates;
+    //    boolean[] override;
+//    ItemStack[] overrideStates;
+    StateOverride[] overrides = new StateOverride[2];
     ForgeDirection direction = ForgeDirection.DOWN;
 
     public ChangeBlockInfo(int x, int y, int z)
@@ -34,23 +35,35 @@ public class ChangeBlockInfo
         this.x = x;
         this.y = y;
         this.z = z;
-        this.override = new boolean[]{false, false};
-        this.overrideStates = new ItemStack[override.length];
+//        this.override = new boolean[]{false, false};
+//        this.overrideStates = new ItemStack[override.length];
+        this.overrides = new StateOverride[]{
+                new StateOverride(false),
+                new StateOverride(false)
+        };
     }
 
-    public void setOverride(boolean[] override)
-    {
-        this.override = override;
-    }
-
-    public void setOverrideStates(ItemStack[] overrideStates)
-    {
-        this.overrideStates = overrideStates;
-    }
+//    public void setOverride(boolean[] override)
+//    {
+//        this.override = override;
+//    }
+//
+//    public void setOverrideStates(ItemStack[] overrideStates)
+//    {
+//        this.overrideStates = overrideStates;
+//    }
 
     public ChangeBlockInfo(NBTTagCompound compound)
     {
-        this.readFromNBT(compound);
+        this.readFromNBT(compound, true);
+    }
+
+    public ChangeBlockInfo updateCoordinates(int newX, int newY, int newZ)
+    {
+        this.x = newX;
+        this.y = newY;
+        this.z = newZ;
+        return this;
     }
 
     public void doAction(World world, int state, EntityPlayer player, ItemStack defaultPlacing,
@@ -63,7 +76,7 @@ public class ChangeBlockInfo
         ItemStack placing = controller.requestItemFromStorage(defaultPlacing);
         if (overridesState(state))
         {
-            ItemStack overrider = getOverrideForState(state);
+            ItemStack overrider = getOverrideStackForState(state);
             placing = controller.requestItemFromStorage(overrider);
         }
 
@@ -113,74 +126,82 @@ public class ChangeBlockInfo
         else return off;
     }*/
 
-    public void writeToNBT(NBTTagCompound compound)
+    public void writeToNBT(NBTTagCompound compound, boolean writeCoords)
     {
-        compound.setInteger("X", x);
-        compound.setInteger("Y", y);
-        compound.setInteger("Z", z);
-        NBTTagList overrideList = new NBTTagList();
-        for (int i = 0; i < override.length; i++)
+        if (writeCoords)
         {
-            boolean overrides = override[i];
-            ItemStack overridesWith = getOverrideForState(i);
+            compound.setInteger("X", x);
+            compound.setInteger("Y", y);
+            compound.setInteger("Z", z);
+        }
+
+        NBTTagList overrideList = new NBTTagList();
+        for (int i = 0; i < overrides.length; i++)
+        {
+            StateOverride override = overrides[i];
             NBTTagCompound stateCompound = new NBTTagCompound();
+
+            override.writeToNBT(stateCompound);
             stateCompound.setInteger("State", i);
-            stateCompound.setBoolean("Overrides", overrides);
-            if (overrides && overridesWith != null)
-                overridesWith.writeToNBT(stateCompound);
             overrideList.appendTag(stateCompound);
         }
         compound.setTag("OverrideList", overrideList);
         compound.setInteger("Direction", direction.ordinal());
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound, boolean readCoords)
     {
-        this.x = compound.getInteger("X");
-        this.y = compound.getInteger("Y");
-        this.z = compound.getInteger("Z");
+        if (readCoords)
+        {
+            this.x = compound.getInteger("X");
+            this.y = compound.getInteger("Y");
+            this.z = compound.getInteger("Z");
+        }
+
         NBTTagList overrideList = compound.getTagList("OverrideList", 10);
         if (overrideList.tagCount() > 0)
         {
-            this.override = new boolean[overrideList.tagCount()];
-            this.overrideStates = new ItemStack[this.override.length];
+            this.overrides = new StateOverride[overrideList.tagCount()];
             for (int i = 0; i < overrideList.tagCount(); i++)
             {
                 NBTTagCompound stateCompound = overrideList.getCompoundTagAt(i);
                 if (stateCompound != null)
                 {
                     int state = stateCompound.getInteger("State");
-                    boolean overrides = stateCompound.getBoolean("Overrides");
-                    ItemStack stack = ItemStack.loadItemStackFromNBT(stateCompound);
-
-                    this.override[state] = overrides;
-                    overrideStates[state] = stack;
+                    StateOverride overrides = new StateOverride(stateCompound);
+                    this.overrides[state] = overrides;
                 }
             }
         }
-        direction = ForgeDirection.getOrientation(compound.getInteger("Direction"));
+        int direction = compound.getInteger("Direction");
+        this.direction = ForgeDirection.getOrientation(direction);
+    }
+
+    private StateOverride getOverrideForState(int state)
+    {
+        if (state >= 0 && state < this.overrides.length)
+            return overrides[state];
+        else return new StateOverride();
     }
 
     public boolean overridesState(int state)
     {
-        if (state >= 0 && state < this.override.length)
-            return this.override[state];
-        else return false;
+        return getOverrideForState(state).overrides;
     }
 
-    public ItemStack getOverrideForState(int state)
+    public void setOverridesState(int state, boolean doesOverride)
     {
-        return this.overrideStates[state];
+        getOverrideForState(state).overrides = doesOverride;
     }
 
-    public boolean[] getOverrides()
+    public ItemStack getOverrideStackForState(int state)
     {
-        return override;
+        return getOverrideForState(state).overridesWith;
     }
 
-    public ItemStack[] getOverrideStates()
+    public void setOverrideStackForState(int state, ItemStack overrider)
     {
-        return overrideStates;
+        getOverrideForState(state).overridesWith = overrider;
     }
 
     public ForgeDirection getDirection()
@@ -214,5 +235,46 @@ public class ChangeBlockInfo
         }
     }
 
+    public static class StateOverride
+    {
+        public boolean overrides = false;
+        public ItemStack overridesWith = null;
 
+        public StateOverride(boolean does, ItemStack with)
+        {
+            this.overrides = does;
+            this.overridesWith = with;
+        }
+
+        public StateOverride(boolean does)
+        {
+            this.overrides = does;
+        }
+
+        public StateOverride()
+        {
+        }
+
+        public StateOverride(NBTTagCompound compound)
+        {
+            this.readFromNBT(compound);
+        }
+
+        public void writeToNBT(NBTTagCompound compound)
+        {
+            compound.setBoolean("Overrides", this.overrides);
+            NBTTagCompound itemCompound = new NBTTagCompound();
+            if (overridesWith != null)
+                this.overridesWith.writeToNBT(itemCompound);
+            compound.setTag("OverridesWith", itemCompound);
+        }
+
+        public void readFromNBT(NBTTagCompound compound)
+        {
+            if (compound.hasKey("Overrides"))
+                this.overrides = compound.getBoolean("Overrides");
+            if (compound.hasKey("OverridesWith", 10))
+                this.overridesWith = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("OverridesWith"));
+        }
+    }
 }

@@ -4,19 +4,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.StatCollector;
 
 /**
  * Created by Konrad on 27-02-2015.
  */
 public class TileEntityChangeBlock extends TileEntity implements IInventory
 {
-    boolean[] overrideState = new boolean[]{false, false};
-    ItemStack[] overrideStates = new ItemStack[overrideState.length];
+    ChangeBlockInfo info;
 
     public TileEntityChangeBlock()
     {
@@ -31,97 +30,33 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
         yCoord = y;
         zCoord = z;
 
-        this.loadFromBlockInfo(info);
+        this.setBlockInfo(info);
     }
 
     public ChangeBlockInfo getBlockInfo()
     {
-        ChangeBlockInfo info = new ChangeBlockInfo(xCoord, yCoord, zCoord);
-        info.setOverride(overrideState);
-        info.setOverrideStates(overrideStates);
-        return info;
+        if (info == null)
+            info = new ChangeBlockInfo(xCoord, yCoord, zCoord);
+        return info.updateCoordinates(xCoord, yCoord, zCoord);
     }
 
-    public void loadFromBlockInfo(ChangeBlockInfo info)
+    public void setBlockInfo(ChangeBlockInfo newInfo)
     {
-        this.overrideState = info.getOverrides();
-        System.out.println(overrideState[0]);
-        System.out.println(overrideState[1]);
-        this.overrideStates = info.getOverrideStates();
-        if (overrideStates[0] != null)
-            System.out.println(overrideStates[0].getDisplayName());
-        else System.out.println("0 is null");
-        if (overrideStates[1] != null)
-            System.out.println(overrideStates[1].getDisplayName());
-        else System.out.println("1 is null");
-    }
-
-    public void setOverride(int state, boolean override)
-    {
-        if (state >= 0 && state < overrideState.length)
-        {
-            System.out.println("Setting state: " + state + " to: " + override);
-            overrideState[state] = override;
-            if (!override)
-                overrideStates[state] = null;
-            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-        }
-    }
-
-    public boolean overrides(int state)
-    {
-        if (state >= 0 && state < overrideState.length)
-            return overrideState[state];
-        else return false;
-    }
-
-    public boolean[] getOverridesStates()
-    {
-        return overrideState;
+        this.info = newInfo;
     }
 
     @Override
     public void writeToNBT(NBTTagCompound compound)
     {
         super.writeToNBT(compound);
-
-        NBTTagList overrideList = new NBTTagList();
-        for (int i = 0; i < overrideState.length; i++)
-        {
-            NBTTagCompound overrideEntry = new NBTTagCompound();
-            boolean overrides = overrides(i);
-            ItemStack overrideStack = overrideStates[i];
-            overrideEntry.setInteger("State", i);
-            overrideEntry.setBoolean("Overrides", overrides);
-            if (overrides)
-                if (overrideStack != null)
-                    overrideStack.writeToNBT(overrideEntry);
-            overrideList.appendTag(overrideEntry);
-        }
-
-        compound.setTag("OverrideList", overrideList);
+        this.getBlockInfo().writeToNBT(compound, false);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound compound)
     {
         super.readFromNBT(compound);
-
-        NBTTagList overrideList = compound.getTagList("OverrideList", 10);
-        overrideState = new boolean[overrideList.tagCount()];
-        overrideStates = new ItemStack[overrideState.length];
-        for (int i = 0; i < overrideList.tagCount(); i++)
-        {
-            NBTTagCompound overrideEntry = overrideList.getCompoundTagAt(i);
-            int state = overrideEntry.getInteger("State");
-            boolean overrides = overrideEntry.getBoolean("Overrides");
-            overrideState[state] = overrides;
-            if (overrides)
-            {
-                ItemStack overrideStack = ItemStack.loadItemStackFromNBT(overrideEntry);
-                overrideStates[i] = overrideStack;
-            }
-        }
+        this.getBlockInfo().readFromNBT(compound, false);
     }
 
     @Override
@@ -141,19 +76,19 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
     @Override
     public int getSizeInventory()
     {
-        return overrideState.length;
+        return getBlockInfo().overrides.length;
     }
 
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-        return overrideStates[slot];
+        return getBlockInfo().getOverrideStackForState(slot);
     }
 
     @Override
     public ItemStack decrStackSize(int slot, int amount)
     {
-        overrideStates[slot] = null;
+        getBlockInfo().setOverrideStackForState(slot, null);
         return null;
     }
 
@@ -166,17 +101,18 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
     @Override
     public void setInventorySlotContents(int slot, ItemStack stack)
     {
-        if (stack != null && overrideState[slot])
+        if (stack != null && getBlockInfo().overridesState(slot))
         {
-            this.overrideStates[slot] = stack.copy();
-            this.overrideStates[slot].stackSize = 1;
+            ItemStack copy = stack.copy();
+            copy.stackSize = 1;
+            getBlockInfo().setOverrideStackForState(slot, copy);
         }
     }
 
     @Override
     public String getInventoryName()
     {
-        return "Change Block";
+        return StatCollector.translateToLocal("tile.change_block.container.name");
     }
 
     @Override

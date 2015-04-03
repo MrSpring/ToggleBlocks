@@ -2,15 +2,16 @@ package dk.mrspring.toggle.gui;
 
 import dk.mrspring.toggle.ToggleBlocks;
 import dk.mrspring.toggle.container.ContainerChangeBlock;
-import dk.mrspring.toggle.container.ContainerToggleBlock;
+import dk.mrspring.toggle.tileentity.ChangeBlockInfo;
 import dk.mrspring.toggle.tileentity.MessageSetOverride;
 import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
+
+import static dk.mrspring.toggle.util.Translator.translate;
 
 /**
  * Created by Konrad on 01-03-2015.
@@ -39,23 +40,24 @@ public class GuiChangeBlock extends GuiContainer
         {
             ContainerChangeBlock containerChangeBlock = (ContainerChangeBlock) this.inventorySlots;
             TileEntityChangeBlock tileEntity = containerChangeBlock.getTileEntity();
-            boolean[] override = tileEntity.getOverridesStates();
-            if (!override[0])
+            ChangeBlockInfo blockInfo = tileEntity.getBlockInfo();
+//            boolean[] override = tileEntity.getOverridesStates();
+            if (!blockInfo.overridesState(0))
             {
                 mc.renderEngine.bindTexture(new ResourceLocation("tb", "textures/gui/change_block.png"));
                 drawTexturedModalRect(12, 13, 176, 0, 26, 26);
             }
-            if (!override[1])
+            if (!blockInfo.overridesState(1))
             {
                 mc.renderEngine.bindTexture(new ResourceLocation("tb", "textures/gui/change_block.png"));
                 drawTexturedModalRect(12, 45, 176, 0, 26, 26);
             }
         }
 
-        fontRendererObj.drawString("Change Block", 8, 4, 4210752);
-        fontRendererObj.drawString("Off", 8 + 35, 22, 4210752);
-        fontRendererObj.drawString("On", 8 + 35, 54, 4210752);
-        fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 94, 4210752);
+        fontRendererObj.drawString(translate("tile.change_block.container.name"), 8, 4, 4210752);
+        fontRendererObj.drawString(translate("tile.change_block.container.off"), 8 + 35, 22, 4210752);
+        fontRendererObj.drawString(translate("tile.change_block.container.on"), 8 + 35, 54, 4210752);
+        fontRendererObj.drawString(translate("container.inventory"), 8, ySize - 94, 4210752);
     }
 
     @Override
@@ -65,7 +67,7 @@ public class GuiChangeBlock extends GuiContainer
         {
             ContainerChangeBlock container = (ContainerChangeBlock) this.inventorySlots;
             TileEntityChangeBlock tileEntity = container.getTileEntity();
-            boolean current = tileEntity.overrides(button.id);
+            boolean current = tileEntity.getBlockInfo().overridesState(button.id);
             System.out.println("current = " + current);
             int x = tileEntity.xCoord, y = tileEntity.yCoord, z = tileEntity.zCoord;
             MessageSetOverride message = new MessageSetOverride(x, y, z, !current, button.id);

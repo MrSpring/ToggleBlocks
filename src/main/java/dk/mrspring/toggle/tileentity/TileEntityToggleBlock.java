@@ -34,7 +34,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
     int state = OFF;
     Mode currentMode = Mode.EDITING;
-    List<ChangeBlockInfo> changeBlockPosList = new ArrayList<ChangeBlockInfo>();
+    List<ChangeBlockInfo> changeBlocks = new ArrayList<ChangeBlockInfo>();
     // on is 1, off is 0
     ItemStack[] states = new ItemStack[2]; // TODO: More states?
     ItemStack[] storage = new ItemStack[9];
@@ -90,7 +90,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public void updateChangeBlocks()
     {
         if (this.isReady())
-            for (ChangeBlockInfo pos : this.changeBlockPosList)
+            for (ChangeBlockInfo pos : this.changeBlocks)
             {
                 ItemStack stateStack = states[getState()];
                 pos.doAction(worldObj, getState(), getFakePlayer(), stateStack, this);
@@ -109,7 +109,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
     public void placeChangeBlocks()
     {
-        for (ChangeBlockInfo pos : this.changeBlockPosList)
+        for (ChangeBlockInfo pos : this.changeBlocks)
         {
             pos.replaceWithChangeBlock(worldObj, getFakePlayer(), this);
 //            ChangeBlockInfo.BasicBlockToggleAction action = new ChangeBlockInfo.BasicBlockToggleAction();
@@ -117,7 +117,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 //            action.placeBlock(worldObj, x, y, z, ForgeDirection.UP, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
 //            worldObj.addTileEntity(new TileEntityChangeBlock(x, y, z, pos));
 //            TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
-//            tileEntity.loadFromBlockInfo(pos);
+//            tileEntity.setBlockInfo(pos);
         }
     }
 
@@ -193,17 +193,17 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     {
         System.out.println("Registering change block: " + x + ", " + y + ", " + z);
         ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z);
-        this.changeBlockPosList.add(blockInfo);
+        this.changeBlocks.add(blockInfo);
         return blockInfo;
     }
 
     @Override
     public ChangeBlockInfo unregisterChangeBlock(int x, int y, int z)
     {
-        for (ChangeBlockInfo pos : changeBlockPosList)
+        for (ChangeBlockInfo pos : changeBlocks)
             if (pos.x == x && pos.y == y && pos.z == z)
             {
-                changeBlockPosList.remove(pos);
+                changeBlocks.remove(pos);
                 return pos;
             }
         return null;
@@ -234,7 +234,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
                     return stack;
                 else if (toolTypeClasses.containsKey(toolType) && stack.getItem().getClass() == toolTypeClasses.get(toolType))
                 {
-                    System.out.println("Returning type: "+toolType);
+                    System.out.println("Returning type: " + toolType);
                     return stack;
                 }
         return null;
@@ -281,18 +281,15 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
     public void collectChangeBlockInfo()
     {
-        for (ChangeBlockInfo info : changeBlockPosList)
+        for (int i = 0; i < changeBlocks.size(); i++)
         {
+            ChangeBlockInfo info = changeBlocks.get(i);
             int x = info.x, y = info.y, z = info.z;
             if (worldObj.getTileEntity(x, y, z) instanceof TileEntityChangeBlock)
             {
                 TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
                 ChangeBlockInfo newInfo = tileEntity.getBlockInfo();
-                System.out.println("FOunttie");
-                System.out.println("newInfo.getOverrides()[0] = " + newInfo.getOverrides()[0]);
-                System.out.println("newInfo.getOverrides()[1] = " + newInfo.getOverrides()[1]);
-                info.setOverride(newInfo.getOverrides());
-                info.setOverrideStates(newInfo.getOverrideStates());
+                changeBlocks.set(i, newInfo);
             }
         }
     }
@@ -303,11 +300,11 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         super.writeToNBT(compound);
 
         NBTTagList changeBlockList = new NBTTagList();
-        for (ChangeBlockInfo info : this.changeBlockPosList)
+        for (ChangeBlockInfo info : this.changeBlocks)
             if (info != null)
             {
                 NBTTagCompound changeBlockCompound = new NBTTagCompound();
-                info.writeToNBT(changeBlockCompound);
+                info.writeToNBT(changeBlockCompound, true);
                 changeBlockList.appendTag(changeBlockCompound);
             }
 
@@ -351,12 +348,12 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         super.readFromNBT(compound);
 
         NBTTagList changeBlockList = compound.getTagList("ChangeBlocks", 10);
-        this.changeBlockPosList = new ArrayList<ChangeBlockInfo>();
+        this.changeBlocks = new ArrayList<ChangeBlockInfo>();
         for (int i = 0; i < changeBlockList.tagCount(); i++)
         {
             NBTTagCompound changeBlockCompound = changeBlockList.getCompoundTagAt(i);
             ChangeBlockInfo info = new ChangeBlockInfo(changeBlockCompound);
-            this.changeBlockPosList.add(info);
+            this.changeBlocks.add(info);
         }
 
         this.state = compound.getInteger("State");

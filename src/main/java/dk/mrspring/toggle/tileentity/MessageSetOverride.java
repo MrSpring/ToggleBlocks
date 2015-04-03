@@ -63,7 +63,9 @@ public class MessageSetOverride implements IMessage
                     if (world.getTileEntity(x, y, z) instanceof TileEntityChangeBlock)
                     {
                         TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) world.getTileEntity(x, y, z);
-                        tileEntity.setOverride(message.state, message.override);
+                        System.out.println("Overrides " + message.state + " with: " + message.override);
+                        tileEntity.getBlockInfo().setOverridesState(message.state, message.override);
+                        world.markBlockForUpdate(x, y, z);
                     }
                 }
             }
