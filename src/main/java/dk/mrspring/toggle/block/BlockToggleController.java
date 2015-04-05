@@ -4,6 +4,7 @@ import dk.mrspring.toggle.ToggleBlocks;
 import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,6 +33,7 @@ public class BlockToggleController extends BlockContainer
         this.setBlockBounds(
                 4 * P, 4 * P, 4 * P,
                 12 * P, 12 * P, 12 * P);
+        this.setCreativeTab(CreativeTabs.tabRedstone);
     }
 
     @Override
@@ -72,7 +74,7 @@ public class BlockToggleController extends BlockContainer
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack placed)
     {
-        // TODO: Get amount of change blocks from the placed toggle block via NBT
+        // TODO: Get amount of change blocks from the placed toggle block via NBT/placed's Metadata
 
         if (!world.isRemote)
         {

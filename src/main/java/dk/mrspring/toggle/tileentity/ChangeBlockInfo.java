@@ -70,6 +70,9 @@ public class ChangeBlockInfo implements IChangeBlockInfo
             placing = controller.requestItemFromStorage(overrider);
         }
 
+        if (placing != null)
+            System.out.println("Placing: " + placing.getDisplayName() + ", stack size: " + placing.stackSize);
+        else System.out.println("Placing nothing.");
         this.place(world, player, placing, controller);
     }
 

@@ -2,6 +2,7 @@ package dk.mrspring.toggle.tileentity;
 
 import dk.mrspring.toggle.api.IChangeBlockInfo;
 import dk.mrspring.toggle.api.IToggleController;
+import dk.mrspring.toggle.util.Misc;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -17,6 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+
+import static dk.mrspring.toggle.util.Misc.StackCompareFunction.ITEM;
+import static dk.mrspring.toggle.util.Misc.StackCompareFunction.METADATA;
 
 /**
  * Created by Konrad on 27-02-2015.
@@ -108,6 +112,14 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             for (ChangeBlockInfo pos : this.changeBlocks)
             {
                 ItemStack stateStack = states[getState()];
+                for (int i = 0; i < states.length; i++)
+                {
+                    ItemStack stack = states[i];
+                    if (stack != null)
+                        System.out.println("State: " + i + ": " + stack.getDisplayName());
+                    else System.out.println("State: " + i);
+                }
+                System.out.println("Current state: " + getState());
                 pos.doActionForState(worldObj, getState(), getFakePlayer(), stateStack, this);
 //                ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
 //                if (pos.overridesState(this.state))
@@ -231,11 +243,8 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             return null;
         for (ItemStack stack : getAllStorage())
             if (stack != null)
-                if (ItemStack.areItemStacksEqual(stack, item))
-                {
-                    this.removeItemFromStorage(stack);
+                if (Misc.areItemStacksEqual(item, stack, ITEM, METADATA) && stack.stackSize > 0)
                     return stack;
-                }
         return null;
     }
 
