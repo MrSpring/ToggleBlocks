@@ -1,3 +1,22 @@
+tile.change_block.name=Change Block
 tile.change_block.container.name=Change Block
 tile.change_block.container.on=On
 tile.change_block.container.off=Off
+
+tile.toggle_block.name=Toggle Block
+tile.toggle_block.container.name=Toggle Block Controller
+tile.toggle_block.container.toggle_mode=Toggle Mode
+tile.toggle_block.container.on=On
+tile.toggle_block.container.off=Off
+tile.toggle_block.container.storage=Storage
+tile.toggle_block.container.registered_blocks=Blocks
+tile.toggle_block.container.change_block_mode=Change Block Mode
+tile.toggle_block.container.storage_mode=Storage Priorities
+tile.toggle_block.container.storage_mode.storage_first.name=Local Storage First
+tile.toggle_block.container.storage_mode.storage_first.desc=Fills up the toggle block's local storage before putting items into surrounding chests.
+tile.toggle_block.container.storage_mode.storage_only.name=Local Storage Only
+tile.toggle_block.container.storage_mode.storage_only.desc=Only uses the toggle block's own local storage, and ignores any nearby chests.
+tile.toggle_block.container.storage_mode.chests_first.name=Chests First
+tile.toggle_block.container.storage_mode.chests_first.desc=Fills up nearby chests before putting items into the toggle block's local storage.
+tile.toggle_block.container.storage_mode.chests_only.name=Chests Only
+tile.toggle_block.container.storage_mode.chests_only.desc=Only uses nearby chests, and ignores the toggle block's local storage.

@@ -12,6 +12,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
 
+import static dk.mrspring.toggle.util.Translator.translate;
+
 /**
  * Created by Konrad on 27-02-2015.
  */
@@ -20,13 +22,15 @@ public class GuiToggleBlock extends GuiContainer
     public GuiToggleBlock(InventoryPlayer player, TileEntityToggleBlock tileEntityToggleBlock)
     {
         this(new ContainerToggleBlock(player, tileEntityToggleBlock));
+        this.xSize += 176;
     }
 
     @Override
     public void initGui()
     {
         super.initGui();
-        this.buttonList.add(new GuiButton(0, (width / 2) - (xSize / 2) + 4, (height / 2) - (ySize / 2) - 20, 80, 20, ""));
+        this.buttonList.add(new GuiButton(0, (width / 2) + 24, (height / 2) - (ySize / 2) + 18, 128, 20, translate("tile.toggle_block.container.toggle_mode")));
+        this.buttonList.add(new GuiButton(1, (width / 2) + 14, (height / 2) - (ySize / 2) + 50, 148, 20, ""));
     }
 
     public GuiToggleBlock(Container container)
@@ -42,12 +46,12 @@ public class GuiToggleBlock extends GuiContainer
         ContainerToggleBlock container = (ContainerToggleBlock) this.inventorySlots;
         TileEntityToggleBlock tileEntity = container.getTileEntity();
         TileEntityToggleBlock.Mode currentMode = tileEntity.getCurrentMode();
-        drawCenteredString(fontRendererObj, "Mode: " + currentMode.name().toLowerCase(), 4 + 40, -14, 14737632);
-        fontRendererObj.drawString("Toggle Block", 8, 5, 4210752);
-        fontRendererObj.drawString("Off", 8 + 20, 20, 4210752);
-        fontRendererObj.drawString("On", 8 + 20, 42, 4210752);
-        fontRendererObj.drawString("Storage", 97, -10, 0xFFFFFF, true);
-        fontRendererObj.drawString("Blocks: X/X", 8, 58, 4210752);
+        fontRendererObj.drawString(translate("tile.toggle_block.container.change_block_mode") + ": " + currentMode.name().toLowerCase(), (xSize / 2) + 8, 5, 4210752, false); // Button text col: 14737632
+        fontRendererObj.drawString(translate("tile.toggle_block.container.name"), 8, 5, 4210752);
+        fontRendererObj.drawString(translate("tile.toggle_block.container.off"), 8 + 20, 20, 4210752);
+        fontRendererObj.drawString(translate("tile.toggle_block.container.on"), 8 + 20, 42, 4210752);
+        drawCenteredString(fontRendererObj, translate("tile.toggle_block.container.storage"), 133, -10, 0xFFFFFF);
+        fontRendererObj.drawString(translate("tile.toggle_block.container.registered_blocks") + ": X/X", 8, 58, 4210752);
         fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 94, 4210752);
     }
 
@@ -73,10 +77,13 @@ public class GuiToggleBlock extends GuiContainer
     {
         GL11.glColor4f(1, 1, 1, 1);
         ResourceLocation texture = new ResourceLocation("tb", "textures/gui/toggle_controller.png");
+        ResourceLocation panelTexture = new ResourceLocation("tb", "textures/gui/toggle_controller_panel.png");
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         mc.renderEngine.bindTexture(texture);
-        this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+        this.drawTexturedModalRect(x, y, 0, 0, 176, ySize);
+        mc.renderEngine.bindTexture(panelTexture);
+        this.drawTexturedModalRect(x + 176, y, 0, 0, 176, ySize);
         for (Object button : this.buttonList)
             if (button instanceof GuiButton)
             {
