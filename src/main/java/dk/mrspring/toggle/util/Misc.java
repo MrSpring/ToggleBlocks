@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack;
  */
 public class Misc
 {
-    public boolean areItemStacksEqual(ItemStack stack1, ItemStack stack2, StackCompareFunction... stackCompareMethods)
+    public static boolean areItemStacksEqual(ItemStack stack1, ItemStack stack2, StackCompareFunction... stackCompareMethods)
     {
         for (StackCompareFunction function : stackCompareMethods)
         {
@@ -17,7 +17,7 @@ public class Misc
         return true;
     }
 
-    public boolean areItemStacksEqual(StackCompareFunction function, ItemStack stack1, ItemStack stack2)
+    public static boolean areItemStacksEqual(StackCompareFunction function, ItemStack stack1, ItemStack stack2)
     {
         switch (function)
         {
