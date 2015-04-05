@@ -18,6 +18,14 @@ public interface IToggleController
 
     public ItemStack addItemStackToStorage(ItemStack stack);
 
+    /**
+     * This removes the item from storage. Remember to put it back, using {@link #addItemStacksToStorage(ItemStack[])}
+     * when you're done making modifications to it.
+     *
+     * @param item A matching {@link ItemStack} for the requested item. Uses
+     * {@link ItemStack#areItemStacksEqual(ItemStack, ItemStack)} to find requested item.
+     * @return Returns the item if it could be found. Null if nothing was found.
+     */
     public ItemStack requestItemFromStorage(ItemStack item);
 
     public ItemStack requestToolFromStorage(String toolType);
@@ -68,6 +76,8 @@ public interface IToggleController
 
     /**
      * @return Returns a read-only array containing all the toggle controller's, and surrounding chest's, inventory.
+     * Once a desired item has been found, use {@link #requestItemFromStorage(ItemStack) requestItemFromStorage} to get
+     * the real item.
      */
     public ItemStack[] getAllStorage();
 }

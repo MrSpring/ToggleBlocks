@@ -37,7 +37,8 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
     {
         if (info == null)
             info = new ChangeBlockInfo(xCoord, yCoord, zCoord);
-        return info.setCoordinates(xCoord, yCoord, zCoord);
+        info.setCoordinates(xCoord, yCoord, zCoord);
+        return info;
     }
 
     public void setBlockInfo(ChangeBlockInfo newInfo)

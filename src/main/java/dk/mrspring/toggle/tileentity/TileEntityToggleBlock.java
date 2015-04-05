@@ -224,10 +224,6 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         return null;
     }
 
-    /**
-     * @param item The item being requested. Simply use something like: "new ItemStack(Items.item)
-     * @return If there is an equal item in storage, that stack will be returned. Null otherwise.
-     */
     @Override
     public ItemStack requestItemFromStorage(ItemStack item)
     {
@@ -235,8 +231,11 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             return null;
         for (ItemStack stack : getAllStorage())
             if (stack != null)
-                if (stack.isItemEqual(item))
+                if (ItemStack.areItemStacksEqual(stack, item))
+                {
+                    this.removeItemFromStorage(stack);
                     return stack;
+                }
         return null;
     }
 
