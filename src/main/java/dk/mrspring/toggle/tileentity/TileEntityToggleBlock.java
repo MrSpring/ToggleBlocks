@@ -3,6 +3,7 @@ package dk.mrspring.toggle.tileentity;
 import dk.mrspring.toggle.api.IChangeBlockInfo;
 import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.api.Mode;
+import dk.mrspring.toggle.api.StoragePriority;
 import dk.mrspring.toggle.util.Misc;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -40,6 +41,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
     int state = OFF;
     Mode currentMode = Mode.EDITING;
+    StoragePriority storagePriority = StoragePriority.STORAGE_FIRST;
     List<ChangeBlockInfo> changeBlocks = new ArrayList<ChangeBlockInfo>();
     // on is 1, off is 0
     ItemStack[] states = new ItemStack[2]; // TODO: More states?
@@ -335,6 +337,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         compound.setTag("ChangeBlocks", changeBlockList);
         compound.setInteger("State", this.state);
         compound.setString("Mode", this.getCurrentMode().name());
+        compound.setString("StoragePriorities", this.getStoragePriority().name());
 
         NBTTagList storageList = new NBTTagList();
 
@@ -382,6 +385,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
         this.state = compound.getInteger("State");
         this.currentMode = Mode.valueOf(compound.getString("Mode"));
+        this.storagePriority = StoragePriority.valueOf(compound.getString("StoragePriorities"));
 
         NBTTagList storageList = compound.getTagList("Storage", 10);
         this.storage = new ItemStack[9];
@@ -414,16 +418,16 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         this.readFromNBT(pkt.func_148857_g());
     }
 
-    public class StorageItem
+    public void setStoragePriority(StoragePriority storagePriorities)
     {
-        public ItemStack itemStack;
-        public int index;
+        this.storagePriority = storagePriorities;
+        System.out.println("this.storagePriority.name() = " + this.storagePriority.name());
+        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+    }
 
-        public StorageItem(ItemStack stack, int i)
-        {
-            this.itemStack = stack;
-            this.index = i;
-        }
+    public StoragePriority getStoragePriority()
+    {
+        return this.storagePriority;
     }
 
     @Override

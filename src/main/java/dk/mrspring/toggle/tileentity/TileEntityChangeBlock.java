@@ -13,7 +13,7 @@ import net.minecraft.util.StatCollector;
 /**
  * Created by Konrad on 27-02-2015.
  */
-public class TileEntityChangeBlock extends TileEntity implements IInventory
+public class TileEntityChangeBlock extends TileEntity implements IInventory // TODO: Get mostly rid of this class, use only for opening gui. Get the overrides from the Toggle Controller
 {
     ChangeBlockInfo info;
 

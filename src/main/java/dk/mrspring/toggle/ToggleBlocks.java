@@ -11,6 +11,7 @@ import cpw.mods.fml.relauncher.Side;
 import dk.mrspring.toggle.block.BlockBase;
 import dk.mrspring.toggle.tileentity.MessageSetMode;
 import dk.mrspring.toggle.tileentity.MessageSetOverride;
+import dk.mrspring.toggle.tileentity.MessageSetStoragePriority;
 
 /**
  * Created by Konrad on 27-02-2015.
@@ -35,6 +36,7 @@ public class ToggleBlocks
         network = NetworkRegistry.INSTANCE.newSimpleChannel("toggleBlocks");
         network.registerMessage(MessageSetMode.MessageHandler.class, MessageSetMode.class, 0, Side.SERVER);
         network.registerMessage(MessageSetOverride.MessageHandler.class, MessageSetOverride.class, 1, Side.SERVER);
+        network.registerMessage(MessageSetStoragePriority.MessageHandler.class, MessageSetStoragePriority.class, 2, Side.SERVER);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
         BlockBase.registerBlocks();

@@ -3,37 +3,37 @@ package dk.mrspring.toggle.tileentity;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import dk.mrspring.toggle.api.Mode;
+import dk.mrspring.toggle.api.StoragePriority;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.world.World;
 
 /**
- * Created by Konrad on 01-03-2015.
+ * Created by Konrad on 06-04-2015.
  */
-public class MessageSetMode implements IMessage
+public class MessageSetStoragePriority implements IMessage
 {
     int controllerX, controllerY, controllerZ;
-    Mode mode;
+    StoragePriority priority;
     boolean markForUpdate;
 
-    public MessageSetMode()
+    public MessageSetStoragePriority()
     {
-        mode = Mode.EDITING;
+        priority = StoragePriority.STORAGE_FIRST;
     }
 
-    public MessageSetMode(int x, int y, int z, Mode mode, boolean update)
+    public MessageSetStoragePriority(int x, int y, int z, StoragePriority priority, boolean update)
     {
         this.controllerX = x;
         this.controllerY = y;
         this.controllerZ = z;
-        this.mode = mode;
+        this.priority = priority;
         this.markForUpdate = update;
     }
 
     @Override
     public void fromBytes(ByteBuf buffer)
     {
-        this.mode = Mode.fromInt(buffer.readInt());
+        this.priority = StoragePriority.fromInt(buffer.readInt());
         this.controllerX = buffer.readInt();
         this.controllerY = buffer.readInt();
         this.controllerZ = buffer.readInt();
@@ -43,17 +43,17 @@ public class MessageSetMode implements IMessage
     @Override
     public void toBytes(ByteBuf buffer)
     {
-        buffer.writeInt(mode.getId());
+        buffer.writeInt(priority.getId());
         buffer.writeInt(controllerX);
         buffer.writeInt(controllerY);
         buffer.writeInt(controllerZ);
         buffer.writeBoolean(markForUpdate);
     }
 
-    public static class MessageHandler implements IMessageHandler<MessageSetMode, IMessage>
+    public static class MessageHandler implements IMessageHandler<MessageSetStoragePriority, IMessage>
     {
         @Override
-        public IMessage onMessage(MessageSetMode message, MessageContext context)
+        public IMessage onMessage(MessageSetStoragePriority message, MessageContext context)
         {
             if (context.getServerHandler().playerEntity != null)
             {
@@ -64,7 +64,7 @@ public class MessageSetMode implements IMessage
                     if (world.getTileEntity(x, y, z) instanceof TileEntityToggleBlock)
                     {
                         TileEntityToggleBlock tileEntity = (TileEntityToggleBlock) world.getTileEntity(x, y, z);
-                        tileEntity.setCurrentMode(message.mode);
+                        tileEntity.setStoragePriority(message.priority);
                     }
                 }
             }
