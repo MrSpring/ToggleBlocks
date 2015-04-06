@@ -2,6 +2,7 @@ package dk.mrspring.toggle.tileentity;
 
 import dk.mrspring.toggle.api.IChangeBlockInfo;
 import dk.mrspring.toggle.api.IToggleController;
+import dk.mrspring.toggle.api.Mode;
 import dk.mrspring.toggle.util.Misc;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -423,32 +424,6 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             this.itemStack = stack;
             this.index = i;
         }
-    }
-
-    public enum Mode
-    {
-        READY(0), EDITING(1);
-
-        int id;
-
-        private Mode(int id)
-        {
-            this.id = id;
-        }
-
-        public int getId()
-        {
-            return this.id;
-        }
-
-        public static Mode fromInt(int id)
-        {
-            for (Mode mode : values())
-                if (mode.getId() == id)
-                    return mode;
-            return EDITING;
-        }
-
     }
 
     @Override

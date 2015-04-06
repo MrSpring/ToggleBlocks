@@ -46,13 +46,22 @@ public class GuiToggleBlock extends GuiContainer
         ContainerToggleBlock container = (ContainerToggleBlock) this.inventorySlots;
         TileEntityToggleBlock tileEntity = container.getTileEntity();
         TileEntityToggleBlock.Mode currentMode = tileEntity.getCurrentMode();
-        fontRendererObj.drawString(translate("tile.toggle_block.container.change_block_mode") + ": " + currentMode.name().toLowerCase(), (xSize / 2) + 8, 5, 4210752, false); // Button text col: 14737632
+        String modeLabel = translate("tile.toggle_block.container.change_block_mode") + ": " +
+                upperCaseFirstLetter(currentMode.name().toLowerCase());
+        fontRendererObj.drawString(modeLabel, (xSize / 2) + 8, 5, 4210752, false); // Button text col: 14737632
         fontRendererObj.drawString(translate("tile.toggle_block.container.name"), 8, 5, 4210752);
         fontRendererObj.drawString(translate("tile.toggle_block.container.off"), 8 + 20, 20, 4210752);
         fontRendererObj.drawString(translate("tile.toggle_block.container.on"), 8 + 20, 42, 4210752);
         drawCenteredString(fontRendererObj, translate("tile.toggle_block.container.storage"), 133, -10, 0xFFFFFF);
         fontRendererObj.drawString(translate("tile.toggle_block.container.registered_blocks") + ": X/X", 8, 58, 4210752);
         fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 94, 4210752);
+    }
+
+    private static String upperCaseFirstLetter(String string)
+    {
+        char[] characters = string.toCharArray();
+        characters[0] = Character.toUpperCase(characters[0]);
+        return new String(characters);
     }
 
     @Override
