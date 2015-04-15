@@ -15,6 +15,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityChest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,8 +32,9 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 {
     public static HashMap<String, Class<? extends Item>> toolTypeClasses = new HashMap<String, Class<? extends Item>>();
 
-    static
-    {
+    TileEntityChest[] chests = new TileEntityChest[4];
+
+    static {
         toolTypeClasses.put("hoe", ItemHoe.class);
         toolTypeClasses.put("pick", ItemPickaxe.class);
         toolTypeClasses.put("pickaxe", ItemPickaxe.class);
@@ -77,8 +79,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     @Override
     public void validateStorage()
     {
-        for (int i = 0; i < storage.length; i++)
-        {
+        for (int i = 0; i < storage.length; i++) {
             ItemStack inStorage = storage[i];
             if (inStorage != null)
                 if (inStorage.stackSize == 0)
@@ -102,8 +103,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
     public void setState(int state)
     {
-        if (state >= 0 && state < 2)
-        {
+        if (state >= 0 && state < 2) {
             this.state = state;
             this.updateChangeBlocks();
         }
@@ -112,11 +112,9 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public void updateChangeBlocks()
     {
         if (this.isReady())
-            for (ChangeBlockInfo pos : this.changeBlocks)
-            {
+            for (ChangeBlockInfo pos : this.changeBlocks) {
                 ItemStack stateStack = states[getState()];
-                for (int i = 0; i < states.length; i++)
-                {
+                for (int i = 0; i < states.length; i++) {
                     ItemStack stack = states[i];
                     if (stack != null)
                         System.out.println("State: " + i + ": " + stack.getDisplayName());
@@ -124,30 +122,13 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
                 }
                 System.out.println("Current state: " + getState());
                 pos.doActionForState(worldObj, getState(), getFakePlayer(), stateStack, this);
-//                ItemStack placing = requestItemFromStorage(this.getStackInSlot(this.state));
-//                if (pos.overridesState(this.state))
-//                {
-//                    ItemStack override = pos.getOverrideForState(this.state);
-//                    placing = requestItemFromStorage(override);
-//                }
-//                ChangeBlockInfo.BasicBlockToggleAction action;
-//                action = pos.getAction(this.state);
-//                if (action != null)
-//                    action.placeBlock(worldObj, pos.x, pos.y, pos.z, pos.getDirection(), getFakePlayer(), placing, this);
             }
     }
 
     public void placeChangeBlocks()
     {
-        for (ChangeBlockInfo pos : this.changeBlocks)
-        {
+        for (ChangeBlockInfo pos : this.changeBlocks) {
             pos.placeChangeBlock(worldObj, getFakePlayer(), this);
-//            ChangeBlockInfo.BasicBlockToggleAction action = new ChangeBlockInfo.BasicBlockToggleAction();
-//            int x = pos.x, y = pos.y, z = pos.z;
-//            action.placeBlock(worldObj, x, y, z, ForgeDirection.UP, getFakePlayer(), new ItemStack(BlockBase.change_block), this);
-//            worldObj.addTileEntity(new TileEntityChangeBlock(x, y, z, pos));
-//            TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
-//            tileEntity.setBlockInfo(pos);
         }
     }
 
@@ -155,8 +136,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public void addItemStacksToStorage(ItemStack[] stacks)
     {
         if (stacks != null)
-            for (ItemStack stack : stacks)
-            {
+            for (ItemStack stack : stacks) {
                 ItemStack remainder = this.addItemStackToStorage(stack);
                 if (remainder != null)
                     this.dropItem(remainder);
@@ -166,11 +146,9 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     @Override
     public boolean removeItemFromStorage(ItemStack toRemove)
     {
-        for (int i = 0; i < storage.length; i++)
-        {
+        for (int i = 0; i < storage.length; i++) {
             ItemStack stack = storage[i];
-            if (ItemStack.areItemStacksEqual(stack, toRemove))
-            {
+            if (ItemStack.areItemStacksEqual(stack, toRemove)) {
                 storage[i] = null;
                 return true;
             }
@@ -181,19 +159,15 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     @Override
     public ItemStack addItemStackToStorage(ItemStack stack)
     {
-        for (int i = 0; i < storage.length; i++)
-        {
+        for (int i = 0; i < storage.length; i++) {
             ItemStack inStorage = storage[i];
             int maxStackSize = stack.getMaxStackSize();
-            if (inStorage == null)
-            {
+            if (inStorage == null) {
                 storage[i] = stack;
                 return null;
-            } else if (stack.isItemEqual(inStorage) && inStorage.stackSize < maxStackSize)
-            {
+            } else if (stack.isItemEqual(inStorage) && inStorage.stackSize < maxStackSize) {
                 inStorage.stackSize += stack.stackSize;
-                if (inStorage.stackSize > maxStackSize)
-                {
+                if (inStorage.stackSize > maxStackSize) {
                     ItemStack remainder = stack.copy();
                     remainder.stackSize = inStorage.stackSize - maxStackSize;
                     inStorage.stackSize = maxStackSize;
@@ -207,8 +181,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     @Override
     public void dropItem(ItemStack stack)
     {
-        if (stack != null)
-        {
+        if (stack != null) {
             Random random = new Random();
             EntityItem entityItem = new EntityItem(worldObj, xCoord + 0.5, yCoord + 1.5, zCoord + 0.5, stack.copy());
             entityItem.motionX = (float) random.nextGaussian() * 0.05;
@@ -231,8 +204,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public ChangeBlockInfo unregisterChangeBlock(int x, int y, int z)
     {
         for (ChangeBlockInfo pos : changeBlocks)
-            if (pos.x == x && pos.y == y && pos.z == z)
-            {
+            if (pos.x == x && pos.y == y && pos.z == z) {
                 changeBlocks.remove(pos);
                 return pos;
             }
@@ -258,8 +230,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             if (stack != null)
                 if (stack.getItem().getToolClasses(stack).contains(toolType))
                     return stack;
-                else if (toolTypeClasses.containsKey(toolType) && stack.getItem().getClass() == toolTypeClasses.get(toolType))
-                {
+                else if (toolTypeClasses.containsKey(toolType) && stack.getItem().getClass() == toolTypeClasses.get(toolType)) {
                     System.out.println("Returning type: " + toolType);
                     return stack;
                 }
@@ -297,8 +268,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public void setCurrentMode(Mode currentMode)
     {
         this.currentMode = currentMode;
-        if (currentMode == Mode.READY)
-        {
+        if (currentMode == Mode.READY) {
             this.collectChangeBlockInfo();
             this.updateChangeBlocks();
         } else this.placeChangeBlocks();
@@ -307,12 +277,10 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
     public void collectChangeBlockInfo()
     {
-        for (int i = 0; i < changeBlocks.size(); i++)
-        {
+        for (int i = 0; i < changeBlocks.size(); i++) {
             ChangeBlockInfo info = changeBlocks.get(i);
             int x = info.x, y = info.y, z = info.z;
-            if (worldObj.getTileEntity(x, y, z) instanceof TileEntityChangeBlock)
-            {
+            if (worldObj.getTileEntity(x, y, z) instanceof TileEntityChangeBlock) {
                 TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
                 ChangeBlockInfo newInfo = tileEntity.getBlockInfo();
                 changeBlocks.set(i, newInfo);
@@ -327,8 +295,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
         NBTTagList changeBlockList = new NBTTagList();
         for (ChangeBlockInfo info : this.changeBlocks)
-            if (info != null)
-            {
+            if (info != null) {
                 NBTTagCompound changeBlockCompound = new NBTTagCompound();
                 info.writeToNBT(changeBlockCompound, true);
                 changeBlockList.appendTag(changeBlockCompound);
@@ -341,10 +308,8 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
         NBTTagList storageList = new NBTTagList();
 
-        for (int i = 0; i < this.storage.length; ++i)
-        {
-            if (this.storage[i] != null)
-            {
+        for (int i = 0; i < this.storage.length; ++i) {
+            if (this.storage[i] != null) {
                 NBTTagCompound storageCompound = new NBTTagCompound();
                 storageCompound.setByte("Slot", (byte) i);
                 this.storage[i].writeToNBT(storageCompound);
@@ -354,15 +319,13 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
         compound.setTag("Storage", storageList);
 
-        if (this.states[1] != null)
-        {
+        if (this.states[1] != null) {
             NBTTagCompound onCompound = new NBTTagCompound();
             this.states[1].writeToNBT(onCompound);
             compound.setTag("OnState", onCompound);
         }
 
-        if (this.states[0] != null)
-        {
+        if (this.states[0] != null) {
             NBTTagCompound offCompound = new NBTTagCompound();
             this.states[0].writeToNBT(offCompound);
             compound.setTag("OffState", offCompound);
@@ -376,8 +339,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 
         NBTTagList changeBlockList = compound.getTagList("ChangeBlocks", 10);
         this.changeBlocks = new ArrayList<ChangeBlockInfo>();
-        for (int i = 0; i < changeBlockList.tagCount(); i++)
-        {
+        for (int i = 0; i < changeBlockList.tagCount(); i++) {
             NBTTagCompound changeBlockCompound = changeBlockList.getCompoundTagAt(i);
             ChangeBlockInfo info = new ChangeBlockInfo(changeBlockCompound);
             this.changeBlocks.add(info);
@@ -390,8 +352,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         NBTTagList storageList = compound.getTagList("Storage", 10);
         this.storage = new ItemStack[9];
 
-        for (int i = 0; i < storageList.tagCount(); i++)
-        {
+        for (int i = 0; i < storageList.tagCount(); i++) {
             NBTTagCompound itemCompound = storageList.getCompoundTagAt(i);
             ItemStack fromCompound = ItemStack.loadItemStackFromNBT(itemCompound);
             this.storage[itemCompound.getByte("Slot")] = fromCompound;
@@ -449,8 +410,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     {
         if (slot < 2)
             states[slot] = null;
-        else
-        {
+        else {
             ItemStack inSlot = storage[slot - 2];
             if (inSlot == null)
                 return null;
@@ -473,15 +433,12 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     @Override
     public void setInventorySlotContents(int slot, ItemStack stack)
     {
-        if (slot >= 0 && slot < 2)
-        {
-            if (stack != null)
-            {
+        if (slot >= 0 && slot < 2) {
+            if (stack != null) {
                 states[slot] = stack.copy();
                 states[slot].stackSize = 1;
             }
-        } else if (slot >= 0)
-        {
+        } else if (slot >= 0) {
             this.storage[slot - 2] = stack;
         }
     }
