@@ -46,7 +46,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     StoragePriority storagePriority = StoragePriority.STORAGE_FIRST;
     List<ChangeBlockInfo> changeBlocks = new ArrayList<ChangeBlockInfo>();
     // on is 1, off is 0
-    ItemStack[] states = new ItemStack[2]; // TODO: More states?
+    ItemStack[] states = new ItemStack[2]; // TODO: More states? "Cycle Block" with more than 2 states
     ItemStack[] storage = new ItemStack[9];
     ChangeBlockInfo.FakePlayer fakePlayer;
     private static final int ON = 1;
@@ -76,7 +76,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         this.validateStorage();
     }
 
-    @Override
+    /*@Override
     public void validateStorage()
     {
         for (int i = 0; i < storage.length; i++) {
@@ -85,7 +85,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
                 if (inStorage.stackSize == 0)
                     storage[i] = null;
         }
-    }
+    }*/
 
     @Override
     public IChangeBlockInfo getChangeBlockInfo(int index)
@@ -112,6 +112,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public void updateChangeBlocks()
     {
         if (this.isReady())
+        {
             for (ChangeBlockInfo pos : this.changeBlocks) {
                 ItemStack stateStack = states[getState()];
                 for (int i = 0; i < states.length; i++) {
@@ -123,6 +124,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
                 System.out.println("Current state: " + getState());
                 pos.doActionForState(worldObj, getState(), getFakePlayer(), stateStack, this);
             }
+        }
     }
 
     public void placeChangeBlocks()
@@ -132,7 +134,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         }
     }
 
-    @Override
+    /*@Override
     public void addItemStacksToStorage(ItemStack[] stacks)
     {
         if (stacks != null)
@@ -141,9 +143,9 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
                 if (remainder != null)
                     this.dropItem(remainder);
             }
-    }
+    }*/
 
-    @Override
+    /*@Override
     public boolean removeItemFromStorage(ItemStack toRemove)
     {
         for (int i = 0; i < storage.length; i++) {
@@ -154,9 +156,9 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             }
         }
         return false;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public ItemStack addItemStackToStorage(ItemStack stack)
     {
         for (int i = 0; i < storage.length; i++) {
@@ -176,10 +178,10 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
             }
         }
         return stack;
-    }
+    }*/
 
     @Override
-    public void dropItem(ItemStack stack)
+    public void dropItem(ItemStack stack) // TODO: Remove...
     {
         if (stack != null) {
             Random random = new Random();
@@ -211,7 +213,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         return null;
     }
 
-    @Override
+    /*@Override
     public ItemStack requestItemFromStorage(ItemStack item)
     {
         if (item == null)
@@ -221,7 +223,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
                 if (Misc.areItemStacksEqual(item, stack, ITEM, METADATA) && stack.stackSize > 0)
                     return stack;
         return null;
-    }
+    }*/
 
     @Override
     public ItemStack requestToolFromStorage(String toolType)
