@@ -9,7 +9,7 @@ public enum Mode
 
     final int id;
 
-    private Mode(int id)
+    Mode(int id)
     {
         this.id = id;
     }

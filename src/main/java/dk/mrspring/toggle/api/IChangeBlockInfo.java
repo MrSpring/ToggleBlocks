@@ -11,24 +11,24 @@ import net.minecraftforge.common.util.ForgeDirection;
  */
 public interface IChangeBlockInfo
 {
-    public void setCoordinates(int x, int y, int z);
+    void setCoordinates(int x, int y, int z);
 
-    public void doActionForState(World world, int state, EntityPlayer player, ItemStack defaultPlacingForState,
+    void doActionForState(World world, int state, EntityPlayer player, ItemStack defaultPlacingForState,
                                  IToggleController controller);
 
-    public void placeChangeBlock(World world, EntityPlayer player, IToggleController controller);
+    void placeChangeBlock(World world, EntityPlayer player, IToggleController controller);
 
-    public void writeToNBT(NBTTagCompound compound, boolean writeCoordinates);
+    void writeToNBT(NBTTagCompound compound, boolean writeCoordinates);
 
-    public void readFromNBT(NBTTagCompound compound, boolean readCoordinates);
+    void readFromNBT(NBTTagCompound compound, boolean readCoordinates);
 
-    public boolean overridesState(int state);
+    boolean overridesState(int state);
 
-    public void setOverridesState(int state, boolean doesOverride);
+    void setOverridesState(int state, boolean doesOverride);
 
-    public ItemStack getOverrideStackForState(int state);
+    ItemStack getOverrideStackForState(int state);
 
-    public void setOverrideStackForState(int state, ItemStack overrider);
+    void setOverrideStackForState(int state, ItemStack overrider);
 
-    public ForgeDirection getDirection();
+    ForgeDirection getDirection();
 }

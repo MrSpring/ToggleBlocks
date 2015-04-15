@@ -5,5 +5,5 @@ package dk.mrspring.toggle.api;
  */
 public interface IBlockToggleRegistry
 {
-    public void registerToggleAction(IBlockToggleAction action);
+    void registerToggleAction(IBlockToggleAction action);
 }

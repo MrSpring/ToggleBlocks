@@ -21,7 +21,7 @@ public interface IBlockToggleAction
      * @param controller The Toggle Block Controller instance, calling for the block to be harvested
      * @return Returns the dropped items, which will be added to the controller's storage.
      */
-    public ItemStack[] harvestBlock(World world, int x, int y, int z, EntityPlayer player, IToggleController controller);
+    ItemStack[] harvestBlock(World world, int x, int y, int z, EntityPlayer player, IToggleController controller);
 
     /**
      * @param world      World object
@@ -34,10 +34,10 @@ public interface IBlockToggleAction
      *                   be left as air
      * @param controller The TileEntity of the toggle block
      */
-    public void placeBlock(World world, int x, int y, int z, ForgeDirection direction, EntityPlayer player,
-                              ItemStack placing, IToggleController controller);
+    void placeBlock(World world, int x, int y, int z, ForgeDirection direction, EntityPlayer player,
+                    ItemStack placing, IToggleController controller);
 
-    public boolean canPlaceBlock(World world, int x, int y, int z, ItemStack placing, IToggleController controller);
+    boolean canPlaceBlock(World world, int x, int y, int z, ItemStack placing, IToggleController controller);
 
-    public boolean canHarvestBlock(World world, int x, int y, int z, IToggleController controller);
+    boolean canHarvestBlock(World world, int x, int y, int z, IToggleController controller);
 }

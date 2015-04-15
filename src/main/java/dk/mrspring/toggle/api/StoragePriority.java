@@ -12,7 +12,7 @@ public enum StoragePriority
 
     final int id;
 
-    private StoragePriority(int id)
+    StoragePriority(int id)
     {
         this.id = id;
     }
