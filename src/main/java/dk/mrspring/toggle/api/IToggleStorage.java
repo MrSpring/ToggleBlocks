@@ -9,13 +9,22 @@ public interface IToggleStorage
 {
     void validateStorage();
 
-    void addItemStacksToStorage(ItemStack[] stacks);
+    ItemStack[] addItemStacksToStorage(ItemStack[] stacks);
 
-    void addItemStackToStorage(ItemStack stack);
+    ItemStack addItemStackToStorage(ItemStack stack);
 
     StoragePriority getStoragePriority();
 
-    void removeStackFromStorage(ItemStack stack);
+    ItemStack removeStackFromStorage(ItemStack stack);
 
-    void removeAllStacksFromStorage(ItemStack stack);
+    ItemStack[] removeAllStacksFromStorage(ItemStack stack);
+
+    /**
+     * @param item A matching {@link ItemStack} for the requested item. Uses
+     *             {@link ItemStack#areItemStacksEqual(ItemStack, ItemStack)} to find requested item.
+     * @return Returns the item if it could be found. Null if nothing was found.
+     */
+    ItemStack requestItemFromStorage(ItemStack item);
+
+    ItemStack requestToolFromStorage(String toolType);
 }

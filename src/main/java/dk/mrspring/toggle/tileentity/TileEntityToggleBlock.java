@@ -1,9 +1,6 @@
 package dk.mrspring.toggle.tileentity;
 
-import dk.mrspring.toggle.api.IChangeBlockInfo;
-import dk.mrspring.toggle.api.IToggleController;
-import dk.mrspring.toggle.api.Mode;
-import dk.mrspring.toggle.api.StoragePriority;
+import dk.mrspring.toggle.api.*;
 import dk.mrspring.toggle.util.Misc;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,7 +29,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
 {
     public static HashMap<String, Class<? extends Item>> toolTypeClasses = new HashMap<String, Class<? extends Item>>();
 
-    TileEntityChest[] chests = new TileEntityChest[4];
+    //TileEntityChest[] chests = new TileEntityChest[4];
 
     static {
         toolTypeClasses.put("hoe", ItemHoe.class);
@@ -47,7 +44,8 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     List<ChangeBlockInfo> changeBlocks = new ArrayList<ChangeBlockInfo>();
     // on is 1, off is 0
     ItemStack[] states = new ItemStack[2]; // TODO: More states? "Cycle Block" with more than 2 states
-    ItemStack[] storage = new ItemStack[9];
+    //ItemStack[] storage = new ItemStack[9];
+    IToggleStorage storageHandler;
     ChangeBlockInfo.FakePlayer fakePlayer;
     private static final int ON = 1;
     private static final int OFF = 0;

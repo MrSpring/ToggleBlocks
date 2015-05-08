@@ -37,8 +37,8 @@ public class GuiToggleBlock extends GuiContainer
         super.initGui();
         this.buttonList.add(new GuiButton(0, (width / 2) + 24, (height / 2) - (ySize / 2) + 18, 128, 20,
                 translate("tile.toggle_block.container.toggle_mode")));
-        this.buttonList.add(new GuiButton(1, (width / 2) + 14, (height / 2) - (ySize / 2) + 18 + 42, 148, 20,
-                translate("tile.toggle_block.container.cycle_storage_priority")));
+        /*this.buttonList.add(new GuiButton(1, (width / 2) + 14, (height / 2) - (ySize / 2) + 18 + 42, 148, 20,
+                translate("tile.toggle_block.container.cycle_storage_priority")));*/
     }
 
     public GuiToggleBlock(Container container)
@@ -57,13 +57,13 @@ public class GuiToggleBlock extends GuiContainer
         StoragePriority storage = tileEntity.getStoragePriority();
         String modeLabel = translate("tile.toggle_block.container.change_block_mode") + ": " +
                 upperCaseFirstLetter(currentMode.name().toLowerCase());
-        String priorityPrefix = "tile.toggle_block.container.storage_mode." + storage.name().toLowerCase();
+        /*String priorityPrefix = "tile.toggle_block.container.storage_mode." + storage.name().toLowerCase();
         String priorityLabel = translate("tile.toggle_block.container.storage_mode") + ": " +
                 translate(priorityPrefix + ".name");
-        String priorityDesc = translate(priorityPrefix + ".desc");
+        String priorityDesc = translate(priorityPrefix + ".desc");*/
         fontRendererObj.drawString(modeLabel, (xSize / 2) + 8, 7, 4210752, false); // Button text col: 14737632
-        fontRendererObj.drawString(priorityLabel, (xSize / 2) + 8, 49, 4210752, false);
-        drawWrappedString(fontRendererObj, priorityDesc, (xSize / 2) + 8, 100, 4210752, 176 - 16);
+        /*fontRendererObj.drawString(priorityLabel, (xSize / 2) + 8, 49, 4210752, false);
+        drawWrappedString(fontRendererObj, priorityDesc, (xSize / 2) + 8, 100, 4210752, 176 - 16);*/
         fontRendererObj.drawString(translate("tile.toggle_block.container.name"), 8, 5, 4210752);
         fontRendererObj.drawString(translate("tile.toggle_block.container.off"), 8 + 20, 20, 4210752);
         fontRendererObj.drawString(translate("tile.toggle_block.container.on"), 8 + 20, 42, 4210752);
@@ -104,13 +104,13 @@ public class GuiToggleBlock extends GuiContainer
                     MessageSetMode message = new MessageSetMode(x, y, z, newMode, true);
                     ToggleBlocks.network.sendToServer(message);
                     break;
-                case 1:
+                /*case 1:
                     StoragePriority currentPriority = tileEntity.getStoragePriority();
                     StoragePriority newPriority = StoragePriority.getNext(currentPriority);
                     System.out.println("currentPriority.name() = " + currentPriority.name());
                     System.out.println("newPriority.name() = " + newPriority.name());
                     MessageSetStoragePriority priorityMessage = new MessageSetStoragePriority(x, y, z, newPriority, true);
-                    ToggleBlocks.network.sendToServer(priorityMessage);
+                    ToggleBlocks.network.sendToServer(priorityMessage);*/
             }
         }
     }

@@ -8,43 +8,9 @@ import net.minecraft.item.ItemStack;
  */
 public interface IToggleController
 {
-    void addItemStacksToStorage(ItemStack[] stacks);
-
-    void validateStorage();
-
     IChangeBlockInfo getChangeBlockInfo(int index);
 
     IChangeBlockInfo[] getChangeBlocks();
-
-    ItemStack addItemStackToStorage(ItemStack stack);
-
-    /**
-     * This removes the item from storage. Remember to put it back, using {@link #addItemStacksToStorage(ItemStack[])}
-     * when you're done making modifications to it.
-     *
-     * @param item A matching {@link ItemStack} for the requested item. Uses
-     * {@link ItemStack#areItemStacksEqual(ItemStack, ItemStack)} to find requested item.
-     * @return Returns the item if it could be found. Null if nothing was found.
-     */
-    ItemStack requestItemFromStorage(ItemStack item);
-
-    ItemStack requestToolFromStorage(String toolType);
-
-    /**
-     * Removes the first found item that matches the one parsed-through (Uses
-     * {@link ItemStack#areItemStacksEqual(ItemStack, ItemStack) ItemStack.areItemStacksEqual}).
-     *
-     * @param stack
-     * @return
-     */
-    boolean removeItemFromStorage(ItemStack stack);
-
-    /**
-     * Spawns the parsed-through ItemStack in the world at the controllers position.
-     *
-     * @param stack The {@link ItemStack} to drop.
-     */
-    void dropItem(ItemStack stack);
 
     /**
      * Registers the Change Block at the specified coordinates. If a Change Block was found and it contains old
@@ -74,10 +40,5 @@ public interface IToggleController
      */
     int getState();
 
-    /**
-     * @return Returns a read-only array containing all the toggle controller's, and surrounding chest's, inventory.
-     * Once a desired item has been found, use {@link #requestItemFromStorage(ItemStack) requestItemFromStorage} to get
-     * the real item.
-     */
-    ItemStack[] getAllStorage();
+    IToggleStorage getAllHandler();
 }
