@@ -2,7 +2,11 @@ package dk.mrspring.toggle.api_impl;
 
 import dk.mrspring.toggle.api.IToggleStorage;
 import dk.mrspring.toggle.api.StoragePriority;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Konrad on 07-05-2015.
@@ -48,48 +52,72 @@ public class ToggleStorage implements IToggleStorage
         if (stack != null)
         {
             ItemStack toAdd = stack.copy();
-            while (toAdd.stackSize > 0)
-                for (int i = 0; i < itemStacks.length; i++)
+            for (int i = 0; i < itemStacks.length && toAdd.stackSize > 0; i++)
+            {
+                ItemStack inSlot = itemStacks[i];
+                if (inSlot == null)
                 {
-                    ItemStack inSlot = itemStacks[i];
-                    if (inSlot == null)
+                    itemStacks[i] = toAdd;
+                    toAdd.stackSize = 0;
+                } else
+                {
+                    if (inSlot.isItemEqual(toAdd) && ItemStack.areItemStackTagsEqual(inSlot, toAdd))
                     {
-                        itemStacks[i] = toAdd;
-                        break;
-                    } else
-                    {
-                        if (inSlot.isItemEqual(toAdd) && ItemStack.areItemStackTagsEqual(inSlot, toAdd))
+                        inSlot.stackSize += toAdd.stackSize;
+                        int maxStackSize = inSlot.getMaxStackSize();
+                        if (inSlot.stackSize > maxStackSize)
                         {
-                            inSlot.stackSize += toAdd.stackSize;
-                            int maxStackSize = inSlot.getMaxStackSize();
-                            if (inSlot.stackSize > maxStackSize)
-                            {
-                                toAdd.stackSize = inSlot.stackSize - maxStackSize;
-                                inSlot.stackSize = maxStackSize;
-                            } else toAdd.stackSize = 0;
-                            break;
-                        }
+                            toAdd.stackSize = inSlot.stackSize - maxStackSize;
+                            inSlot.stackSize = maxStackSize;
+                        } else toAdd.stackSize = 0;
                     }
                 }
+            }
+            if (toAdd.stackSize > 0)
+                return toAdd;
         }
+        return null;
     }
 
     @Override
     public StoragePriority getStoragePriority()
     {
-        return null;
+        return StoragePriority.STORAGE_FIRST;
     }
 
     @Override
     public ItemStack removeStackFromStorage(ItemStack stack)
     {
-
+        for (int i = 0; i < itemStacks.length; i++)
+        {
+            ItemStack inSlot = itemStacks[i];
+            if (inSlot != null)
+                if (inSlot.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inSlot, stack))
+                {
+                    ItemStack returning = inSlot.copy();
+                    itemStacks[i] = null;
+                    return returning;
+                }
+        }
+        return null;
     }
 
     @Override
     public ItemStack[] removeAllStacksFromStorage(ItemStack stack)
     {
-
+        List<ItemStack> list = new ArrayList<ItemStack>();
+        for (int i = 0; i < itemStacks.length; i++)
+        {
+            ItemStack inSlot = itemStacks[i];
+            if (inSlot != null)
+                if (inSlot.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inSlot, stack))
+                {
+                    ItemStack returning = inSlot.copy();
+                    itemStacks[i] = null;
+                    list.add(returning);
+                }
+        }
+        return list.toArray(new ItemStack[list.size()]);
     }
 
     @Override
