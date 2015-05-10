@@ -212,7 +212,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     }
 
     /*@Override
-    public ItemStack requestItemFromStorage(ItemStack item)
+    public ItemStack getItemFromStorage(ItemStack item)
     {
         if (item == null)
             return null;

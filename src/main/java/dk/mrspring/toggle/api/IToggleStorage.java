@@ -24,7 +24,7 @@ public interface IToggleStorage
      *             {@link ItemStack#areItemStacksEqual(ItemStack, ItemStack)} to find requested item.
      * @return Returns the item if it could be found. Null if nothing was found.
      */
-    ItemStack requestItemFromStorage(ItemStack item);
+    ItemStack getItemFromStorage(ItemStack item);
 
-    ItemStack requestToolFromStorage(String toolType);
+    ItemStack getToolFromStorage(String toolType);
 }

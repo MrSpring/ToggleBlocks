@@ -121,13 +121,13 @@ public class ToggleStorage implements IToggleStorage
     }
 
     @Override
-    public ItemStack requestItemFromStorage(ItemStack item)
+    public ItemStack getItemFromStorage(ItemStack item)
     {
         return null;
     }
 
     @Override
-    public ItemStack requestToolFromStorage(String toolType)
+    public ItemStack getToolFromStorage(String toolType)
     {
         return null;
     }

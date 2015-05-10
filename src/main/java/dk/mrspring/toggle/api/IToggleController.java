@@ -40,5 +40,5 @@ public interface IToggleController
      */
     int getState();
 
-    IToggleStorage getAllHandler();
+    IToggleStorage getStorageHandler();
 }
