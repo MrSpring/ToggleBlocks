@@ -23,7 +23,7 @@ public class PlantableToggleAction extends BasicBlockToggleAction
         {
             IPlantable plantable = (IPlantable) placing.getItem();
             ForgeDirection up = ForgeDirection.UP;
-            ItemStack hoeStack = controller.requestToolFromStorage("hoe");
+            ItemStack hoeStack = controller.getStorageHandler().getToolFromStorage("hoe");
             if (hoeStack != null &&
                     (soil == Blocks.dirt || soil == Blocks.grass) &&
                     Blocks.farmland.canSustainPlant(world, x, y - 1, z, up, plantable))
@@ -50,7 +50,7 @@ public class PlantableToggleAction extends BasicBlockToggleAction
                 System.out.println("Soil can sustain the plant");
                 return true;
             } else if (
-                    controller.requestToolFromStorage("hoe") != null &&
+                    controller.getStorageHandler().getToolFromStorage("hoe") != null &&
                             (soil == Blocks.dirt || soil == Blocks.grass) &&
                             Blocks.farmland.canSustainPlant(world, x, y - 1, z, up, plantable))
             {

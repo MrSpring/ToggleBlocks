@@ -18,11 +18,11 @@ public class BasicBlockToggleAction implements IBlockToggleAction
 {
     public static int[] translateForDirection(ForgeDirection direction, int x, int y, int z)
     {
-        int[] pos = new int[]{x, y, z};
+        /*int[] pos = new int[]{x, y, z};
         pos[0] += direction.offsetX;
         pos[1] += direction.offsetY;
-        pos[2] += direction.offsetZ;
-        return pos;
+        pos[2] += direction.offsetZ;*/
+        return new int[]{x,y,z};//pos;
     }
 
     public static int[] translateOppositeForDirection(ForgeDirection direction, int x, int y, int z)

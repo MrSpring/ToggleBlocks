@@ -1,6 +1,7 @@
 package dk.mrspring.toggle.api;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 /**
  * Created by Konrad on 15-04-2015.
@@ -27,4 +28,14 @@ public interface IToggleStorage
     ItemStack getItemFromStorage(ItemStack item);
 
     ItemStack getToolFromStorage(String toolType);
+
+    int getStorageSlots();
+
+    ItemStack getItemFromSlot(int slot);
+
+    void setItemInSlot(int slot, ItemStack stack);
+
+    void writeToNBT(NBTTagCompound compound);
+
+    void readFromNBT(NBTTagCompound compound);
 }

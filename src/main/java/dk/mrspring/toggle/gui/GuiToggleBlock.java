@@ -54,7 +54,7 @@ public class GuiToggleBlock extends GuiContainer
         ContainerToggleBlock container = (ContainerToggleBlock) this.inventorySlots;
         TileEntityToggleBlock tileEntity = container.getTileEntity();
         Mode currentMode = tileEntity.getCurrentMode();
-        StoragePriority storage = tileEntity.getStoragePriority();
+//        StoragePriority storage = tileEntity.getStorageHandler().getStoragePriority();
         String modeLabel = translate("tile.toggle_block.container.change_block_mode") + ": " +
                 upperCaseFirstLetter(currentMode.name().toLowerCase());
         /*String priorityPrefix = "tile.toggle_block.container.storage_mode." + storage.name().toLowerCase();

@@ -61,13 +61,13 @@ public class ChangeBlockInfo implements IChangeBlockInfo
     {
         ItemStack[] harvested = this.harvest(world, player, controller);
         if (harvested != null)
-            controller.addItemStacksToStorage(harvested);
+            controller.getStorageHandler().addItemStacksToStorage(harvested);
 
-        ItemStack placing = controller.requestItemFromStorage(defaultPlacing);
+        ItemStack placing = controller.getStorageHandler().getItemFromStorage(defaultPlacing);
         if (overridesState(state))
         {
             ItemStack overrider = getOverrideStackForState(state);
-            placing = controller.requestItemFromStorage(overrider);
+            placing = controller.getStorageHandler().getItemFromStorage(overrider);
         }
 
         if (placing != null)
@@ -107,7 +107,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
 
     public void placeChangeBlock(World world, EntityPlayer player, IToggleController controller)
     {
-        controller.addItemStacksToStorage(this.harvest(world, player, controller));
+        controller.getStorageHandler().addItemStacksToStorage(this.harvest(world, player, controller));
         world.setBlock(x, y, z, BlockBase.change_block);
         world.setTileEntity(x, y, z, new TileEntityChangeBlock(x, y, z, this));
     }

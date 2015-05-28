@@ -20,7 +20,7 @@ public class BucketToggleAction extends BasicBlockToggleAction // TODO: FML Flui
     public ItemStack[] harvestBlock(World world, int x, int y, int z, EntityPlayer player, IToggleController controller)
     {
         System.out.println("Harvesting");
-        ItemStack emptyBucket = controller.requestItemFromStorage(new ItemStack(Items.bucket));
+        ItemStack emptyBucket = controller.getStorageHandler().getItemFromStorage(new ItemStack(Items.bucket));
         if (emptyBucket != null)
         {
             Block block = world.getBlock(x, y, z);
@@ -90,8 +90,8 @@ public class BucketToggleAction extends BasicBlockToggleAction // TODO: FML Flui
         if (((ItemBucket) placing.getItem()).tryPlaceContainedLiquid(world, x, y, z))
         {
             placing.stackSize--;
-            controller.validateStorage();
-            controller.addItemStackToStorage(new ItemStack(Items.bucket));
+            controller.getStorageHandler().validateStorage();
+            controller.getStorageHandler().addItemStackToStorage(new ItemStack(Items.bucket));
         }
     }
 

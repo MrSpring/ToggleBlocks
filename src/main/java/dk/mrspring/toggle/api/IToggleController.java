@@ -40,5 +40,7 @@ public interface IToggleController
      */
     int getState();
 
+    int getMaxChangeBlocks();
+
     IToggleStorage getStorageHandler();
 }
