@@ -4,7 +4,7 @@
     "name": "Toggle Blocks",
     "description": "An updated version of TheApathetic's mod Toggle Blocks.",
     "version": "${version}",
-    "mcversion": "${mcversion}",
+    "mcversion": "0.0.6-01",
     "url": "http://mrspring.dk/download/?m=tb",
     "updateUrl": "http://mrspring.dk/changelog/?m=tb&v=l",
     "authorList": [

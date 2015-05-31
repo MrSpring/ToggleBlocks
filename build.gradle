@@ -66,5 +66,6 @@ sourceSets
         {
             main {
                 output.resourcesDir = output.classesDir
+                exclude 'src/main/java/com'
             }
         }
