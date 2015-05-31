@@ -102,10 +102,6 @@ public class BlockChangeBlock extends BlockContainer
         if (world.isRemote)
             return;
         NBTTagCompound placedCompound = placed.getTagCompound();
-//        MovingObjectPosition pos = getMovingObjectPositionFromPlayer(world, (EntityPlayer) player, true);
-//        int metadata=determineOrientation(world, x, y, z, player);
-//        System.out.println("metadata = " + metadata);
-//        world.setBlockMetadataWithNotify(x, y, z, metadata, 2);
         if (placedCompound != null)
             if (placedCompound.hasKey("ControllerInfo"))
             {
