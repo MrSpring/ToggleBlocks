@@ -61,7 +61,7 @@ public class BasicBlockToggleAction implements IBlockToggleAction
             player.setItemInUse(placing, 0);
             int[] placingPos = translateForDirection(direction, x, y, z);
             placing.tryPlaceItemIntoWorld(player, world, placingPos[0], placingPos[1], placingPos[2],
-                    direction.getOpposite().ordinal(), 0, 0, 0);
+                    direction.ordinal(), 0, 0, 0);
         }
     }
 

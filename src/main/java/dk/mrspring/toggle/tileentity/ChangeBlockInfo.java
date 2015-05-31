@@ -31,7 +31,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
     StateOverride[] overrides = new StateOverride[2];
     ForgeDirection direction = ForgeDirection.DOWN;
 
-    public ChangeBlockInfo(int x, int y, int z)
+    public ChangeBlockInfo(int x, int y, int z, int direction)
     {
         this.x = x;
         this.y = y;
@@ -42,6 +42,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
                 new StateOverride(false),
                 new StateOverride(false)
         };
+        this.direction = ForgeDirection.getOrientation(direction);
     }
 
     public ChangeBlockInfo(NBTTagCompound compound)
@@ -79,6 +80,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
     private void place(World world, EntityPlayer player, ItemStack placing, IToggleController controller)
     {
         List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
+        System.out.println(getDirection().name());
         boolean placed = false;
         if (placing != null)
             for (IBlockToggleAction action : actions)
@@ -109,7 +111,13 @@ public class ChangeBlockInfo implements IChangeBlockInfo
     {
         controller.getStorageHandler().addItemStacksToStorage(this.harvest(world, player, controller));
         world.setBlock(x, y, z, BlockBase.change_block);
+        world.setBlockMetadataWithNotify(x, y, z, getDirectionID(), 2);
         world.setTileEntity(x, y, z, new TileEntityChangeBlock(x, y, z, this));
+    }
+
+    public int getDirectionID()
+    {
+        return direction.ordinal();
     }
 
     public void writeToNBT(NBTTagCompound compound, boolean writeCoords)
@@ -132,6 +140,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
             overrideList.appendTag(stateCompound);
         }
         compound.setTag("OverrideList", overrideList);
+        System.out.println("Writing direction: " + direction + " to NBT");
         compound.setInteger("Direction", direction.ordinal());
     }
 
@@ -161,6 +170,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         }
         int direction = compound.getInteger("Direction");
         this.direction = ForgeDirection.getOrientation(direction);
+        System.out.println("Read direction: " + this.direction + " from NBT");
     }
 
     private StateOverride getOverrideForState(int state)

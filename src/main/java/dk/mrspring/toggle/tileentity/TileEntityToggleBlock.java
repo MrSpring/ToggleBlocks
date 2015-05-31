@@ -14,6 +14,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -146,7 +147,10 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         System.out.println("Registering change block: " + x + ", " + y + ", " + z);
         if (this.changeBlocks.size() + 1 <= maxChangeBlocks)
         {
-            ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z);
+            ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z, worldObj.getBlockMetadata(x, y, z));
+            ForgeDirection direction = ForgeDirection.getOrientation(worldObj.getBlockMetadata(x, y, z));
+            System.out.println("Registered with: " + direction);
+//            blockInfo.direction = direction;
             this.changeBlocks.add(blockInfo);
             return blockInfo;
         } else return null;
