@@ -16,24 +16,6 @@ import java.util.List;
  */
 public class BasicBlockToggleAction implements IBlockToggleAction
 {
-    public static int[] translateForDirection(ForgeDirection direction, int x, int y, int z)
-    {
-        /*int[] pos = new int[]{x, y, z};
-        pos[0] += direction.offsetX;
-        pos[1] += direction.offsetY;
-        pos[2] += direction.offsetZ;*/
-        return new int[]{x,y,z};//pos;
-    }
-
-    public static int[] translateOppositeForDirection(ForgeDirection direction, int x, int y, int z)
-    {
-        int[] pos = new int[]{x, y, z};
-        pos[0] -= direction.offsetX;
-        pos[1] -= direction.offsetY;
-        pos[2] -= direction.offsetZ;
-        return pos;
-    }
-
     @Override
     public ItemStack[] harvestBlock(World world, int x, int y, int z, EntityPlayer player,
                                     IToggleController controller)
@@ -59,9 +41,7 @@ public class BasicBlockToggleAction implements IBlockToggleAction
         if (placing != null)
         {
             player.setItemInUse(placing, 0);
-            int[] placingPos = translateForDirection(direction, x, y, z);
-            placing.tryPlaceItemIntoWorld(player, world, placingPos[0], placingPos[1], placingPos[2],
-                    direction.ordinal(), 0, 0, 0);
+            placing.tryPlaceItemIntoWorld(player, world, x, y, z, direction.ordinal(), 0, 0, 0);
         }
     }
 
