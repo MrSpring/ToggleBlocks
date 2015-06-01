@@ -17,7 +17,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.0.6-01"
+version = "0.0.7-01"
 group = "dk.mrspring.toggle" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "ToggleBlocks"
 
