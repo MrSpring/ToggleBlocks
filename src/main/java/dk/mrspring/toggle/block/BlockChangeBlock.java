@@ -26,7 +26,8 @@ import net.minecraftforge.common.util.ForgeDirection;
  */
 public class BlockChangeBlock extends BlockContainer
 {
-    IIcon upIcon, downIcon, leftIcon, rightIcon;
+    public static int renderId;
+    IIcon upIcon, downIcon, leftIcon, rightIcon, frontIcon;
     IIcon[] down, up, north, south, east, west;
 
     public BlockChangeBlock()
@@ -38,21 +39,46 @@ public class BlockChangeBlock extends BlockContainer
     }
 
     @Override
+    public int getRenderType()
+    {
+        return renderId;
+    }
+
+    @Override
+    public boolean isOpaqueCube()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int side)
+    {
+        return true;
+    }
+
+    @Override
     public void registerBlockIcons(IIconRegister register)
     {
         super.registerBlockIcons(register);
 
-        upIcon = register.registerIcon(ModInfo.MOD_ID + ":up");
-        downIcon = register.registerIcon(ModInfo.MOD_ID + ":down");
-        leftIcon = register.registerIcon(ModInfo.MOD_ID + ":left");
-        rightIcon = register.registerIcon(ModInfo.MOD_ID + ":right");
+        upIcon = register.registerIcon(getTextureName() + "_up");
+        downIcon = register.registerIcon(getTextureName() + "_down");
+        leftIcon = register.registerIcon(getTextureName() + "_left");
+        rightIcon = register.registerIcon(getTextureName() + "_right");
+        frontIcon = register.registerIcon(getTextureName() + "_front");
 
-        down = new IIcon[]{blockIcon, blockIcon, downIcon, downIcon, downIcon, downIcon};
-        up = new IIcon[]{blockIcon, blockIcon, upIcon, upIcon, upIcon, upIcon};
-        south = new IIcon[]{upIcon, upIcon, blockIcon, blockIcon, leftIcon, rightIcon};
-        north = new IIcon[]{downIcon, downIcon, blockIcon, blockIcon, rightIcon, leftIcon};
-        west=new IIcon[]{leftIcon, leftIcon, rightIcon, leftIcon, blockIcon, blockIcon};
-        east=new IIcon[]{rightIcon, rightIcon, leftIcon, rightIcon, blockIcon, blockIcon};
+        down = new IIcon[]{frontIcon, blockIcon, downIcon, downIcon, downIcon, downIcon};
+        up = new IIcon[]{blockIcon, frontIcon, upIcon, upIcon, upIcon, upIcon};
+        south = new IIcon[]{upIcon, upIcon, frontIcon, blockIcon, leftIcon, rightIcon};
+        north = new IIcon[]{downIcon, downIcon, blockIcon, frontIcon, rightIcon, leftIcon};
+        west = new IIcon[]{leftIcon, leftIcon, rightIcon, leftIcon, frontIcon, blockIcon};
+        east = new IIcon[]{rightIcon, rightIcon, leftIcon, rightIcon, blockIcon, frontIcon};
     }
 
     @Override
@@ -85,7 +111,11 @@ public class BlockChangeBlock extends BlockContainer
     {
         TileEntity tileEntity = world.getTileEntity(x, y, z);
         if (tileEntity == null || player.isSneaking())
-            return false;
+        {
+            int newMetadata = /*ForgeDirection.getOrientation(side).getOpposite().ordinal()*/side;
+            world.setBlockMetadataWithNotify(x, y, z, newMetadata, 2);
+            return true;
+        }
         player.openGui(ToggleBlocks.instance, 1, world, x, y, z);
         return true;
     }

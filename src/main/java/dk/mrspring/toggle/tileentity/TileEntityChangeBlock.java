@@ -47,6 +47,15 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory // T
     }
 
     @Override
+    public void updateEntity()
+    {
+        if (info != null && getBlockMetadata() != info.getDirectionID())
+        {
+            worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, info.getDirectionID(), 2);
+        }
+    }
+
+    @Override
     public void writeToNBT(NBTTagCompound compound)
     {
         super.writeToNBT(compound);

@@ -205,6 +205,11 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         return direction;
     }
 
+    public void setDirection(int direction)
+    {
+        this.direction = ForgeDirection.getOrientation(direction);
+    }
+
     public static class FakePlayer extends EntityPlayer
     {
         public FakePlayer(World world)
