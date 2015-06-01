@@ -3,7 +3,9 @@ package dk.mrspring.toggle.block;
 import dk.mrspring.toggle.ModInfo;
 import dk.mrspring.toggle.ToggleBlocks;
 import dk.mrspring.toggle.api.IToggleController;
+import dk.mrspring.toggle.tileentity.ChangeBlockInfo;
 import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
+import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -145,8 +147,56 @@ public class BlockChangeBlock extends BlockContainer
                     IToggleController entity = (IToggleController) tileEntity;
                     entity.registerChangeBlock(x, y, z);
                 }
+                tileEntity = world.getTileEntity(x, y, z);
+                if (tileEntity != null && tileEntity instanceof TileEntityChangeBlock)
+                    ((TileEntityChangeBlock) tileEntity).setControllerPos(controllerX, controllerY, controllerZ);
             }
     }
+
+    @Override
+    public void onBlockDestroyedByPlayer(World world, int x, int y, int z, int metadata)
+    {
+//        super.onBlockDestroyedByPlayer(p_149664_1_, p_149664_2_, p_149664_3_, p_149664_4_, p_149664_5_);
+//        System.out.println("Destroyed by player!");
+        /*TileEntity tileEnitity = world.getTileEntity(x, y, z);
+        System.out.println("Got changeblock!");
+        System.out.println(tileEnitity.getClass().getSimpleName());
+        if (tileEnitity instanceof TileEntityChangeBlock)
+        {
+            System.out.println("It was instanceof TileEntityChangeBlock");
+            TileEntityChangeBlock changeBlock = (TileEntityChangeBlock) tileEnitity;
+            int controllerX = changeBlock.getCx();
+            int controllerY = changeBlock.getCy();
+            int controllerZ = changeBlock.getCz();
+            tileEnitity = world.getTileEntity(controllerX, controllerY, controllerZ);
+            if (tileEnitity != null && tileEnitity instanceof IToggleController)
+            {
+                System.out.println("Controller was not null!");
+                IToggleController controller = (IToggleController) tileEnitity;
+                controller.unregisterChangeBlock(x, y, z);
+            }
+        }*/
+    }
+
+    /*@Override
+    public void onBlockPreDestroy(World world, int x, int y, int z, int metadata)
+    {
+        TileEntity tileEnitity = world.getTileEntity(x, y, z);
+        if (tileEnitity instanceof TileEntityChangeBlock)
+        {
+            TileEntityChangeBlock changeBlock = (TileEntityChangeBlock) tileEnitity;
+            int controllerX = changeBlock.getCx();
+            int controllerY = changeBlock.getCy();
+            int controllerZ = changeBlock.getCz();
+            tileEnitity = world.getTileEntity(controllerX, controllerY, controllerZ);
+            if (tileEnitity != null && tileEnitity instanceof IToggleController)
+            {
+                IToggleController controller = (IToggleController) tileEnitity;
+                controller.unregisterChangeBlock(x, y, z);
+            }
+        }
+    }*/
+
     // TODO: Break block; unregister with controller
 
     @Override

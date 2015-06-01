@@ -12,6 +12,7 @@ import dk.mrspring.toggle.block.BlockBase;
 import dk.mrspring.toggle.tileentity.MessageSetMode;
 import dk.mrspring.toggle.tileentity.MessageSetOverride;
 import dk.mrspring.toggle.tileentity.MessageSetStoragePriority;
+import net.minecraftforge.common.MinecraftForge;
 
 /**
  * Created by Konrad on 27-02-2015.
@@ -45,6 +46,7 @@ public class ToggleBlocks
     @Mod.EventHandler
     public static void init(FMLInitializationEvent event)
     {
+        MinecraftForge.EVENT_BUS.register(new EventHandler());
         proxy.registerRenderer();
         FMLInterModComms.sendRuntimeMessage(ModInfo.MOD_ID, "VersionChecker", "addVersionCheck", "http://mrspring.dk/mods/tb/versions.json");
     }

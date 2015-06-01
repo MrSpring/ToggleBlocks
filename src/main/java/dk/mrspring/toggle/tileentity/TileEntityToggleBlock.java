@@ -297,6 +297,24 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
         return this.storageHandler;
     }
 
+    @Override
+    public int x()
+    {
+        return xCoord;
+    }
+
+    @Override
+    public int y()
+    {
+        return yCoord;
+    }
+
+    @Override
+    public int z()
+    {
+        return zCoord;
+    }
+
     public Mode getCurrentMode()
     {
         return currentMode;

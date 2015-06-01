@@ -16,6 +16,7 @@ import net.minecraft.util.StatCollector;
 public class TileEntityChangeBlock extends TileEntity implements IInventory // TODO: Get mostly rid of this class, use only for opening gui. Get the overrides from the Toggle Controller
 {
     ChangeBlockInfo info;
+    int cx, cy, cz;
 
     public TileEntityChangeBlock()
     {
@@ -60,6 +61,9 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory // T
     {
         super.writeToNBT(compound);
         this.getBlockInfo().writeToNBT(compound, false);
+        compound.setInteger("ControllerX", cx);
+        compound.setInteger("ControllerY", cy);
+        compound.setInteger("ControllerZ", cz);
     }
 
     @Override
@@ -67,6 +71,24 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory // T
     {
         super.readFromNBT(compound);
         this.getBlockInfo().readFromNBT(compound, false);
+        cx = compound.getInteger("ControllerX");
+        cy = compound.getInteger("ControllerY");
+        cz = compound.getInteger("ControllerZ");
+    }
+
+    public int getCx()
+    {
+        return cx;
+    }
+
+    public int getCy()
+    {
+        return cy;
+    }
+
+    public int getCz()
+    {
+        return cz;
     }
 
     @Override
@@ -159,5 +181,12 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory // T
     public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_)
     {
         return true;
+    }
+
+    public void setControllerPos(int controllerX, int controllerY, int controllerZ)
+    {
+        this.cx = controllerX;
+        this.cy = controllerY;
+        this.cz = controllerZ;
     }
 }

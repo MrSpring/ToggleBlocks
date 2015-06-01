@@ -113,6 +113,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         world.setBlock(x, y, z, BlockBase.change_block);
         world.setBlockMetadataWithNotify(x, y, z, getDirectionID(), 2);
         world.setTileEntity(x, y, z, new TileEntityChangeBlock(x, y, z, this));
+        ((TileEntityChangeBlock) world.getTileEntity(x, y, z)).setControllerPos(controller.x(), controller.y(), controller.z());
     }
 
     public int getDirectionID()

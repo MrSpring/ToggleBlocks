@@ -43,4 +43,19 @@ public interface IToggleController
     int getMaxChangeBlocks();
 
     IToggleStorage getStorageHandler();
+
+    /**
+     * @return Returns the x coordinate of the toggle controller.
+     */
+    int x();
+
+    /**
+     * @return Returns the y coordinate of the toggle controller.
+     */
+    int y();
+
+    /**
+     * @return Returns the z coordinate of the toggle controller.
+     */
+    int z();
 }
