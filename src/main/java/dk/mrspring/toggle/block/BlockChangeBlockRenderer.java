@@ -19,6 +19,13 @@ public class BlockChangeBlockRenderer implements ISimpleBlockRenderingHandler
         final float P = 0.0625F;
         drawInventoryBlock(block, 0, 0, 0, 5 * P, 5 * P, 5 * P, renderer);
         drawInventoryBlock(block, 1 - (5 * P), 0, 0, 5 * P, 5 * P, 5 * P, renderer);
+        drawInventoryBlock(block, 0, 0, 1 - (5 * P), 5 * P, 5 * P, 5 * P, renderer);
+        drawInventoryBlock(block, 1 - (5 * P), 0, 1 - (5 * P), 5 * P, 5 * P, 5 * P, renderer);
+        drawInventoryBlock(block, 0, 1 - (5 * P), 0, 5 * P, 5 * P, 5 * P, renderer);
+        drawInventoryBlock(block, 1 - (5 * P), 1 - (5 * P), 0, 5 * P, 5 * P, 5 * P, renderer);
+        drawInventoryBlock(block, 0, 1 - (5 * P), 1 - (5 * P), 5 * P, 5 * P, 5 * P, renderer);
+        drawInventoryBlock(block, 1 - (5 * P), 1 - (5 * P), 1 - (5 * P), 5 * P, 5 * P, 5 * P, renderer);
+        drawInventoryBlock(block, P, P, P, 14 * P, 14 * P, 14 * P, renderer);
     }
 
     private void drawInventoryBlock(Block block, double x, double y, double z, double w, double h, double d,
@@ -87,7 +94,7 @@ public class BlockChangeBlockRenderer implements ISimpleBlockRenderingHandler
 
         tessellator.setColorOpaque_F(f, f1, f2);
 
-        renderCube(block, x, y, z, renderer, P, P, P, 14*P, 14*P, 14*P);
+        renderCube(block, x, y, z, renderer, P, P, P, 14 * P, 14 * P, 14 * P);
         renderCube(block, x, y, z, renderer, 0, 0, 0, 5 * P, 5 * P, 5 * P);
         renderCube(block, x, y, z, renderer, 1 - (5 * P), 0, 0, 5 * P, 5 * P, 5 * P);
         renderCube(block, x, y, z, renderer, 0, 0, 1 - (5 * P), 5 * P, 5 * P, 5 * P);
