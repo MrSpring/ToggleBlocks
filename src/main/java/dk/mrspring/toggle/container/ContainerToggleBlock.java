@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 
 /**
  * Created by Konrad on 27-02-2015.
@@ -52,5 +53,31 @@ public class ContainerToggleBlock extends Container
     public boolean canInteractWith(EntityPlayer player)
     {
         return true;
+    }
+
+    @Override
+    public ItemStack transferStackInSlot(EntityPlayer player, int slotIndex)
+    {
+        ItemStack itemStack = null;
+        Slot slot = (Slot) this.inventorySlots.get(slotIndex);
+
+        if (slot != null && slot.getHasStack())
+        {
+            ItemStack itemStack1 = slot.getStack();
+            itemStack = itemStack1.copy();
+
+            if (slotIndex < 9 + 2 && slotIndex > 1)
+            {
+                if (!this.mergeItemStack(itemStack1, 9 + 2, this.inventorySlots.size(), true))
+                    return null;
+            } else if (!this.mergeItemStack(itemStack1, 2, 9 + 2, false))
+                return null;
+
+            if (itemStack1.stackSize == 0)
+                slot.putStack(null);
+            else slot.onSlotChanged();
+        }
+
+        return itemStack;
     }
 }
