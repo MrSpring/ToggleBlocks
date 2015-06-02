@@ -45,12 +45,10 @@ public class ItemBlockChangeBlock extends ItemBlock
         NBTTagCompound stackCompound = stack.getTagCompound();
         NBTTagCompound controllerInfo = stackCompound.getCompoundTag("ControllerInfo");
         int cx = controllerInfo.getInteger("X"), cy = controllerInfo.getInteger("Y"), cz = controllerInfo.getInteger("Z");
-        System.out.println("X: " + cx + ", Y: " + cy + ", Z: " + cz);
         TileEntity tileEntity = world.getTileEntity(cx, cy, cz);
         if (tileEntity != null && tileEntity instanceof IToggleController)
         {
             IToggleController controller = (IToggleController) tileEntity;
-            System.out.println("Max: " + controller.getMaxChangeBlocks() + ", current: " + controller.getRegisteredChangeBlockCount());
             if (!controller.canRegisterAnotherChangeBlock())
             {
                 player.addChatComponentMessage(new ChatComponentText("Controller is already at full capacity!"));
