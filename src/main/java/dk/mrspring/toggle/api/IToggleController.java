@@ -42,6 +42,8 @@ public interface IToggleController
 
     int getMaxChangeBlocks();
 
+    int getRegisteredChangeBlockCount();
+
     IToggleStorage getStorageHandler();
 
     /**
@@ -58,4 +60,6 @@ public interface IToggleController
      * @return Returns the z coordinate of the toggle controller.
      */
     int z();
+
+    boolean canRegisterAnotherChangeBlock();
 }

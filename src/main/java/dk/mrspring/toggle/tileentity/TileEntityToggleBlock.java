@@ -145,7 +145,7 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public ChangeBlockInfo registerChangeBlock(int x, int y, int z)
     {
         System.out.println("Registering change block: " + x + ", " + y + ", " + z);
-        if (this.changeBlocks.size() + 1 <= maxChangeBlocks)
+        if (this.changeBlocks.size() + 1 <= getMaxChangeBlocks())
         {
             ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z, worldObj.getBlockMetadata(x, y, z));
             ForgeDirection direction = ForgeDirection.getOrientation(worldObj.getBlockMetadata(x, y, z));
@@ -288,7 +288,13 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     @Override
     public int getMaxChangeBlocks()
     {
-        return 0;
+        return maxChangeBlocks;
+    }
+
+    @Override
+    public int getRegisteredChangeBlockCount()
+    {
+        return this.changeBlocks.size();
     }
 
     @Override
@@ -313,6 +319,13 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public int z()
     {
         return zCoord;
+    }
+
+    @Override
+    public boolean canRegisterAnotherChangeBlock()
+    {
+//        System.out.println(getRegisteredChangeBlockCount() < getMaxChangeBlocks());
+        return getRegisteredChangeBlockCount() < getMaxChangeBlocks();
     }
 
     public Mode getCurrentMode()

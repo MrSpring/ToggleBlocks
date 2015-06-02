@@ -114,18 +114,11 @@ public class BlockChangeBlock extends BlockContainer
         TileEntity tileEntity = world.getTileEntity(x, y, z);
         if (tileEntity == null || player.isSneaking())
         {
-            int newMetadata = /*ForgeDirection.getOrientation(side).getOpposite().ordinal()*/side;
-            world.setBlockMetadataWithNotify(x, y, z, newMetadata, 2);
+            world.setBlockMetadataWithNotify(x, y, z, side, 2);
             return true;
         }
         player.openGui(ToggleBlocks.instance, 1, world, x, y, z);
         return true;
-    }
-
-    @Override
-    public int onBlockPlaced(World world, int x, int y, int z, int side, float p_149660_6_, float p_149660_7_, float p_149660_8_, int p_149660_9_)
-    {
-        return side;
     }
 
     @Override
@@ -144,6 +137,7 @@ public class BlockChangeBlock extends BlockContainer
                 TileEntity tileEntity = world.getTileEntity(controllerX, controllerY, controllerZ);
                 if (tileEntity != null && tileEntity instanceof IToggleController)
                 {
+                    System.out.println("Registering");
                     IToggleController entity = (IToggleController) tileEntity;
                     entity.registerChangeBlock(x, y, z);
                 }
