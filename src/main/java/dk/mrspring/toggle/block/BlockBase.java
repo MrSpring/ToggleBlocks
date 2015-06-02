@@ -14,13 +14,11 @@ public class BlockBase
 {
     public static final Block toggle_controller = new BlockToggleController();
     public static final Block change_block = new BlockChangeBlock();
-    public static final Block render_tester = new BlockRenderTester(Material.anvil);
 
     public static void registerBlocks()
     {
         GameRegistry.registerBlock(toggle_controller, "toggle_block");
         GameRegistry.registerBlock(change_block, ItemBlockChangeBlock.class, "change_block");
-        GameRegistry.registerBlock(render_tester, "render_tester");
 
         GameRegistry.registerTileEntity(TileEntityToggleBlock.class, "tileEntityToggleBlock");
         GameRegistry.registerTileEntity(TileEntityChangeBlock.class, "tileEntityChangeBlock");
