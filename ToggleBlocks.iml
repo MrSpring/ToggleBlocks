@@ -9,6 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/eclipse" />
+      <excludeFolder url="file://$MODULE_DIR$/src/main/java/dk/mrspring/toggle/api_impl" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
