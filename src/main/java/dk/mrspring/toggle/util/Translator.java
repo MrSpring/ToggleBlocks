@@ -11,4 +11,9 @@ public class Translator
     {
         return StatCollector.translateToLocal(toTranslate);
     }
+
+    public static String translate(String toTranslate, Object... format)
+    {
+        return StatCollector.translateToLocalFormatted(toTranslate, format);
+    }
 }

@@ -67,6 +67,7 @@ public class BlockToggleController extends BlockContainer
         TileEntity tileEntity = world.getTileEntity(x, y, z);
         if (tileEntity == null || player.isSneaking())
             return false;
+        world.markBlockForUpdate(x, y, z);
         player.openGui(ToggleBlocks.instance, 0, world, x, y, z);
         return true;
     }

@@ -31,6 +31,25 @@ public class GuiToggleBlock extends GuiContainer
         this.xSize += 176;
     }
 
+    public GuiToggleBlock(Container container)
+    {
+        super(container);
+    }
+
+    private static void drawWrappedString(FontRenderer renderer, String drawing, int x, int y, int color, int wrap)
+    {
+        List<String> lines = renderer.listFormattedStringToWidth(drawing, wrap);
+        for (int i = 0; i < lines.size(); i++)
+            renderer.drawString(lines.get(i), x, y + (i * 9), color, false);
+    }
+
+    private static String upperCaseFirstLetter(String string)
+    {
+        char[] characters = string.toCharArray();
+        characters[0] = Character.toUpperCase(characters[0]);
+        return new String(characters);
+    }
+
     @Override
     public void initGui()
     {
@@ -39,11 +58,6 @@ public class GuiToggleBlock extends GuiContainer
                 translate("tile.toggle_block.container.toggle_mode")));
         /*this.buttonList.add(new GuiButton(1, (width / 2) + 14, (height / 2) - (ySize / 2) + 18 + 42, 148, 20,
                 translate("tile.toggle_block.container.cycle_storage_priority")));*/
-    }
-
-    public GuiToggleBlock(Container container)
-    {
-        super(container);
     }
 
     @Override
@@ -68,22 +82,9 @@ public class GuiToggleBlock extends GuiContainer
         fontRendererObj.drawString(translate("tile.toggle_block.container.off"), 8 + 20, 20, 4210752);
         fontRendererObj.drawString(translate("tile.toggle_block.container.on"), 8 + 20, 42, 4210752);
         drawCenteredString(fontRendererObj, translate("tile.toggle_block.container.storage"), 133, -10, 0xFFFFFF);
-        fontRendererObj.drawString(translate("tile.toggle_block.container.registered_blocks") + ": X/X", 8, 58, 4210752);
+        int current = tileEntity.getRegisteredChangeBlockCount(), max = tileEntity.getMaxChangeBlocks();
+        fontRendererObj.drawString(translate("tile.toggle_block.container.registered_blocks", current, max), 8, 58, 4210752);
         fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 94, 4210752);
-    }
-
-    private static void drawWrappedString(FontRenderer renderer, String drawing, int x, int y, int color, int wrap)
-    {
-        List<String> lines = renderer.listFormattedStringToWidth(drawing, wrap);
-        for (int i = 0; i < lines.size(); i++)
-            renderer.drawString(lines.get(i), x, y + (i * 9), color, false);
-    }
-
-    private static String upperCaseFirstLetter(String string)
-    {
-        char[] characters = string.toCharArray();
-        characters[0] = Character.toUpperCase(characters[0]);
-        return new String(characters);
     }
 
     @Override
