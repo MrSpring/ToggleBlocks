@@ -7,5 +7,5 @@ public class ModInfo
 {
     public static final String MOD_ID = "tb";
     public static final String NAME = "Toggle Blocks";
-    public static final String VERSION = "0.0.8-01";
+    public static final String VERSION = "0.1.0";
 }
