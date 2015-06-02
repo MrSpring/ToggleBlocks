@@ -5,6 +5,7 @@ import dk.mrspring.toggle.util.Misc;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -28,7 +29,7 @@ import static dk.mrspring.toggle.util.Misc.StackCompareFunction.METADATA;
 /**
  * Created by Konrad on 27-02-2015.
  */
-public class TileEntityToggleBlock extends TileEntity implements IInventory, IToggleController, IToggleStorage
+public class TileEntityToggleBlock extends TileEntity implements ISidedInventory, IToggleController, IToggleStorage
 {
     private static final int ON = 1;
     private static final int OFF = 0;
@@ -693,5 +694,23 @@ public class TileEntityToggleBlock extends TileEntity implements IInventory, ITo
     public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_)
     {
         return true;
+    }
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_)
+    {
+        return new int[]{2, 3, 4, 5, 6, 7, 8, 9, 10};
+    }
+
+    @Override
+    public boolean canInsertItem(int slot, ItemStack stack, int side)
+    {
+        return slot > 1 && slot < 11;
+    }
+
+    @Override
+    public boolean canExtractItem(int slot, ItemStack stack, int side)
+    {
+        return slot > 1 && slot < 11;
     }
 }
