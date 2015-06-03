@@ -24,6 +24,12 @@ import java.util.List;
  */
 public class TileEntityToggleBlock extends TileEntity implements ISidedInventory, IToggleController, IToggleStorage
 {
+    public static final String CHANGE_BLOCKS = "ChangeBlocks";
+    public static final String STATE = "State";
+    public static final String MODE = "Mode";
+    public static final String PRIORITY = "StoragePriority";
+    public static final String ITEM_SLOT = "Slot";
+    public static final String ITEMS = "Items";
     private static final int ON = 1;
     private static final int OFF = 0;
     private static final String[] STATE_NAMES = new String[]{"OffState", "OnState"};
@@ -46,6 +52,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     ChangeBlockInfo.FakePlayer fakePlayer;
     int maxChangeBlocks = 5;
     IInventory[] adjacent = new IInventory[directions.length];
+    StoragePriority priority = StoragePriority.STORAGE_FIRST;
 
     public TileEntityToggleBlock()
     {
@@ -449,7 +456,14 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     @Override
     public StoragePriority getStoragePriority()
     {
-        return StoragePriority.STORAGE_FIRST;
+        return this.priority;
+    }
+
+    @Override
+    public void setStoragePriority(StoragePriority newPriority)
+    {
+        this.priority = newPriority;
+        worldObj.markBlockForUpdate(x(), y(), z());
     }
 
     @Override
@@ -547,10 +561,10 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
                 changeBlockList.appendTag(changeBlockCompound);
             }
 
-        compound.setTag("ChangeBlocks", changeBlockList);
-        compound.setInteger("State", this.state);
-        compound.setString("Mode", this.getCurrentMode().name());
-        compound.setString("StoragePriority", getStoragePriority().name());
+        compound.setTag(CHANGE_BLOCKS, changeBlockList);
+        compound.setInteger(STATE, this.state);
+        compound.setString(MODE, this.getCurrentMode().name());
+        compound.setInteger(PRIORITY, getStoragePriority().getId());
 
         NBTTagList storageList = new NBTTagList();
 
@@ -559,13 +573,13 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
             if (this.itemStacks[i] != null)
             {
                 NBTTagCompound itemCompound = new NBTTagCompound();
-                itemCompound.setByte("Slot", (byte) i);
+                itemCompound.setByte(ITEM_SLOT, (byte) i);
                 this.itemStacks[i].writeToNBT(itemCompound);
                 storageList.appendTag(itemCompound);
             }
         }
 
-        compound.setTag("Items", storageList);
+        compound.setTag(ITEMS, storageList);
 
         for (int i = 0; i < this.states.length; i++)
         {
@@ -583,7 +597,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     {
         super.readFromNBT(compound);
 
-        NBTTagList changeBlockList = compound.getTagList("ChangeBlocks", 10);
+        NBTTagList changeBlockList = compound.getTagList(CHANGE_BLOCKS, 10);
         this.changeBlocks = new ArrayList<ChangeBlockInfo>();
         for (int i = 0; i < changeBlockList.tagCount(); i++)
         {
@@ -592,25 +606,26 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
             this.changeBlocks.add(info);
         }
 
-        this.state = compound.getInteger("State");
-        this.currentMode = Mode.valueOf(compound.getString("Mode"));
-        // TODO: Read storage priority
+        this.state = compound.getInteger(STATE);
+        this.currentMode = Mode.valueOf(compound.getString(MODE));
+        this.priority = StoragePriority.fromInt(compound.getInteger(PRIORITY));
 
-        NBTTagList storageList = compound.getTagList("Items", 10);
+        NBTTagList storageList = compound.getTagList(ITEMS, 10);
         this.itemStacks = new ItemStack[getStorageSlots()];
 
         for (int i = 0; i < storageList.tagCount(); i++)
         {
             NBTTagCompound itemCompound = storageList.getCompoundTagAt(i);
             ItemStack fromCompound = ItemStack.loadItemStackFromNBT(itemCompound);
-            this.itemStacks[itemCompound.getByte("Slot")] = fromCompound;
+            this.itemStacks[itemCompound.getByte(ITEM_SLOT)] = fromCompound;
         }
 
         this.states = new ItemStack[2];
-        ItemStack tempStack = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("OnState"));
-        this.states[1] = tempStack;
-        tempStack = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("OffState"));
-        this.states[0] = tempStack;
+        for (int i = 0; i < states.length; i++)
+        {
+            NBTTagCompound stateCompound = compound.getCompoundTag(STATE_NAMES[i]);
+            this.states[i] = ItemStack.loadItemStackFromNBT(stateCompound);
+        }
     }
 
     @Override

@@ -55,19 +55,19 @@ public class MessageSetStoragePriority implements IMessage
         @Override
         public IMessage onMessage(MessageSetStoragePriority message, MessageContext context)
         {
-//            if (context.getServerHandler().playerEntity != null)
-//            {
-//                if (!context.getServerHandler().playerEntity.worldObj.isRemote)
-//                {
-//                    World world = context.getServerHandler().playerEntity.worldObj;
-//                    int x = message.controllerX, y = message.controllerY, z = message.controllerZ;
-//                    if (world.getTileEntity(x, y, z) instanceof TileEntityToggleBlock)
-//                    {
-//                        TileEntityToggleBlock tileEntity = (TileEntityToggleBlock) world.getTileEntity(x, y, z);
-//                        tileEntity.setStoragePriority(message.priority);
-//                    }
-//                }
-//            }
+            if (context.getServerHandler().playerEntity != null)
+            {
+                if (!context.getServerHandler().playerEntity.worldObj.isRemote)
+                {
+                    World world = context.getServerHandler().playerEntity.worldObj;
+                    int x = message.controllerX, y = message.controllerY, z = message.controllerZ;
+                    if (world.getTileEntity(x, y, z) instanceof TileEntityToggleBlock)
+                    {
+                        TileEntityToggleBlock tileEntity = (TileEntityToggleBlock) world.getTileEntity(x, y, z);
+                        tileEntity.getStorageHandler().setStoragePriority(message.priority);
+                    }
+                }
+            }
             return null;
         }
     }

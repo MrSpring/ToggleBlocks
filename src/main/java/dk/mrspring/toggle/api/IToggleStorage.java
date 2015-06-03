@@ -38,4 +38,6 @@ public interface IToggleStorage
     void writeToNBT(NBTTagCompound compound);
 
     void readFromNBT(NBTTagCompound compound);
+
+    void setStoragePriority(StoragePriority priority);
 }
