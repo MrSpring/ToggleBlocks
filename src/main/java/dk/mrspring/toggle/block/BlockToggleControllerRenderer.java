@@ -9,6 +9,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.IBlockAccess;
 import org.lwjgl.opengl.GL11;
 
+import static dk.mrspring.toggle.block.ToggleControllerRenderHelper.connect;
+
 /**
  * Created by Konrad on 04-03-2015.
  */
@@ -93,12 +95,12 @@ public class BlockToggleControllerRenderer implements ISimpleBlockRenderingHandl
         final int CS = 8;
         final int CH = 2;
 
-        boolean bottom = world.getBlock(x, y - 1, z).isOpaqueCube() || world.getBlock(x, y - 1, z) == Blocks.chest;
-        boolean top = world.getBlock(x, y + 1, z).isOpaqueCube() || world.getBlock(x, y + 1, z) == Blocks.chest;
-        boolean north = world.getBlock(x, y, z - 1).isOpaqueCube() || world.getBlock(x, y, z - 1) == Blocks.chest;
-        boolean south = world.getBlock(x, y, z + 1).isOpaqueCube() || world.getBlock(x, y, z + 1) == Blocks.chest;
-        boolean east = world.getBlock(x + 1, y, z).isOpaqueCube() || world.getBlock(x + 1, y, z) == Blocks.chest;
-        boolean west = world.getBlock(x - 1, y, z).isOpaqueCube() || world.getBlock(x - 1, y, z) == Blocks.chest;
+        boolean bottom = connect(world.getBlock(x, y - 1, z));
+        boolean top = connect(world.getBlock(x, y + 1, z));
+        boolean north = connect(world.getBlock(x, y, z - 1));
+        boolean south = connect(world.getBlock(x, y, z + 1));
+        boolean east = connect(world.getBlock(x + 1, y, z));
+        boolean west = connect(world.getBlock(x - 1, y, z));
 
         Tessellator tessellator = Tessellator.instance;
         tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
