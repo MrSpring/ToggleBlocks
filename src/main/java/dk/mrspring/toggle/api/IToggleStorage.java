@@ -16,9 +16,9 @@ public interface IToggleStorage
 
     StoragePriority getStoragePriority();
 
-    ItemStack removeStackFromStorage(ItemStack stack);
+//    ItemStack removeStackFromStorage(ItemStack stack);
 
-    ItemStack[] removeAllStacksFromStorage(ItemStack stack);
+//    ItemStack[] removeAllStacksFromStorage(ItemStack stack);
 
     /**
      * @param item A matching {@link ItemStack} for the requested item. Uses

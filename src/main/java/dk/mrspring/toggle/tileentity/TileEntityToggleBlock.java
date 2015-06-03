@@ -119,21 +119,11 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public void updateChangeBlocks()
     {
         if (this.isReady() && !worldObj.isRemote)
-        {
             for (ChangeBlockInfo pos : this.changeBlocks)
             {
                 ItemStack stateStack = states[getState()];
-                for (int i = 0; i < states.length; i++)
-                {
-                    ItemStack stack = states[i];
-                    if (stack != null)
-                        System.out.println("State: " + i + ": " + stack.getDisplayName());
-                    else System.out.println("State: " + i);
-                }
-                System.out.println("Current state: " + getState());
                 pos.doActionForState(worldObj, getState(), getFakePlayer(), stateStack, this);
             }
-        }
     }
 
     public void placeChangeBlocks()
@@ -147,12 +137,9 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     @Override
     public ChangeBlockInfo registerChangeBlock(int x, int y, int z)
     {
-        System.out.println("Registering change block: " + x + ", " + y + ", " + z);
         if (this.changeBlocks.size() + 1 <= getMaxChangeBlocks())
         {
             ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z, worldObj.getBlockMetadata(x, y, z));
-            ForgeDirection direction = ForgeDirection.getOrientation(worldObj.getBlockMetadata(x, y, z));
-            System.out.println("Registered with: " + direction);
             this.changeBlocks.add(blockInfo);
             return blockInfo;
         } else return null;
@@ -299,7 +286,8 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     @Override
     public ItemStack addItemStackToStorage(ItemStack stack)
     {
-        System.out.println("Adding: " + stack.toString() + ", priority: " + getStoragePriority().name());
+        if (stack == null || stack.stackSize <= 0)
+            return null;
         ItemStack adding = stack.copy();
         switch (this.getStoragePriority())
         {
@@ -311,80 +299,26 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
                 else return null;
 
             case STORAGE_FIRST:
-                System.out.println(3);
                 adding = this.addStorage(adding);
             case CHESTS_ONLY:
-                System.out.println(4);
                 if (adding.stackSize > 0)
                     return this.addAdjacent(adding);
                 else return null;
         }
         return adding;
-        /*if (stack != null)
-        {
-            ItemStack toAdd = stack.copy();
-            for (int i = 0; i < itemStacks.length && toAdd.stackSize > 0; i++)
-            {
-                ItemStack inSlot = itemStacks[i];
-                if (inSlot == null)
-                {
-                    itemStacks[i] = toAdd.copy();
-                    toAdd.stackSize = 0;
-                } else
-                {
-                    if (inSlot.isItemEqual(toAdd) && ItemStack.areItemStackTagsEqual(inSlot, toAdd))
-                    {
-                        inSlot.stackSize += toAdd.stackSize;
-                        int maxStackSize = inSlot.getMaxStackSize();
-                        if (inSlot.stackSize > maxStackSize)
-                        {
-                            toAdd.stackSize = inSlot.stackSize - maxStackSize;
-                            inSlot.stackSize = maxStackSize;
-                        } else toAdd.stackSize = 0;
-                    }
-                }
-            }
-            if (toAdd.stackSize > 0)
-                return toAdd;
-        }
-        return null;*/
     }
 
     private ItemStack addStorage(ItemStack stack)
     {
-        System.out.println("Adding to storage!");
         return addToInventory(this, 0, stack);
-
-        /*for (int i = 0; i < itemStacks.length && adding.stackSize > 0; i++)
-        {
-            ItemStack inSlot = itemStacks[i];
-            if (inSlot == null)
-            {
-                itemStacks[i] = adding.copy();
-                inSlot = itemStacks[i];
-                int maxSize = inSlot.getMaxStackSize();
-                if (inSlot.stackSize > maxSize)
-                {
-                    int remaining = inSlot.stackSize - maxSize;
-                    inSlot.stackSize = maxSize;
-                    adding.stackSize = remaining;
-                } else adding.stackSize = 0;
-            }
-        }
-
-        return adding;*/
     }
 
     private ItemStack addAdjacent(ItemStack stack)
     {
-        System.out.println("Adding to adjacent!");
         ItemStack adding = stack.copy();
         for (int i = 0; i < adjacent.length && adding.stackSize > 0; i++)
             if (adjacent[i] != null)
-            {
                 adding = addToInventory(adjacent[i], directions[i].getOpposite().ordinal(), adding);
-                System.out.println("Added to: " + i + ", returned stack with stackSize of: " + adding.stackSize);
-            }
         return adding;
     }
 
@@ -399,7 +333,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
             for (int slot = 0; slot < slots && adding.stackSize > 0; slot++)
             {
                 ItemStack inSlot = inventory.getStackInSlot(slot);
-                if (inSlot == null)
+                if (inSlot == null || inSlot.getItem() == null)
                 {
                     inventory.setInventorySlotContents(slot, adding.copy());
                     adding.stackSize = 0;
@@ -429,9 +363,8 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         for (int i = 0; i < accessibleSlots.length && adding.stackSize > 0; i++)
         {
             int slot = accessibleSlots[i];
-            System.out.println("Adding: " + adding.toString() + ", to slot: " + slot);
             ItemStack inSlot = inventory.getStackInSlot(slot);
-            if (inSlot == null)
+            if (inSlot == null || inSlot.getItem() == null)
             {
                 inventory.setInventorySlotContents(slot, adding.copy());
                 adding.stackSize = 0;
@@ -467,65 +400,152 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public ItemStack removeStackFromStorage(ItemStack stack)
+    public ItemStack getItemFromStorage(ItemStack stack)
     {
-        for (int i = 0; i < itemStacks.length; i++)
+        if (stack == null)
+            return null;
+        ItemStack found = null;
+        switch (getStoragePriority())
         {
-            ItemStack inSlot = itemStacks[i];
-            if (inSlot != null)
-                if (inSlot.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inSlot, stack))
-                {
-                    ItemStack returning = inSlot.copy();
-                    itemStacks[i] = null;
-                    return returning;
-                }
+            case CHESTS_FIRST:
+                found = getFromAdjacent(stack);
+                if (found != null)
+                    break;
+            case STORAGE_ONLY:
+                return getFromStorage(stack);
+
+            case STORAGE_FIRST:
+                found = getFromStorage(stack);
+                if (found != null)
+                    break;
+            case CHESTS_ONLY:
+                return getFromAdjacent(stack);
         }
-        return null;
+        return found;
     }
 
-    @Override
-    public ItemStack[] removeAllStacksFromStorage(ItemStack stack)
+    private ItemStack getFromAdjacent(ItemStack stack)
     {
-        List<ItemStack> list = new ArrayList<ItemStack>();
-        for (int i = 0; i < itemStacks.length; i++)
-        {
-            ItemStack inSlot = itemStacks[i];
-            if (inSlot != null)
-                if (inSlot.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inSlot, stack))
-                {
-                    ItemStack returning = inSlot.copy();
-                    itemStacks[i] = null;
-                    list.add(returning);
-                }
-        }
-        return list.toArray(new ItemStack[list.size()]);
+        ItemStack result = null;
+        for (int i = 0; i < adjacent.length && result == null; i++)
+            if (adjacent[i] != null)
+                result = getFromInventory(adjacent[i], directions[i].getOpposite().ordinal(), stack);
+        return result;
     }
 
-    @Override
-    public ItemStack getItemFromStorage(ItemStack item)
+    private ItemStack getFromStorage(ItemStack stack)
     {
-        for (ItemStack storageStack : this.itemStacks)
+        return getFromInventory(this, 0, stack);
+    }
+
+    private ItemStack getFromInventory(IInventory inventory, int side, ItemStack stack)
+    {
+        if (inventory instanceof ISidedInventory)
+            return getFromSidedInventory((ISidedInventory) inventory, side, stack);
+        else
         {
-            if (storageStack != null && item != null)
-                if (storageStack.isItemEqual(item))
-                    return storageStack;
+            ItemStack result = null;
+            int slots = inventory.getSizeInventory();
+            for (int slot = 0; slot < slots && result == null; slot++)
+            {
+                ItemStack inSlot = inventory.getStackInSlot(slot);
+                if (inSlot != null && inSlot.isItemEqual(stack) && inSlot.stackSize > 0)
+                    result = inSlot;
+            }
+            return result;
         }
-        return null;
+    }
+
+    private ItemStack getFromSidedInventory(ISidedInventory inventory, int side, ItemStack stack)
+    {
+        ItemStack result = null;
+        int[] accessibleSlots = inventory.getAccessibleSlotsFromSide(side);
+        for (int i = 0; i < accessibleSlots.length && result == null; i++)
+        {
+            int slot = accessibleSlots[i];
+            ItemStack inSlot = inventory.getStackInSlot(slot);
+            if (inSlot != null && inSlot.isItemEqual(stack) && inSlot.stackSize > 0)
+                result = inSlot;
+        }
+        return result;
     }
 
     @Override
     public ItemStack getToolFromStorage(String toolType)
     {
-        for (ItemStack stack : this.itemStacks)
-            if (stack != null)
-                if (stack.getItem().getToolClasses(stack).contains(toolType))
-                    return stack;
-                else if (TileEntityToggleBlock.toolTypeClasses.containsKey(toolType) && stack.getItem().getClass() == TileEntityToggleBlock.toolTypeClasses.get(toolType))
-                {
-                    System.out.println("Returning type: " + toolType);
-                    return stack;
-                }
-        return null;
+        if (toolType == null)
+            return null;
+        ItemStack found = null;
+        switch (getStoragePriority())
+        {
+            case CHESTS_FIRST:
+                found = getTFromAdjacent(toolType);
+                if (found != null)
+                    break;
+            case STORAGE_ONLY:
+                return getTFromStorage(toolType);
+
+            case STORAGE_FIRST:
+                found = getTFromStorage(toolType);
+                if (found != null)
+                    break;
+            case CHESTS_ONLY:
+                return getTFromAdjacent(toolType);
+        }
+        return found;
+    }
+
+    private ItemStack getTFromStorage(String toolType)
+    {
+        return getTFromInventory(this, 0, toolType);
+    }
+
+    private ItemStack getTFromAdjacent(String toolType)
+    {
+        ItemStack result = null;
+        for (int i = 0; i < adjacent.length && result == null; i++)
+            if (adjacent[i] != null)
+                result = getTFromInventory(adjacent[i], directions[i].getOpposite().ordinal(), toolType);
+        return result;
+    }
+
+    private ItemStack getTFromInventory(IInventory inventory, int side, String toolType)
+    {
+        if (inventory instanceof ISidedInventory)
+            return getTFromSidedInventory((ISidedInventory) inventory, side, toolType);
+        else
+        {
+            ItemStack result = null;
+            int slots = inventory.getSizeInventory();
+            for (int slot = 0; slot < slots && result == null; slot++)
+            {
+                ItemStack inSlot = inventory.getStackInSlot(slot);
+                if (isItemTool(toolType, inSlot))
+                    result = inSlot;
+            }
+            return result;
+        }
+    }
+
+    private ItemStack getTFromSidedInventory(ISidedInventory inventory, int side, String toolType)
+    {
+        ItemStack result = null;
+        int[] accessibleSlots = inventory.getAccessibleSlotsFromSide(side);
+        for (int slot : accessibleSlots)
+        {
+            ItemStack inSlot = inventory.getStackInSlot(slot);
+            if (isItemTool(toolType, inSlot))
+                result = inSlot;
+        }
+        return result;
+    }
+
+    private boolean isItemTool(String toolType, ItemStack stack)
+    {
+        return stack != null && stack.getItem() != null &&
+                (stack.getItem().getToolClasses(stack).contains(toolType) ||
+                        (toolTypeClasses.containsKey(toolType) &&
+                                stack.getItem().getClass() == toolTypeClasses.get(toolType)));
     }
 
     @Override

@@ -26,8 +26,6 @@ public class ChangeBlockInfo implements IChangeBlockInfo
     public static final IBlockToggleAction FALLBACK_ACTION = new BasicBlockToggleAction();
 
     public int x, y, z;
-    //    boolean[] override;
-//    ItemStack[] overrideStates;
     StateOverride[] overrides = new StateOverride[2];
     ForgeDirection direction = ForgeDirection.DOWN;
 
@@ -36,8 +34,6 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         this.x = x;
         this.y = y;
         this.z = z;
-//        this.override = new boolean[]{false, false};
-//        this.overrideStates = new ItemStack[override.length];
         this.overrides = new StateOverride[]{
                 new StateOverride(false),
                 new StateOverride(false)
@@ -71,16 +67,12 @@ public class ChangeBlockInfo implements IChangeBlockInfo
             placing = controller.getStorageHandler().getItemFromStorage(overrider);
         }
 
-        if (placing != null)
-            System.out.println("Placing: " + placing.getDisplayName() + ", stack size: " + placing.stackSize);
-        else System.out.println("Placing nothing.");
         this.place(world, player, placing, controller);
     }
 
     private void place(World world, EntityPlayer player, ItemStack placing, IToggleController controller)
     {
         List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
-        System.out.println(getDirection().name());
         boolean placed = false;
         if (placing != null)
             for (IBlockToggleAction action : actions)
@@ -141,7 +133,6 @@ public class ChangeBlockInfo implements IChangeBlockInfo
             overrideList.appendTag(stateCompound);
         }
         compound.setTag("OverrideList", overrideList);
-        System.out.println("Writing direction: " + direction + " to NBT");
         compound.setInteger("Direction", direction.ordinal());
     }
 
@@ -171,7 +162,6 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         }
         int direction = compound.getInteger("Direction");
         this.direction = ForgeDirection.getOrientation(direction);
-        System.out.println("Read direction: " + this.direction + " from NBT");
     }
 
     private StateOverride getOverrideForState(int state)
