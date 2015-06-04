@@ -32,7 +32,9 @@ public class BlockToggleController extends BlockContainer
 
     public BlockToggleController()
     {
-        super(Material.anvil);
+        super(Material.iron);
+
+        this.setHardness(5.0F);
 
         this.setBlockName("toggle_block");
         this.setBlockTextureName("tb:toggle_controller");

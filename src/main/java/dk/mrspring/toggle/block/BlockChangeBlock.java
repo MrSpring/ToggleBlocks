@@ -34,10 +34,12 @@ public class BlockChangeBlock extends BlockContainer
 
     public BlockChangeBlock()
     {
-        super(Material.anvil);
+        super(Material.iron);
 
         this.setBlockName("change_block");
         this.setBlockTextureName("tb:change_block");
+
+        this.setHardness(5.0F);
     }
 
     @Override
