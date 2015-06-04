@@ -2,6 +2,7 @@ package dk.mrspring.toggle.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import dk.mrspring.toggle.item.ItemBlockChangeBlock;
+import dk.mrspring.toggle.item.ItemBlockToggleController;
 import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
 import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.Block;
@@ -17,7 +18,7 @@ public class BlockBase
 
     public static void registerBlocks()
     {
-        GameRegistry.registerBlock(toggle_controller, "toggle_block");
+        GameRegistry.registerBlock(toggle_controller, ItemBlockToggleController.class, "toggle_block");
         GameRegistry.registerBlock(change_block, ItemBlockChangeBlock.class, "change_block");
 
         GameRegistry.registerTileEntity(TileEntityToggleBlock.class, "tileEntityToggleBlock");

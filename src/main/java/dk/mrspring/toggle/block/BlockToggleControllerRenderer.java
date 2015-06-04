@@ -34,19 +34,19 @@ public class BlockToggleControllerRenderer implements ISimpleBlockRenderingHandl
         GL11.glScalef(SCALE, SCALE, SCALE);
         drawInventoryBlock(block,
                 0.5 - ((CS / 2) * P), 0.5 - ((CS / 2) * P), 0.5 - ((CS / 2) * P),
-                CS * P, CS * P, CS * P, renderer);
+                CS * P, CS * P, CS * P, renderer, metadata);
 
         drawInventoryBlock(block,
                 0.5 - P, 2 * P, 0.5 - P,
-                2 * P, 2 * P, 2 * P, renderer);
+                2 * P, 2 * P, 2 * P, renderer, metadata);
 
         drawInventoryBlock(block,
                 0.5 - ((CS / 2) * P), 0, 0.5 - ((CS / 2) * P),
-                CS * P, CH * P, CS * P, renderer);
+                CS * P, CH * P, CS * P, renderer, metadata);
     }
 
     private void drawInventoryBlock(Block block, double x, double y, double z, double w, double h, double d,
-                                    RenderBlocks renderer)
+                                    RenderBlocks renderer, int metadata)
     {
         Tessellator tessellator = Tessellator.instance;
         GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
@@ -56,32 +56,32 @@ public class BlockToggleControllerRenderer implements ISimpleBlockRenderingHandl
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(0, 1, 0);
-        renderer.renderFaceYPos(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceYPos(block, 0, 0, 0, block.getIcon(0, metadata));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(0, -1, 0);
-        renderer.renderFaceYNeg(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceYNeg(block, 0, 0, 0, block.getIcon(0, metadata));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(1, 0, 0);
-        renderer.renderFaceXPos(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceXPos(block, 0, 0, 0, block.getIcon(0, metadata));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(-1, 0, 0);
-        renderer.renderFaceXNeg(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceXNeg(block, 0, 0, 0, block.getIcon(0, metadata));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(0, 0, 1);
-        renderer.renderFaceZPos(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceZPos(block, 0, 0, 0, block.getIcon(0, metadata));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(0, 0, -1);
-        renderer.renderFaceZNeg(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceZNeg(block, 0, 0, 0, block.getIcon(0, metadata));
         tessellator.draw();
 
         GL11.glTranslatef(0.5F, 0.5F, 0.5F);

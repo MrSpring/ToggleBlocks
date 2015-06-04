@@ -7,12 +7,16 @@ import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import dk.mrspring.toggle.block.BlockBase;
 import dk.mrspring.toggle.tileentity.MessageSetMode;
 import dk.mrspring.toggle.tileentity.MessageSetOverride;
 import dk.mrspring.toggle.tileentity.MessageSetStoragePriority;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 
 /**
  * Created by Konrad on 27-02-2015.
@@ -40,6 +44,7 @@ public class ToggleBlocks
         network.registerMessage(MessageSetStoragePriority.MessageHandler.class, MessageSetStoragePriority.class, 2, Side.SERVER);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
+
         BlockBase.registerBlocks();
     }
 
@@ -49,5 +54,9 @@ public class ToggleBlocks
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         proxy.registerRenderer();
         FMLInterModComms.sendRuntimeMessage(ModInfo.MOD_ID, "VersionChecker", "addVersionCheck", "http://mrspring.dk/mods/tb/versions.json");
+
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 0), "IRI", "RBR", "IRI", 'R', "dustRedstone", 'I', "blockIron", 'B', "blockRedstone"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 1), "GRG", "BBB", "GRG", 'R', "dustRedstone", 'G', "blockGold", 'B', Items.blaze_rod));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 2), "DRD", "PNP", "DRD", 'R', "blockRedstone", 'D', "blockDiamond", 'P', Items.ender_pearl, 'N', Items.nether_star));
     }
 }
