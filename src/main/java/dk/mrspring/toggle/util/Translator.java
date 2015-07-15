@@ -14,6 +14,6 @@ public class Translator
 
     public static String translate(String toTranslate, Object... format)
     {
-        return StatCollector.translateToLocalFormatted(toTranslate, format).replace("§", "\u00a7");
+        return StatCollector.translateToLocalFormatted(toTranslate, format);
     }
 }

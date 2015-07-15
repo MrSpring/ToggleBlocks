@@ -28,8 +28,7 @@ public class ItemBlockChangeBlock extends ItemBlock
         super.addInformation(stack, player, lines, p_77624_4_);
 
         NBTTagCompound compound = stack.getTagCompound();
-        if (compound == null || !compound.hasKey("ControllerInfo", 10))
-            return;
+        if (compound == null || !compound.hasKey("ControllerInfo", 10)) return;
         NBTTagCompound controllerInfo = compound.getCompoundTag("ControllerInfo");
         int controllerX = controllerInfo.getInteger("X");
         int controllerY = controllerInfo.getInteger("Y");
