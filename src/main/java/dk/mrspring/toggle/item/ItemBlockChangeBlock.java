@@ -28,7 +28,7 @@ public class ItemBlockChangeBlock extends ItemBlock
         super.addInformation(stack, player, lines, p_77624_4_);
 
         NBTTagCompound compound = stack.getTagCompound();
-        if (compound == null)
+        if (compound == null || !compound.hasKey("ControllerInfo", 10))
             return;
         NBTTagCompound controllerInfo = compound.getCompoundTag("ControllerInfo");
         int controllerX = controllerInfo.getInteger("X");
@@ -43,17 +43,20 @@ public class ItemBlockChangeBlock extends ItemBlock
         if (world.isRemote)
             return false;
         NBTTagCompound stackCompound = stack.getTagCompound();
-        NBTTagCompound controllerInfo = stackCompound.getCompoundTag("ControllerInfo");
-        int cx = controllerInfo.getInteger("X"), cy = controllerInfo.getInteger("Y"), cz = controllerInfo.getInteger("Z");
-        TileEntity tileEntity = world.getTileEntity(cx, cy, cz);
-        if (tileEntity != null && tileEntity instanceof IToggleController)
+        if (stackCompound != null && stackCompound.hasKey("ControllerInfo", 10))
         {
-            IToggleController controller = (IToggleController) tileEntity;
-            if (!controller.canRegisterAnotherChangeBlock())
+            NBTTagCompound controllerInfo = stackCompound.getCompoundTag("ControllerInfo");
+            int cx = controllerInfo.getInteger("X"), cy = controllerInfo.getInteger("Y"), cz = controllerInfo.getInteger("Z");
+            TileEntity tileEntity = world.getTileEntity(cx, cy, cz);
+            if (tileEntity != null && tileEntity instanceof IToggleController)
             {
-                player.addChatComponentMessage(new ChatComponentText("Controller is already at full capacity!"));
-                return false;
-            } else return super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, side);
+                IToggleController controller = (IToggleController) tileEntity;
+                if (!controller.canRegisterAnotherChangeBlock())
+                {
+                    player.addChatComponentMessage(new ChatComponentText("Controller is already at full capacity!"));
+                    return false;
+                } else return super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, side);
+            } else return false;
         } else return false;
     }
 }
