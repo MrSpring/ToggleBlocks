@@ -1,6 +1,7 @@
 package dk.mrspring.toggle.item;
 
 import dk.mrspring.toggle.api.IToggleController;
+import dk.mrspring.toggle.util.Translator;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -33,7 +34,9 @@ public class ItemBlockChangeBlock extends ItemBlock
         int controllerX = controllerInfo.getInteger("X");
         int controllerY = controllerInfo.getInteger("Y");
         int controllerZ = controllerInfo.getInteger("Z");
-        lines.add("Linked to controller: " + controllerX + ", " + controllerY + ", " + controllerZ);
+        String s = Translator.translate("tile.change_block.desc", controllerX, controllerY, controllerZ);
+        lines.add(s);
+//        lines.add("Linked to controller: " + controllerX + ", " + controllerY + ", " + controllerZ);
     }
 
     @Override

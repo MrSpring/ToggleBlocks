@@ -62,4 +62,13 @@ public interface IToggleController
     int z();
 
     boolean canRegisterAnotherChangeBlock();
+
+    /**
+     * Called when a Change Block is destroyed.
+     * @param changeBlockX
+     * @param changeBlockY
+     * @param changeBlockZ
+     * @return Returns the ItemStack that drops from the Change Block
+     */
+    ItemStack[] createChangeBlockDrop(int changeBlockX, int changeBlockY, int changeBlockZ);
 }

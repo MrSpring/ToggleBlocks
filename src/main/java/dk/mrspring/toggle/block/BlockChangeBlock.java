@@ -1,27 +1,21 @@
 package dk.mrspring.toggle.block;
 
-import dk.mrspring.toggle.ModInfo;
 import dk.mrspring.toggle.ToggleBlocks;
 import dk.mrspring.toggle.api.IToggleController;
-import dk.mrspring.toggle.tileentity.ChangeBlockInfo;
 import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
-import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+
+import java.util.ArrayList;
 
 /**
  * Created by MrSpring on 28-02-2015 for ToggleBlocks.
@@ -147,6 +141,12 @@ public class BlockChangeBlock extends BlockContainer
                 if (tileEntity != null && tileEntity instanceof TileEntityChangeBlock)
                     ((TileEntityChangeBlock) tileEntity).setControllerPos(controllerX, controllerY, controllerZ);
             }
+    }
+
+    @Override
+    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+    {
+        return new ArrayList<ItemStack>();
     }
 
     @Override

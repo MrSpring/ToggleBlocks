@@ -26,7 +26,45 @@ import java.util.Random;
 public class BlockToggleController extends BlockContainer
 {
     public static int renderId;
-    public static int[] sizes = new int[]{5, 15, 30};
+    public static final String CONTROLLER_INFO = "ControllerInfo";
+    public static ControllerSize[] sizes = new ControllerSize[]{
+            new ControllerSize(5, "small"),
+            new ControllerSize(15, "medium"),
+            new ControllerSize(30, "large")};
+
+    public static class ControllerSize
+    {
+        public final int size, stackSize;
+        public final String name;
+
+        public ControllerSize(int size, int stackSize, String name)
+        {
+            this.size = size;
+            this.stackSize = stackSize;
+            this.name = name;
+        }
+
+        public ControllerSize(int size, String name)
+        {
+            this(size, size, name);
+        }
+
+        @Override
+        public String toString()
+        {
+            return name + ":" + size + "," + stackSize;
+        }
+    }
+
+    public static void populateChangeBlock(ItemStack stack, int x, int y, int z)
+    {
+        if (!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
+        NBTTagCompound controllerCompound = new NBTTagCompound();
+        controllerCompound.setInteger("X", x);
+        controllerCompound.setInteger("Y", y);
+        controllerCompound.setInteger("Z", z);
+        stack.setTagInfo(CONTROLLER_INFO, controllerCompound);
+    }
 
     IIcon[] textures;
 
@@ -57,8 +95,7 @@ public class BlockToggleController extends BlockContainer
     @Override
     public void getSubBlocks(Item item, CreativeTabs creativeTab, List itemStacks)
     {
-        for (int i = 0; i < sizes.length; i++)
-            itemStacks.add(new ItemStack(item, 1, i));
+        for (int i = 0; i < sizes.length; i++) itemStacks.add(new ItemStack(item, 1, i));
     }
 
     @Override
@@ -106,17 +143,10 @@ public class BlockToggleController extends BlockContainer
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack placed)
     {
-        // TODO: Get amount of change blocks from the placed toggle block via NBT/placed's Metadata
-
         if (!world.isRemote)
         {
-            ItemStack changeBlocks = new ItemStack(BlockBase.change_block, sizes[placed.getItemDamage()]);
-            changeBlocks.setTagCompound(new NBTTagCompound());
-            NBTTagCompound controllerCompound = new NBTTagCompound();
-            controllerCompound.setInteger("X", x);
-            controllerCompound.setInteger("Y", y);
-            controllerCompound.setInteger("Z", z);
-            changeBlocks.setTagInfo("ControllerInfo", controllerCompound);
+            ItemStack changeBlocks = new ItemStack(BlockBase.change_block, sizes[placed.getItemDamage()].stackSize);
+            populateChangeBlock(changeBlocks, x, y, z);
             Random random = new Random();
             EntityItem entityItem = new EntityItem(world, x + 0.5, y + 1.5, z + 0.5, changeBlocks);
             entityItem.motionX = (float) random.nextGaussian() * 0.05;
@@ -135,7 +165,6 @@ public class BlockToggleController extends BlockContainer
     @Override
     public TileEntity createNewTileEntity(World world, int metadata)
     {
-        System.out.println("Creating tileEntity with size: "+sizes[metadata]+", metadata: "+metadata);
-        return new TileEntityToggleBlock(sizes[metadata]);
+        return new TileEntityToggleBlock(sizes[metadata].size);
     }
 }

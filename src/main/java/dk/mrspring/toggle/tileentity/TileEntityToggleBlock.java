@@ -1,6 +1,8 @@
 package dk.mrspring.toggle.tileentity;
 
 import dk.mrspring.toggle.api.*;
+import dk.mrspring.toggle.block.BlockBase;
+import dk.mrspring.toggle.block.BlockToggleController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
@@ -13,11 +15,11 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import static net.minecraftforge.common.util.ForgeDirection.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static net.minecraftforge.common.util.ForgeDirection.*;
 
 /**
  * Created by Konrad on 27-02-2015.
@@ -224,6 +226,14 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public boolean canRegisterAnotherChangeBlock()
     {
         return getRegisteredChangeBlockCount() < getMaxChangeBlocks();
+    }
+
+    @Override
+    public ItemStack[] createChangeBlockDrop(int changeBlockX, int changeBlockY, int changeBlockZ)
+    {
+        ItemStack stack = new ItemStack(BlockBase.change_block, 1, 0);
+        BlockToggleController.populateChangeBlock(stack, x(), y(), z());
+        return new ItemStack[]{stack};
     }
 
     public Mode getCurrentMode()

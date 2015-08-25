@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class ItemBlockToggleController extends ItemBlock
 {
-    public static String[] subNames = new String[]{"small", "medium", "large"};
-
     public ItemBlockToggleController(Block block)
     {
         super(block);
@@ -30,7 +28,8 @@ public class ItemBlockToggleController extends ItemBlock
     @Override
     public String getUnlocalizedName(ItemStack stack)
     {
-        return this.getUnlocalizedName() + "_" + subNames[stack.getItemDamage()];
+        BlockToggleController.ControllerSize size = BlockToggleController.sizes[stack.getItemDamage()];
+        return this.getUnlocalizedName() + "_" + size.name;
     }
 
     @Override
@@ -38,7 +37,9 @@ public class ItemBlockToggleController extends ItemBlock
     {
         super.addInformation(stack, player, list, p_77624_4_);
 
-        String s = Translator.translate("tile.toggle_block.desc", BlockToggleController.sizes[stack.getItemDamage()]);
+        BlockToggleController.ControllerSize size = BlockToggleController.sizes[stack.getItemDamage()];
+        String unlocalized = "tile." + size.name + "_toggle_block.desc";
+        String s = Translator.translate(unlocalized, size.size);
         list.add(s);
     }
 }
