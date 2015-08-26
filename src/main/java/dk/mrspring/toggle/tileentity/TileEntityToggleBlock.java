@@ -32,6 +32,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public static final String PRIORITY = "StoragePriority";
     public static final String ITEM_SLOT = "Slot";
     public static final String ITEMS = "Items";
+    public static final String MAX_CHANGE_BLOCKS = "MaxBlocks";
     private static final int ON = 1;
     private static final int OFF = 0;
     private static final String[] STATE_NAMES = new String[]{"OffState", "OnState"};
@@ -225,7 +226,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     @Override
     public boolean canRegisterAnotherChangeBlock()
     {
-        return getRegisteredChangeBlockCount() < getMaxChangeBlocks();
+        return getMaxChangeBlocks() == -1 || getRegisteredChangeBlockCount() < getMaxChangeBlocks();
     }
 
     @Override
@@ -595,6 +596,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         compound.setInteger(STATE, this.state);
         compound.setString(MODE, this.getCurrentMode().name());
         compound.setInteger(PRIORITY, getStoragePriority().getId());
+        compound.setInteger(MAX_CHANGE_BLOCKS, maxChangeBlocks);
 
         NBTTagList storageList = new NBTTagList();
 
@@ -639,6 +641,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         this.state = compound.getInteger(STATE);
         this.currentMode = Mode.valueOf(compound.getString(MODE));
         this.priority = StoragePriority.fromInt(compound.getInteger(PRIORITY));
+        this.maxChangeBlocks = compound.getInteger(MAX_CHANGE_BLOCKS);
 
         NBTTagList storageList = compound.getTagList(ITEMS, 10);
         this.itemStacks = new ItemStack[getStorageSlots()];

@@ -55,7 +55,7 @@ public class ItemBlockChangeBlock extends ItemBlock
                 IToggleController controller = (IToggleController) tileEntity;
                 if (!controller.canRegisterAnotherChangeBlock())
                 {
-                    player.addChatComponentMessage(new ChatComponentText("Controller is already at full capacity!"));
+                    player.addChatComponentMessage(new ChatComponentText("Controller is already at full capacity!")); // TODO: Localize
                     return false;
                 } else return super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, side);
             } else return false;
