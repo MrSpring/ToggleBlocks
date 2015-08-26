@@ -13,18 +13,23 @@ import java.util.List;
  */
 public class ToggleRegistry implements IBlockToggleRegistry
 {
-    public static ToggleRegistry instance;
+    private static ToggleRegistry instance;
+
+    public static ToggleRegistry instance()
+    {
+        return instance;
+    }
 
     static void initialize()
     {
         instance = new ToggleRegistry();
     }
 
-    static void registerVanilla()
+    /*static void registerVanilla()
     {
         instance.registerToggleAction(new BucketToggleAction());
         instance.registerToggleAction(new PlantableToggleAction());
-    }
+    }*/
 
     List<IBlockToggleAction> registeredActions;
 

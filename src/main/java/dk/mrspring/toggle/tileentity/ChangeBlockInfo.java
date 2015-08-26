@@ -72,7 +72,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
 
     private void place(World world, EntityPlayer player, ItemStack placing, IToggleController controller)
     {
-        List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
+        List<IBlockToggleAction> actions = ToggleRegistry.instance().getRegisteredActions();
         boolean placed = false;
         if (placing != null)
             for (IBlockToggleAction action : actions)
@@ -88,7 +88,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
 
     private ItemStack[] harvest(World world, EntityPlayer player, IToggleController controller)
     {
-        List<IBlockToggleAction> actions = ToggleRegistry.instance.getRegisteredActions();
+        List<IBlockToggleAction> actions = ToggleRegistry.instance().getRegisteredActions();
         for (IBlockToggleAction action : actions)
         {
             if (action.canHarvestBlock(world, x, y, z, controller))

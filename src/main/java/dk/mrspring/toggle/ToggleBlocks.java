@@ -9,6 +9,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
+import dk.mrspring.toggle.api.IBlockToggleRegistry;
 import dk.mrspring.toggle.block.BlockBase;
 import dk.mrspring.toggle.tileentity.MessageSetMode;
 import dk.mrspring.toggle.tileentity.MessageSetOverride;
@@ -18,6 +19,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 /**
  * Created by Konrad on 27-02-2015.
  */
@@ -25,6 +29,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 public class ToggleBlocks
 {
     public static SimpleNetworkWrapper network;
+    public static final String REGISTER_API_CALL = "register";
 
     @Mod.Instance(ModInfo.MOD_ID)
     public static ToggleBlocks instance;
@@ -36,7 +41,6 @@ public class ToggleBlocks
     public static void preInit(FMLPreInitializationEvent event)
     {
         ToggleRegistry.initialize();
-        ToggleRegistry.registerVanilla();
 
         network = NetworkRegistry.INSTANCE.newSimpleChannel("toggleBlocks");
         network.registerMessage(MessageSetMode.MessageHandler.class, MessageSetMode.class, 0, Side.SERVER);
@@ -54,9 +58,50 @@ public class ToggleBlocks
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         proxy.registerRenderer();
         FMLInterModComms.sendRuntimeMessage(ModInfo.MOD_ID, "VersionChecker", "addVersionCheck", "http://mrspring.dk/mods/tb/versions.json");
+        FMLInterModComms.sendMessage("tb", "register", "dk.mrspring.toggle.comp.vanilla.ToggleRegistryCallback.register");
 
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 0), "IRI", "RBR", "IRI", 'R', "dustRedstone", 'I', "blockIron", 'B', "blockRedstone"));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 1), "GRG", "BBB", "GRG", 'R', "dustRedstone", 'G', "blockGold", 'B', Items.blaze_rod));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 2), "DRD", "PNP", "DRD", 'R', "blockRedstone", 'D', "blockDiamond", 'P', Items.ender_pearl, 'N', Items.nether_star));
+    }
+
+    @Mod.EventHandler
+    public void handleIMC(FMLInterModComms.IMCEvent event)
+    {
+        for (FMLInterModComms.IMCMessage message : event.getMessages())
+            if (message != null)
+            {
+                if (message.isStringMessage() && message.key.equalsIgnoreCase(REGISTER_API_CALL))
+                {
+                    String messageString = message.getStringValue();
+                    try
+                    {
+                        String[] splitName = messageString.split("\\.");
+                        String methodName = splitName[splitName.length - 1];
+                        String className = messageString.substring(0, messageString.length() - methodName.length() - 1);
+                        System.out.println("Registering: " + className + ", " + methodName);
+                        try
+                        {
+                            Class clasz = Class.forName(className);
+                            Method method = clasz.getDeclaredMethod(methodName, IBlockToggleRegistry.class);
+                            method.invoke(null, ToggleRegistry.instance());
+                        } catch (ClassNotFoundException e)
+                        {
+                            System.out.println("Class not found.");
+                        } catch (NoSuchMethodException e)
+                        {
+                            System.out.println("Method not found.");
+                        } catch (InvocationTargetException e)
+                        {
+                            System.out.println("Failed to call method.");
+                        } catch (IllegalAccessException e)
+                        {
+                            System.out.println("Illegal access.");
+                        }
+                    } catch (Exception ignored)
+                    {
+                    }
+                }
+            }
     }
 }
