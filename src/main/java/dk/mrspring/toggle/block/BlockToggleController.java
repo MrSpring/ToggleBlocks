@@ -28,10 +28,19 @@ public class BlockToggleController extends BlockContainer
     public static int renderId;
     public static final String CONTROLLER_INFO = "ControllerInfo";
     public static ControllerSize[] sizes = new ControllerSize[]{
-            new ControllerSize(5, "small"),
-            new ControllerSize(15, "medium"),
-            new ControllerSize(30, "large"),
+            new ControllerSize(5, "tiny"),
+            new ControllerSize(15, "small"),
+            new ControllerSize(30, "medium"),
+            new ControllerSize(50, "large"),
+            new ControllerSize(100, "huge"),
             new ControllerSize(-1, 1, "creative")};
+
+    public static final ControllerSize TINY = sizes[0];
+    public static final ControllerSize SMALL = sizes[1];
+    public static final ControllerSize MEDIUM = sizes[2];
+    public static final ControllerSize LARGE = sizes[3];
+    public static final ControllerSize HUGE = sizes[4];
+    public static final ControllerSize CREATIVE = sizes[5];
 
     public static class ControllerSize
     {
@@ -82,6 +91,9 @@ public class BlockToggleController extends BlockContainer
                 4 * P, 4 * P, 4 * P,
                 12 * P, 12 * P, 12 * P);
         this.setCreativeTab(CreativeTabs.tabRedstone);
+
+        int maxStack = 64;
+        for (ControllerSize size : sizes) maxStack = Math.max(maxStack, size.stackSize);
     }
 
     @Override
@@ -90,7 +102,10 @@ public class BlockToggleController extends BlockContainer
         textures = new IIcon[sizes.length];
 
         for (int i = 0; i < textures.length; i++)
-            textures[i] = register.registerIcon(getTextureName() + "_" + i);
+        {
+            ControllerSize size = sizes[i];
+            textures[i] = register.registerIcon(getTextureName() + "_" + size.name);
+        }
     }
 
     @Override
