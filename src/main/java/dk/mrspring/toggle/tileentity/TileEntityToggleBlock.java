@@ -642,6 +642,11 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         this.currentMode = Mode.valueOf(compound.getString(MODE));
         this.priority = StoragePriority.fromInt(compound.getInteger(PRIORITY));
         this.maxChangeBlocks = compound.getInteger(MAX_CHANGE_BLOCKS);
+        if (maxChangeBlocks == 0)
+        {
+            BlockToggleController.ControllerSize size = BlockToggleController.sizes[getBlockMetadata()];
+            maxChangeBlocks = size.size;
+        }
 
         NBTTagList storageList = compound.getTagList(ITEMS, 10);
         this.itemStacks = new ItemStack[getStorageSlots()];
