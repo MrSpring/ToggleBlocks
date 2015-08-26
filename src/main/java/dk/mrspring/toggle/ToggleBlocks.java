@@ -59,10 +59,7 @@ public class ToggleBlocks
         proxy.registerRenderer();
         FMLInterModComms.sendRuntimeMessage(ModInfo.MOD_ID, "VersionChecker", "addVersionCheck", "http://mrspring.dk/mods/tb/versions.json");
         FMLInterModComms.sendMessage("tb", "register", "dk.mrspring.toggle.comp.vanilla.ToggleRegistryCallback.register");
-
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 0), "IRI", "RBR", "IRI", 'R', "dustRedstone", 'I', "blockIron", 'B', "blockRedstone"));
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 1), "GRG", "BBB", "GRG", 'R', "dustRedstone", 'G', "blockGold", 'B', Items.blaze_rod));
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockBase.toggle_controller, 1, 2), "DRD", "PNP", "DRD", 'R', "blockRedstone", 'D', "blockDiamond", 'P', Items.ender_pearl, 'N', Items.nether_star));
+        Recipes.register();
     }
 
     @Mod.EventHandler

@@ -1,0 +1,54 @@
+package dk.mrspring.toggle;
+
+import cpw.mods.fml.common.registry.GameRegistry;
+import dk.mrspring.toggle.block.BlockBase;
+import dk.mrspring.toggle.block.BlockToggleController;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
+
+/**
+ * Created on 26-08-2015.
+ */
+public class Recipes
+{
+    public static void register()
+    {
+        GameRegistry.addRecipe(new ItemStack(BlockBase.toggle_controller, BlockToggleController.TINY.metadata),
+                "PIP", "SRS", "PIP",
+                'P', new ItemStack(Blocks.planks, OreDictionary.WILDCARD_VALUE),
+                'I', new ItemStack(Items.iron_ingot),
+                'S', new ItemStack(Blocks.cobblestone),
+                'R', new ItemStack(Blocks.redstone_block));
+
+        GameRegistry.addRecipe(new ItemStack(BlockBase.toggle_controller, BlockToggleController.SMALL.metadata),
+                "IRI", "BRB", " T ",
+                'I', new ItemStack(Blocks.iron_block),
+                'R', new ItemStack(Items.redstone),
+                'B', new ItemStack(Blocks.redstone_block),
+                'T', new ItemStack(BlockBase.toggle_controller, BlockToggleController.TINY.metadata));
+
+        GameRegistry.addRecipe(new ItemStack(BlockBase.toggle_controller, BlockToggleController.MEDIUM.metadata),
+                "GBG", "RBR", " T ",
+                'G', new ItemStack(Blocks.gold_block),
+                'B', new ItemStack(Items.blaze_rod),
+                'R', new ItemStack(Blocks.redstone_block),
+                'T', new ItemStack(BlockBase.toggle_controller, BlockToggleController.SMALL.metadata));
+
+        GameRegistry.addRecipe(new ItemStack(BlockBase.toggle_controller, BlockToggleController.LARGE.metadata),
+                "DED", "DRD", " T ",
+                'D', new ItemStack(Items.diamond),
+                'E', new ItemStack(Items.ender_pearl),
+                'R', new ItemStack(Blocks.redstone_block),
+                'T', new ItemStack(BlockBase.toggle_controller, BlockToggleController.MEDIUM.metadata));
+
+        GameRegistry.addRecipe(new ItemStack(BlockBase.toggle_controller, BlockToggleController.HUGE.metadata),
+                "ONO", "GRG", " T ",
+                'O', new ItemStack(Blocks.obsidian),
+                'N', new ItemStack(Items.nether_star),
+                'G', new ItemStack(Blocks.glass),
+                'R', new ItemStack(Blocks.redstone_block),
+                'T', new ItemStack(BlockBase.toggle_controller, BlockToggleController.LARGE.metadata));
+    }
+}
