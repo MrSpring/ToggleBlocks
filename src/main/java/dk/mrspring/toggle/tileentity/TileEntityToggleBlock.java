@@ -139,7 +139,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     @Override
     public ChangeBlockInfo registerChangeBlock(int x, int y, int z)
     {
-        if (this.changeBlocks.size() + 1 <= getMaxChangeBlocks())
+        if (getMaxChangeBlocks() < 0 || this.changeBlocks.size() + 1 <= getMaxChangeBlocks())
         {
             ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z, worldObj.getBlockMetadata(x, y, z));
             this.changeBlocks.add(blockInfo);

@@ -30,7 +30,8 @@ public class BlockToggleController extends BlockContainer
     public static ControllerSize[] sizes = new ControllerSize[]{
             new ControllerSize(5, "small"),
             new ControllerSize(15, "medium"),
-            new ControllerSize(30, "large")};
+            new ControllerSize(30, "large"),
+            new ControllerSize(-1, 1, "creative")};
 
     public static class ControllerSize
     {
@@ -149,9 +150,17 @@ public class BlockToggleController extends BlockContainer
             populateChangeBlock(changeBlocks, x, y, z);
             Random random = new Random();
             EntityItem entityItem = new EntityItem(world, x + 0.5, y + 1.5, z + 0.5, changeBlocks);
-            entityItem.motionX = (float) random.nextGaussian() * 0.05;
-            entityItem.motionY = (float) random.nextGaussian() * 0.05 + 0.2F;
-            entityItem.motionZ = (float) random.nextGaussian() * 0.05;
+            if (player == null)
+            {
+                entityItem.motionX = (float) random.nextGaussian() * 0.05;
+                entityItem.motionY = (float) random.nextGaussian() * 0.05 + 0.2F;
+                entityItem.motionZ = (float) random.nextGaussian() * 0.05;
+            } else
+            {
+                entityItem.posX = player.posX;
+                entityItem.posY = player.posY;
+                entityItem.posZ = player.posZ;
+            }
             world.spawnEntityInWorld(entityItem);
         }
     }
