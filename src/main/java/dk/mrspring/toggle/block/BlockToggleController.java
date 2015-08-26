@@ -28,12 +28,12 @@ public class BlockToggleController extends BlockContainer
     public static int renderId;
     public static final String CONTROLLER_INFO = "ControllerInfo";
     public static ControllerSize[] sizes = new ControllerSize[]{
-            new ControllerSize(15, "small"),
-            new ControllerSize(30, "medium"),
-            new ControllerSize(50, "large"),
-            new ControllerSize(5, "tiny"),
-            new ControllerSize(100, "huge"),
-            new ControllerSize(-1, 1, "creative")};
+            new ControllerSize(15, "small", 0),
+            new ControllerSize(30, "medium", 1),
+            new ControllerSize(50, "large", 2),
+            new ControllerSize(5, "tiny", 3),
+            new ControllerSize(100, "huge", 4),
+            new ControllerSize(-1, 1, "creative", 5)};
 
     public static final ControllerSize TINY = sizes[3];
     public static final ControllerSize SMALL = sizes[0];
@@ -44,19 +44,20 @@ public class BlockToggleController extends BlockContainer
 
     public static class ControllerSize
     {
-        public final int size, stackSize;
+        public final int size, stackSize, metadata;
         public final String name;
 
-        public ControllerSize(int size, int stackSize, String name)
+        public ControllerSize(int size, int stackSize, String name, int metadata)
         {
             this.size = size;
             this.stackSize = stackSize;
+            this.metadata = metadata;
             this.name = name;
         }
 
-        public ControllerSize(int size, String name)
+        public ControllerSize(int size, String name, int metadata)
         {
-            this(size, size, name);
+            this(size, size, name, metadata);
         }
 
         @Override
@@ -111,7 +112,12 @@ public class BlockToggleController extends BlockContainer
     @Override
     public void getSubBlocks(Item item, CreativeTabs creativeTab, List itemStacks)
     {
-        for (int i = 0; i < sizes.length; i++) itemStacks.add(new ItemStack(item, 1, i));
+        itemStacks.add(new ItemStack(item, 1, TINY.metadata));
+        itemStacks.add(new ItemStack(item, 1, SMALL.metadata));
+        itemStacks.add(new ItemStack(item, 1, MEDIUM.metadata));
+        itemStacks.add(new ItemStack(item, 1, LARGE.metadata));
+        itemStacks.add(new ItemStack(item, 1, HUGE.metadata));
+        itemStacks.add(new ItemStack(item, 1, CREATIVE.metadata));
     }
 
     @Override
@@ -165,17 +171,9 @@ public class BlockToggleController extends BlockContainer
             populateChangeBlock(changeBlocks, x, y, z);
             Random random = new Random();
             EntityItem entityItem = new EntityItem(world, x + 0.5, y + 1.5, z + 0.5, changeBlocks);
-            if (player == null)
-            {
-                entityItem.motionX = (float) random.nextGaussian() * 0.05;
-                entityItem.motionY = (float) random.nextGaussian() * 0.05 + 0.2F;
-                entityItem.motionZ = (float) random.nextGaussian() * 0.05;
-            } else
-            {
-                entityItem.posX = player.posX;
-                entityItem.posY = player.posY;
-                entityItem.posZ = player.posZ;
-            }
+            entityItem.motionX = (float) random.nextGaussian() * 0.05;
+            entityItem.motionY = (float) random.nextGaussian() * 0.05 + 0.2F;
+            entityItem.motionZ = (float) random.nextGaussian() * 0.05;
             world.spawnEntityInWorld(entityItem);
         }
     }

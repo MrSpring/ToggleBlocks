@@ -4,13 +4,17 @@ tile.change_block.container.on=On
 tile.change_block.container.off=Off
 tile.change_block.desc=Linked to controller: §c%1$d§7, §a%2$d§7, §9%3$d§r
 
+tile.toggle_block_tiny.name=Tiny Toggle Block
 tile.toggle_block_small.name=Small Toggle Block
 tile.toggle_block_medium.name=Medium Toggle Block
 tile.toggle_block_large.name=Large Toggle Block
+tile.toggle_block_huge.name=Huge Toggle Block
 tile.toggle_block_creative.name=Creative Toggle Block
+tile.tiny_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
 tile.small_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
 tile.medium_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
 tile.large_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
+tile.huge_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
 tile.creative_toggle_block.desc=Can hold §dinfinite§7 Change Blocks
 tile.toggle_block.container.name=Toggle Block Controller
 tile.toggle_block.container.toggle_mode=Toggle Mode
