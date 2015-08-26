@@ -56,7 +56,7 @@ public class GuiToggleBlock extends GuiContainer
         super.initGui();
         this.buttonList.add(new GuiButton(0, (width / 2) + 24, (height / 2) - (ySize / 2) + 18, 128, 20,
                 translate("tile.toggle_block.container.toggle_mode")));
-        this.buttonList.add(new GuiButton(1, (width / 2) + 14, (height / 2) - (ySize / 2) + 18 + 42+10, 148, 20,
+        this.buttonList.add(new GuiButton(1, (width / 2) + 14, (height / 2) - (ySize / 2) + 18 + 42 + 10, 148, 20,
                 translate("tile.toggle_block.container.cycle_storage_priority")));
     }
 
@@ -84,7 +84,8 @@ public class GuiToggleBlock extends GuiContainer
         fontRendererObj.drawString(translate("tile.toggle_block.container.on"), 8 + 20, 42, 4210752);
         drawCenteredString(fontRendererObj, translate("tile.toggle_block.container.storage"), 133, -10, 0xFFFFFF);
         int current = tileEntity.getRegisteredChangeBlockCount(), max = tileEntity.getMaxChangeBlocks();
-        fontRendererObj.drawString(translate("tile.toggle_block.container.registered_blocks", current, max), 8, 58, 4210752);
+        String translating = "tile.toggle_block.container." + (max == -1 ? "infinite_blocks" : "registered_blocks");
+        fontRendererObj.drawString(translate(translating, current, max), 8, 58, 4210752);
         fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 94, 4210752);
     }
 
