@@ -24,32 +24,6 @@ public class ToggleRegistry implements IBlockToggleRegistry
     {
         instance.registerToggleAction(new BucketToggleAction());
         instance.registerToggleAction(new PlantableToggleAction());
-
-//        instance.registerToggleAction(new IBlockToggleAction()
-//        {
-//            @Override
-//            public boolean placeBlock(World world, int x, int y, int z, int direction, EntityPlayer player,
-//                                         ItemStack placing, IToggleController tileEntityToggleBlock)
-//            {
-//                world.setBlock(x, y - 1, z, Blocks.farmland);
-//                tileEntityToggleBlock.getToolFromStorage("hoe").attemptDamageItem(1, new Random());
-//                Block plant = ((IPlantable) placing.getItem()).getPlant(world, x, y, z);
-//                int metadata = ((IPlantable) placing.getItem()).getPlantMetadata(world, x, y, z);
-//                if (world.getBlock(x, y - 1, z).canSustainPlant(world, x, y - 1, z, ForgeDirection.UP, (IPlantable) placing.getItem()))
-//                {
-//                    world.setBlock(x,y,z,plant);
-//                }
-//            }
-//
-//            @Override
-//            public boolean canPlaceBlock(World world, int x, int y, int z, ItemStack placing,
-//                                       IToggleController tileEntity)
-//            {
-//                return (world.getBlock(x, y - 1, z) == Blocks.dirt || world.getBlock(x, y - 1, z) == Blocks.grass) &&
-//                        placing.getItem() instanceof IPlantable &&
-//                        tileEntity.getToolFromStorage("hoe") != null;
-//            }
-//        });
     }
 
     List<IBlockToggleAction> registeredActions;
