@@ -30,7 +30,7 @@ public class EventHandler
             ((IToggleController) controller).unregisterChangeBlock(x, y, z);
             ItemStack[] drops = ((IToggleController) controller).createChangeBlockDrop(x, y, z);
 
-            if (drops != null && drops.length > 0)
+            if (drops != null && drops.length > 0 && !event.getPlayer().capabilities.isCreativeMode)
             {
                 Random random = new Random();
                 EntityPlayer p = event.getPlayer();
