@@ -791,4 +791,9 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     {
         return slot > 1 && slot < 11;
     }
+
+    public void setMaxChangeBlocks(int maxChangeBlocks)
+    {
+        this.maxChangeBlocks = maxChangeBlocks;
+    }
 }

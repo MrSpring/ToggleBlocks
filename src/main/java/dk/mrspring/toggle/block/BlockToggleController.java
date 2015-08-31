@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
@@ -26,7 +27,12 @@ import java.util.Random;
 public class BlockToggleController extends BlockContainer
 {
     public static int renderId;
+
     public static final String CONTROLLER_INFO = "ControllerInfo";
+
+    public static final String CONTROLLER_SIZE = "ControllerSize";
+    public static final String CONTROLLER_STACKSIZE = "ControllerStackSize";
+
     public static ControllerSize[] sizes = new ControllerSize[]{
             new ControllerSize(15, "small", 0),
             new ControllerSize(30, "medium", 1),
@@ -77,6 +83,35 @@ public class BlockToggleController extends BlockContainer
         stack.setTagInfo(CONTROLLER_INFO, controllerCompound);
     }
 
+    public static void populateToggleController(ItemStack stack, ControllerSize size)
+    {
+        if (!stack.hasTagCompound())stack.setTagCompound(new NBTTagCompound());
+        stack.getTagCompound().setInteger(CONTROLLER_SIZE, size.size);
+        stack.getTagCompound().setInteger(CONTROLLER_STACKSIZE, size.stackSize);
+    }
+
+    public static ItemStack createToggleController(ControllerSize size, int stackSize)
+    {
+        ItemStack stack = new ItemStack(BlockBase.toggle_controller, stackSize, size.metadata);
+        stack.setTagInfo(CONTROLLER_SIZE, new NBTTagInt(size.size));
+        return stack;
+    }
+
+    public static ControllerSize getControllerSize(ItemStack controllerStack)
+    {
+        if (controllerStack.hasTagCompound() && controllerStack.getTagCompound().hasKey(CONTROLLER_SIZE, 3))
+        {
+            NBTTagCompound comp = controllerStack.getTagCompound();
+            int size = comp.getInteger(CONTROLLER_SIZE);
+            int stackSize = comp.hasKey(CONTROLLER_STACKSIZE, 3) ? comp.getInteger(CONTROLLER_STACKSIZE) : size;
+            return new ControllerSize(size, stackSize, "", -1);
+        } else
+        {
+            int meta = controllerStack.getItemDamage();
+            return meta >= 0 && meta < sizes.length ? sizes[meta] : SMALL;
+        }
+    }
+
     IIcon[] textures;
 
     public BlockToggleController()
@@ -112,12 +147,12 @@ public class BlockToggleController extends BlockContainer
     @Override
     public void getSubBlocks(Item item, CreativeTabs creativeTab, List itemStacks)
     {
-        itemStacks.add(new ItemStack(item, 1, TINY.metadata));
-        itemStacks.add(new ItemStack(item, 1, SMALL.metadata));
-        itemStacks.add(new ItemStack(item, 1, MEDIUM.metadata));
-        itemStacks.add(new ItemStack(item, 1, LARGE.metadata));
-        itemStacks.add(new ItemStack(item, 1, HUGE.metadata));
-        itemStacks.add(new ItemStack(item, 1, CREATIVE.metadata));
+        itemStacks.add(createToggleController(TINY,1)/*new ItemStack(item, 1, TINY.metadata)*/);
+        itemStacks.add(createToggleController(SMALL,1)/*new ItemStack(item, 1, SMALL.metadata)*/);
+        itemStacks.add(createToggleController(MEDIUM,1)/*new ItemStack(item, 1, MEDIUM.metadata)*/);
+        itemStacks.add(createToggleController(LARGE,1)/*new ItemStack(item, 1, LARGE.metadata)*/);
+        itemStacks.add(createToggleController(HUGE,1)/*new ItemStack(item, 1, HUGE.metadata)*/);
+        itemStacks.add(createToggleController(CREATIVE,1)/*new ItemStack(item, 1, CREATIVE.metadata)*/);
     }
 
     @Override
@@ -167,7 +202,10 @@ public class BlockToggleController extends BlockContainer
     {
         if (!world.isRemote)
         {
-            ItemStack changeBlocks = new ItemStack(BlockBase.change_block, sizes[placed.getItemDamage()].stackSize);
+            ControllerSize size = getControllerSize(placed);
+            TileEntity tileEntity = world.getTileEntity(x, y, z);
+            if (tileEntity != null) ((TileEntityToggleBlock) tileEntity).setMaxChangeBlocks(size.size);
+            ItemStack changeBlocks = new ItemStack(BlockBase.change_block, size.stackSize);
             populateChangeBlock(changeBlocks, x, y, z);
             Random random = new Random();
             EntityItem entityItem = new EntityItem(world, x + 0.5, y + 1.5, z + 0.5, changeBlocks);
