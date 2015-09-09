@@ -18,6 +18,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -226,9 +227,9 @@ public class BlockToggleController extends BlockContainer
     }
 
     @Override
-    public int damageDropped(int metadata)
+    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
     {
-        return metadata;
+        return new ArrayList<ItemStack>();
     }
 
     @Override

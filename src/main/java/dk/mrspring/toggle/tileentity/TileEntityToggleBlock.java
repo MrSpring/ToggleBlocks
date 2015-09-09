@@ -801,4 +801,9 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     {
         return slot > 1 && slot < 11;
     }
+
+    public ControllerSize getControllerSize()
+    {
+        return size;
+    }
 }
