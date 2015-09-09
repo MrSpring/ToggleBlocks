@@ -1,6 +1,7 @@
 package dk.mrspring.toggle.block;
 
 import dk.mrspring.toggle.ToggleBlocks;
+import dk.mrspring.toggle.tileentity.ControllerSize;
 import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -34,12 +35,14 @@ public class BlockToggleController extends BlockContainer
     public static final String CONTROLLER_STACKSIZE = "ControllerStackSize";
 
     public static ControllerSize[] sizes = new ControllerSize[]{
-            new ControllerSize(15, "small", 0),
-            new ControllerSize(30, "medium", 1),
-            new ControllerSize(50, "large", 2),
-            new ControllerSize(5, "tiny", 3),
-            new ControllerSize(100, "huge", 4),
-            new ControllerSize(-1, 1, "creative", 5)};
+            new ControllerSize(15),
+            new ControllerSize(30),
+            new ControllerSize(50),
+            new ControllerSize(5),
+            new ControllerSize(100),
+            new ControllerSize(-1, 1)};
+
+    public static String[] names = new String[]{"small", "medium", "large", "tiny", "huge", "creative"};
 
     public static final ControllerSize TINY = sizes[3];
     public static final ControllerSize SMALL = sizes[0];
@@ -48,29 +51,10 @@ public class BlockToggleController extends BlockContainer
     public static final ControllerSize HUGE = sizes[4];
     public static final ControllerSize CREATIVE = sizes[5];
 
-    public static class ControllerSize
+    public static int getSizeFromMetadata(int metadata)
     {
-        public final int size, stackSize, metadata;
-        public final String name;
-
-        public ControllerSize(int size, int stackSize, String name, int metadata)
-        {
-            this.size = size;
-            this.stackSize = stackSize;
-            this.metadata = metadata;
-            this.name = name;
-        }
-
-        public ControllerSize(int size, String name, int metadata)
-        {
-            this(size, size, name, metadata);
-        }
-
-        @Override
-        public String toString()
-        {
-            return name + ":" + size + "," + stackSize;
-        }
+        if (metadata >= 0 && metadata < sizes.length) return sizes[metadata].size;
+        else return SMALL.size;
     }
 
     public static void populateChangeBlock(ItemStack stack, int x, int y, int z)
@@ -85,15 +69,16 @@ public class BlockToggleController extends BlockContainer
 
     public static void populateToggleController(ItemStack stack, ControllerSize size)
     {
-        if (!stack.hasTagCompound())stack.setTagCompound(new NBTTagCompound());
+        if (!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
         stack.getTagCompound().setInteger(CONTROLLER_SIZE, size.size);
         stack.getTagCompound().setInteger(CONTROLLER_STACKSIZE, size.stackSize);
     }
 
-    public static ItemStack createToggleController(ControllerSize size, int stackSize)
+    public static ItemStack createToggleController(ControllerSize size, int stackSize, int metadata)
     {
-        ItemStack stack = new ItemStack(BlockBase.toggle_controller, stackSize, size.metadata);
-        stack.setTagInfo(CONTROLLER_SIZE, new NBTTagInt(size.size));
+        ItemStack stack = new ItemStack(BlockBase.toggle_controller, stackSize, metadata);
+        populateToggleController(stack, size);
+        stack.setItemDamage(metadata);
         return stack;
     }
 
@@ -104,7 +89,7 @@ public class BlockToggleController extends BlockContainer
             NBTTagCompound comp = controllerStack.getTagCompound();
             int size = comp.getInteger(CONTROLLER_SIZE);
             int stackSize = comp.hasKey(CONTROLLER_STACKSIZE, 3) ? comp.getInteger(CONTROLLER_STACKSIZE) : size;
-            return new ControllerSize(size, stackSize, "", -1);
+            return new ControllerSize(size, stackSize);
         } else
         {
             int meta = controllerStack.getItemDamage();
@@ -138,21 +123,19 @@ public class BlockToggleController extends BlockContainer
         textures = new IIcon[sizes.length];
 
         for (int i = 0; i < textures.length; i++)
-        {
-            ControllerSize size = sizes[i];
-            textures[i] = register.registerIcon(getTextureName() + "_" + size.name);
-        }
+            textures[i] = register.registerIcon(getTextureName() + "_" + names[i]);
     }
 
     @Override
     public void getSubBlocks(Item item, CreativeTabs creativeTab, List itemStacks)
     {
-        itemStacks.add(createToggleController(TINY,1)/*new ItemStack(item, 1, TINY.metadata)*/);
-        itemStacks.add(createToggleController(SMALL,1)/*new ItemStack(item, 1, SMALL.metadata)*/);
-        itemStacks.add(createToggleController(MEDIUM,1)/*new ItemStack(item, 1, MEDIUM.metadata)*/);
-        itemStacks.add(createToggleController(LARGE,1)/*new ItemStack(item, 1, LARGE.metadata)*/);
-        itemStacks.add(createToggleController(HUGE,1)/*new ItemStack(item, 1, HUGE.metadata)*/);
-        itemStacks.add(createToggleController(CREATIVE,1)/*new ItemStack(item, 1, CREATIVE.metadata)*/);
+//        itemStacks.add(createToggleController(TINY, 1)/*new ItemStack(item, 1, TINY.metadata)*/);
+//        itemStacks.add(createToggleController(SMALL, 1)/*new ItemStack(item, 1, SMALL.metadata)*/);
+//        itemStacks.add(createToggleController(MEDIUM, 1)/*new ItemStack(item, 1, MEDIUM.metadata)*/);
+//        itemStacks.add(createToggleController(LARGE, 1)/*new ItemStack(item, 1, LARGE.metadata)*/);
+//        itemStacks.add(createToggleController(HUGE, 1)/*new ItemStack(item, 1, HUGE.metadata)*/);
+//        itemStacks.add(createToggleController(CREATIVE, 1)/*new ItemStack(item, 1, CREATIVE.metadata)*/);
+        for (int i = 0; i < sizes.length; i++) itemStacks.add(createToggleController(sizes[i], 1, i));
     }
 
     @Override

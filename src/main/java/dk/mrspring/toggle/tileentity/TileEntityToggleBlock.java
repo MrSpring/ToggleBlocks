@@ -53,7 +53,8 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     ItemStack[] states = new ItemStack[2]; // TODO: More states? "Cycle Block" with more than 2 states
     ItemStack[] itemStacks = new ItemStack[9];
     ChangeBlockInfo.FakePlayer fakePlayer;
-    int maxChangeBlocks = 5;
+//    int maxChangeBlocks = 5;
+    ControllerSize size;
     IInventory[] adjacent = new IInventory[directions.length];
     StoragePriority priority = StoragePriority.STORAGE_FIRST;
 
@@ -642,7 +643,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         this.currentMode = Mode.valueOf(compound.getString(MODE));
         this.priority = StoragePriority.fromInt(compound.getInteger(PRIORITY));
         this.maxChangeBlocks = compound.getInteger(MAX_CHANGE_BLOCKS);
-        if (maxChangeBlocks == 0) maxChangeBlocks = BlockToggleController.sizes[getBlockMetadata()].size;
+        if (maxChangeBlocks == 0) maxChangeBlocks = BlockToggleController.getSizeFromMetadata(getBlockMetadata());
 
         NBTTagList storageList = compound.getTagList(ITEMS, 10);
         this.itemStacks = new ItemStack[getStorageSlots()];
