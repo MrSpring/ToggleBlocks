@@ -35,3 +35,5 @@ tile.toggle_block.container.storage_mode.chests_first.name=Chests First
 tile.toggle_block.container.storage_mode.chests_first.desc=Fills up nearby chests before putting items into the toggle block's local storage.
 tile.toggle_block.container.storage_mode.chests_only.name=Chests Only
 tile.toggle_block.container.storage_mode.chests_only.desc=Only uses nearby chests, and ignores the toggle block's local storage.
+
+message.full_toggle_controller=Controller is already at full capacity!

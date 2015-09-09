@@ -3,12 +3,15 @@ package dk.mrspring.toggle.item;
 import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.util.Translator;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -59,7 +62,7 @@ public class ItemBlockChangeBlock extends ItemBlock
                 IToggleController controller = (IToggleController) tileEntity;
                 if (!controller.canRegisterAnotherChangeBlock())
                 {
-                    player.addChatComponentMessage(new ChatComponentText("Controller is already at full capacity!")); // TODO: Localize
+                    player.addChatComponentMessage(new ChatComponentText(Translator.translate("message.full_toggle_controller")));
                     return false;
                 } else return super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, side);
             } else return false;
