@@ -29,7 +29,7 @@ public class EventHandler
         Block block = event.world.getBlock(x, y, z);
         if (block == BlockBase.change_block)
             this.breakChangeBlock(event.world, x, y, z, event.getPlayer());
-        else if (block == BlockBase.toggle_controller)
+        else if (block == BlockBase.toggle_controller && breakDrop(event.world))
             this.breakToggleBlock(event.world, x, y, z, event.getPlayer());
     }
 
@@ -56,7 +56,7 @@ public class EventHandler
             ((IToggleController) controller).unregisterChangeBlock(x, y, z);
             ItemStack[] drops = ((IToggleController) controller).createChangeBlockDrop(x, y, z);
 
-            if (drops != null && drops.length > 0 && !player.capabilities.isCreativeMode)
+            if (drops != null && drops.length > 0 && !player.capabilities.isCreativeMode && breakDrop(world))
             {
                 Random random = new Random();
                 for (ItemStack stack : drops)
@@ -73,5 +73,10 @@ public class EventHandler
         entityitem.motionY = (double) ((float) random.nextGaussian() * f3 + 0.2F);
         entityitem.motionZ = (double) ((float) random.nextGaussian() * f3);
         world.spawnEntityInWorld(entityitem);
+    }
+
+    private boolean breakDrop(World world)
+    {
+        return world.getGameRules().getGameRuleBooleanValue("doTileDrops"); // Checks doTileDrops game rule
     }
 }
