@@ -1,6 +1,7 @@
 package dk.mrspring.toggle.item;
 
 import dk.mrspring.toggle.block.BlockToggleController;
+import dk.mrspring.toggle.tileentity.ControllerSize;
 import dk.mrspring.toggle.util.Translator;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,8 +29,7 @@ public class ItemBlockToggleController extends ItemBlock
     @Override
     public String getUnlocalizedName(ItemStack stack)
     {
-        BlockToggleController.ControllerSize size = BlockToggleController.sizes[stack.getItemDamage()];
-        return this.getUnlocalizedName() + "_" + size.name;
+        return this.getUnlocalizedName() + "_" + BlockToggleController.getName(stack.getItemDamage());
     }
 
     @Override
@@ -37,8 +37,10 @@ public class ItemBlockToggleController extends ItemBlock
     {
         super.addInformation(stack, player, list, p_77624_4_);
 
-        BlockToggleController.ControllerSize size = BlockToggleController.sizes[stack.getItemDamage()];
-        String unlocalized = "tile." + size.name + "_toggle_block.desc";
+        int meta = stack.getItemDamage();
+        ControllerSize size = BlockToggleController.getSizeFromMetadata(meta);
+        String sizeName = BlockToggleController.getName(meta);
+        String unlocalized = "tile." + sizeName + "_toggle_block.desc";
         String s = Translator.translate(unlocalized, size.size);
         list.add(s);
     }

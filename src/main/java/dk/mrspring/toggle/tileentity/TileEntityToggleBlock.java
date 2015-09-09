@@ -32,7 +32,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public static final String PRIORITY = "StoragePriority";
     public static final String ITEM_SLOT = "Slot";
     public static final String ITEMS = "Items";
-    public static final String MAX_CHANGE_BLOCKS = "MaxBlocks";
+    public static final String CONTROLLER_SIZE = "ControllerSize";
     private static final int ON = 1;
     private static final int OFF = 0;
     private static final String[] STATE_NAMES = new String[]{"OffState", "OnState"};
@@ -53,7 +53,6 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     ItemStack[] states = new ItemStack[2]; // TODO: More states? "Cycle Block" with more than 2 states
     ItemStack[] itemStacks = new ItemStack[9];
     ChangeBlockInfo.FakePlayer fakePlayer;
-//    int maxChangeBlocks = 5;
     ControllerSize size;
     IInventory[] adjacent = new IInventory[directions.length];
     StoragePriority priority = StoragePriority.STORAGE_FIRST;
@@ -63,9 +62,9 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
 
     }
 
-    public TileEntityToggleBlock(int changeBlocks)
+    public TileEntityToggleBlock(ControllerSize size)
     {
-        this.maxChangeBlocks = changeBlocks;
+        this.size = size;
     }
 
     public void setupFakePlayer()
@@ -191,7 +190,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     @Override
     public int getMaxChangeBlocks()
     {
-        return maxChangeBlocks;
+        return size.size;
     }
 
     @Override
@@ -597,7 +596,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         compound.setInteger(STATE, this.state);
         compound.setString(MODE, this.getCurrentMode().name());
         compound.setInteger(PRIORITY, getStoragePriority().getId());
-        compound.setInteger(MAX_CHANGE_BLOCKS, maxChangeBlocks);
+        compound.setTag(CONTROLLER_SIZE, size.writeToNBT(new NBTTagCompound()));
 
         NBTTagList storageList = new NBTTagList();
 
@@ -642,8 +641,13 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         this.state = compound.getInteger(STATE);
         this.currentMode = Mode.valueOf(compound.getString(MODE));
         this.priority = StoragePriority.fromInt(compound.getInteger(PRIORITY));
-        this.maxChangeBlocks = compound.getInteger(MAX_CHANGE_BLOCKS);
-        if (maxChangeBlocks == 0) maxChangeBlocks = BlockToggleController.getSizeFromMetadata(getBlockMetadata());
+
+//        this.maxChangeBlocks = compound.getInteger(MAX_CHANGE_BLOCKS);
+//        if (maxChangeBlocks == 0) maxChangeBlocks = BlockToggleController.getSizeFromMetadata(getBlockMetadata());
+        NBTTagCompound sizeCompound = compound.getCompoundTag(CONTROLLER_SIZE);
+        if (sizeCompound != null)
+            this.size = new ControllerSize(sizeCompound);
+        else this.loadSizeFromMetadata();
 
         NBTTagList storageList = compound.getTagList(ITEMS, 10);
         this.itemStacks = new ItemStack[getStorageSlots()];
@@ -661,6 +665,11 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
             NBTTagCompound stateCompound = compound.getCompoundTag(STATE_NAMES[i]);
             this.states[i] = ItemStack.loadItemStackFromNBT(stateCompound);
         }
+    }
+
+    private void loadSizeFromMetadata()
+    {
+        this.size = BlockToggleController.getSizeFromMetadata(getBlockMetadata());
     }
 
     @Override
@@ -791,10 +800,5 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public boolean canExtractItem(int slot, ItemStack stack, int side)
     {
         return slot > 1 && slot < 11;
-    }
-
-    public void setMaxChangeBlocks(int maxChangeBlocks)
-    {
-        this.maxChangeBlocks = maxChangeBlocks;
     }
 }

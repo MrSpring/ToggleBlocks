@@ -13,7 +13,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
@@ -34,27 +33,49 @@ public class BlockToggleController extends BlockContainer
     public static final String CONTROLLER_SIZE = "ControllerSize";
     public static final String CONTROLLER_STACKSIZE = "ControllerStackSize";
 
-    public static ControllerSize[] sizes = new ControllerSize[]{
-            new ControllerSize(15),
-            new ControllerSize(30),
-            new ControllerSize(50),
-            new ControllerSize(5),
-            new ControllerSize(100),
-            new ControllerSize(-1, 1)};
+    public static MetaControllerSize[] sizes = new MetaControllerSize[]{
+            new MetaControllerSize(15, 0),
+            new MetaControllerSize(30, 1),
+            new MetaControllerSize(50, 2),
+            new MetaControllerSize(5, 3),
+            new MetaControllerSize(100, 4),
+            new MetaControllerSize(-1, 1, 5)};
 
-    public static String[] names = new String[]{"small", "medium", "large", "tiny", "huge", "creative"};
+    private static String[] names = new String[]{"small", "medium", "large", "tiny", "huge", "creative"};
 
-    public static final ControllerSize TINY = sizes[3];
-    public static final ControllerSize SMALL = sizes[0];
-    public static final ControllerSize MEDIUM = sizes[1];
-    public static final ControllerSize LARGE = sizes[2];
-    public static final ControllerSize HUGE = sizes[4];
-    public static final ControllerSize CREATIVE = sizes[5];
+    public static final MetaControllerSize TINY = sizes[3];
+    public static final MetaControllerSize SMALL = sizes[0];
+    public static final MetaControllerSize MEDIUM = sizes[1];
+    public static final MetaControllerSize LARGE = sizes[2];
+    public static final MetaControllerSize HUGE = sizes[4];
+    public static final MetaControllerSize CREATIVE = sizes[5];
 
-    public static int getSizeFromMetadata(int metadata)
+    public static class MetaControllerSize extends ControllerSize
     {
-        if (metadata >= 0 && metadata < sizes.length) return sizes[metadata].size;
-        else return SMALL.size;
+        public final int metadata;
+
+        public MetaControllerSize(int size, int stackSize, int metadata)
+        {
+            super(size, stackSize);
+            this.metadata = metadata;
+        }
+
+        public MetaControllerSize(int size, int metadata)
+        {
+            this(size, size, metadata);
+        }
+    }
+
+    public static String getName(int metadata)
+    {
+        if (metadata >= 0 && metadata < names.length) return names[metadata];
+        else return names[0];
+    }
+
+    public static ControllerSize getSizeFromMetadata(int metadata)
+    {
+        if (metadata >= 0 && metadata < sizes.length) return sizes[metadata];
+        else return SMALL;
     }
 
     public static void populateChangeBlock(ItemStack stack, int x, int y, int z)
@@ -80,6 +101,11 @@ public class BlockToggleController extends BlockContainer
         populateToggleController(stack, size);
         stack.setItemDamage(metadata);
         return stack;
+    }
+
+    public static ItemStack createToggleController(MetaControllerSize size, int stackSize)
+    {
+        return createToggleController(size, stackSize, size.metadata);
     }
 
     public static ControllerSize getControllerSize(ItemStack controllerStack)
@@ -186,8 +212,8 @@ public class BlockToggleController extends BlockContainer
         if (!world.isRemote)
         {
             ControllerSize size = getControllerSize(placed);
-            TileEntity tileEntity = world.getTileEntity(x, y, z);
-            if (tileEntity != null) ((TileEntityToggleBlock) tileEntity).setMaxChangeBlocks(size.size);
+//            TileEntity tileEntity = world.getTileEntity(x, y, z);
+//            if (tileEntity != null) ((TileEntityToggleBlock) tileEntity).setMaxChangeBlocks(size.size);
             ItemStack changeBlocks = new ItemStack(BlockBase.change_block, size.stackSize);
             populateChangeBlock(changeBlocks, x, y, z);
             Random random = new Random();
@@ -208,6 +234,6 @@ public class BlockToggleController extends BlockContainer
     @Override
     public TileEntity createNewTileEntity(World world, int metadata)
     {
-        return new TileEntityToggleBlock(sizes[metadata].size);
+        return new TileEntityToggleBlock(getSizeFromMetadata(metadata));
     }
 }

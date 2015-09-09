@@ -65,10 +65,11 @@ public interface IToggleController
 
     /**
      * Called when a Change Block is destroyed.
-     * @param changeBlockX
-     * @param changeBlockY
-     * @param changeBlockZ
-     * @return Returns the ItemStack that drops from the Change Block
+     *
+     * @param changeBlockX The x coordinate of the destroyed change block.
+     * @param changeBlockY The y coordinate of the destroyed change block.
+     * @param changeBlockZ The z coordinate of the destroyed change block.
+     * @return Returns the ItemStacks that drops from the Change Block
      */
     ItemStack[] createChangeBlockDrop(int changeBlockX, int changeBlockY, int changeBlockZ);
 }
