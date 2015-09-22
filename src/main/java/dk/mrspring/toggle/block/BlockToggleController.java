@@ -1,7 +1,6 @@
 package dk.mrspring.toggle.block;
 
 import dk.mrspring.toggle.ToggleBlocks;
-import dk.mrspring.toggle.tileentity.ControllerSize;
 import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -40,7 +39,7 @@ public class BlockToggleController extends BlockContainer
             new MetaControllerSize(50, 2),
             new MetaControllerSize(5, 3),
             new MetaControllerSize(100, 4),
-            new MetaControllerSize(-1, 1, 5)};
+            new MetaControllerSize(-1, 5)};
 
     private static String[] names = new String[]{"small", "medium", "large", "tiny", "huge", "creative"};
 
@@ -51,19 +50,14 @@ public class BlockToggleController extends BlockContainer
     public static final MetaControllerSize HUGE = sizes[4];
     public static final MetaControllerSize CREATIVE = sizes[5];
 
-    public static class MetaControllerSize extends ControllerSize
+    public static class MetaControllerSize
     {
-        public final int metadata;
-
-        public MetaControllerSize(int size, int stackSize, int metadata)
-        {
-            super(size, stackSize);
-            this.metadata = metadata;
-        }
+        public final int size, metadata;
 
         public MetaControllerSize(int size, int metadata)
         {
-            this(size, size, metadata);
+            this.size = size;
+            this.metadata = metadata;
         }
     }
 
@@ -73,7 +67,7 @@ public class BlockToggleController extends BlockContainer
         else return names[0];
     }
 
-    public static ControllerSize getSizeFromMetadata(int metadata)
+    public static MetaControllerSize getSizeFromMetadata(int metadata)
     {
         if (metadata >= 0 && metadata < sizes.length) return sizes[metadata];
         else return SMALL;
@@ -89,14 +83,18 @@ public class BlockToggleController extends BlockContainer
         stack.setTagInfo(CONTROLLER_INFO, controllerCompound);
     }
 
-    public static void populateToggleController(ItemStack stack, ControllerSize size)
+    public static void populateChangeBlock(ItemStack stack, ControllerInfo info)
     {
-        if (!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
-        stack.getTagCompound().setInteger(CONTROLLER_SIZE, size.size);
-        stack.getTagCompound().setInteger(CONTROLLER_STACKSIZE, size.stackSize);
+        populateChangeBlock(stack, info.x, info.y, info.z);
     }
 
-    public static ItemStack createToggleController(ControllerSize size, int stackSize, int metadata)
+    public static void populateToggleController(ItemStack stack, int size)
+    {
+        if (!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
+        stack.getTagCompound().setInteger(CONTROLLER_SIZE, size);
+    }
+
+    public static ItemStack createToggleController(int size, int stackSize, int metadata)
     {
         ItemStack stack = new ItemStack(BlockBase.toggle_controller, stackSize, metadata);
         populateToggleController(stack, size);
@@ -106,21 +104,37 @@ public class BlockToggleController extends BlockContainer
 
     public static ItemStack createToggleController(MetaControllerSize size, int stackSize)
     {
-        return createToggleController(size, stackSize, size.metadata);
+        return createToggleController(size.size, stackSize, size.metadata);
     }
 
-    public static ControllerSize getControllerSize(ItemStack controllerStack)
+    public static int getControllerSize(ItemStack controllerStack)
     {
         if (controllerStack.hasTagCompound() && controllerStack.getTagCompound().hasKey(CONTROLLER_SIZE, 3))
         {
             NBTTagCompound comp = controllerStack.getTagCompound();
-            int size = comp.getInteger(CONTROLLER_SIZE);
-            int stackSize = comp.hasKey(CONTROLLER_STACKSIZE, 3) ? comp.getInteger(CONTROLLER_STACKSIZE) : size;
-            return new ControllerSize(size, stackSize);
+            return comp.getInteger(CONTROLLER_SIZE);
         } else
         {
             int meta = controllerStack.getItemDamage();
-            return meta >= 0 && meta < sizes.length ? sizes[meta] : SMALL;
+            return getSizeFromMetadata(meta).size;
+        }
+    }
+
+    private static void spawnItem(World world, int x, int y, int z, ItemStack stack)
+    {
+        if (stack != null && stack.stackSize > 0)
+        {
+            Random rand = new Random();
+            float xRand = rand.nextFloat() * 0.8F + 0.1F;
+            float yRand = rand.nextFloat() * 0.8F + 0.1F;
+            float zRand = rand.nextFloat() * 0.8F + 0.1F;
+            EntityItem entityitem = new EntityItem(world,
+                    ((float) x + xRand), ((float) y + yRand), ((float) z + zRand), stack.copy());
+            float f = 0.05F;
+            entityitem.motionX = (double) ((float) rand.nextGaussian() * f);
+            entityitem.motionY = (double) ((float) rand.nextGaussian() * f + 0.2F);
+            entityitem.motionZ = (double) ((float) rand.nextGaussian() * f);
+            world.spawnEntityInWorld(entityitem);
         }
     }
 
@@ -139,9 +153,6 @@ public class BlockToggleController extends BlockContainer
                 4 * P, 4 * P, 4 * P,
                 12 * P, 12 * P, 12 * P);
         this.setCreativeTab(CreativeTabs.tabRedstone);
-
-        int maxStack = 64;
-        for (ControllerSize size : sizes) maxStack = Math.max(maxStack, size.stackSize);
     }
 
     @Override
@@ -162,7 +173,7 @@ public class BlockToggleController extends BlockContainer
 //        itemStacks.add(createToggleController(LARGE, 1)/*new ItemStack(item, 1, LARGE.metadata)*/);
 //        itemStacks.add(createToggleController(HUGE, 1)/*new ItemStack(item, 1, HUGE.metadata)*/);
 //        itemStacks.add(createToggleController(CREATIVE, 1)/*new ItemStack(item, 1, CREATIVE.metadata)*/);
-        for (int i = 0; i < sizes.length; i++) itemStacks.add(createToggleController(sizes[i], 1, i));
+        for (MetaControllerSize size : sizes) itemStacks.add(createToggleController(size, 1));
     }
 
     @Override
@@ -200,8 +211,13 @@ public class BlockToggleController extends BlockContainer
                                     float p_149727_8_, float p_149727_9_)
     {
         TileEntity tileEntity = world.getTileEntity(x, y, z);
-        if (tileEntity == null || player.isSneaking())
-            return false;
+        if (tileEntity == null) return false;
+        if (player.isSneaking() && player.getCurrentEquippedItem() == null)
+        {
+            if (!world.isRemote)
+                BlockChangeBlock.updateRemainingChangeBlocks(player, new ControllerInfo(x, y, z), world);
+            return true;
+        }
         world.markBlockForUpdate(x, y, z);
         player.openGui(ToggleBlocks.instance, 0, world, x, y, z);
         return true;
@@ -212,17 +228,13 @@ public class BlockToggleController extends BlockContainer
     {
         if (!world.isRemote)
         {
-            ControllerSize size = getControllerSize(placed);
-//            TileEntity tileEntity = world.getTileEntity(x, y, z);
-//            if (tileEntity != null) ((TileEntityToggleBlock) tileEntity).setMaxChangeBlocks(size.size);
-            ItemStack changeBlocks = new ItemStack(BlockBase.change_block, size.stackSize);
-            populateChangeBlock(changeBlocks, x, y, z);
-            Random random = new Random();
-            EntityItem entityItem = new EntityItem(world, x + 0.5, y + 1.5, z + 0.5, changeBlocks);
-            entityItem.motionX = (float) random.nextGaussian() * 0.05;
-            entityItem.motionY = (float) random.nextGaussian() * 0.05 + 0.2F;
-            entityItem.motionZ = (float) random.nextGaussian() * 0.05;
-            world.spawnEntityInWorld(entityItem);
+            int size = getControllerSize(placed);
+            TileEntity tileEntity = world.getTileEntity(x, y, z);
+            if (tileEntity instanceof TileEntityToggleBlock)
+            {
+                TileEntityToggleBlock controller = (TileEntityToggleBlock) tileEntity;
+                controller.setSize(size);
+            }
         }
     }
 
@@ -235,6 +247,6 @@ public class BlockToggleController extends BlockContainer
     @Override
     public TileEntity createNewTileEntity(World world, int metadata)
     {
-        return new TileEntityToggleBlock(getSizeFromMetadata(metadata));
+        return new TileEntityToggleBlock();
     }
 }

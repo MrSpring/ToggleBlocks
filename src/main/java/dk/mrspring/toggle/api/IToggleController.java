@@ -64,12 +64,14 @@ public interface IToggleController
     boolean canRegisterAnotherChangeBlock();
 
     /**
-     * Called when a Change Block is destroyed.
+     * Called when a Change Block is destroyed and when the Toggle Controller is placed.
      *
-     * @param changeBlockX The x coordinate of the destroyed change block.
-     * @param changeBlockY The y coordinate of the destroyed change block.
-     * @param changeBlockZ The z coordinate of the destroyed change block.
-     * @return Returns the ItemStacks that drops from the Change Block
+     * @return Returns the ItemStacks that drops
      */
-    ItemStack[] createChangeBlockDrop(int changeBlockX, int changeBlockY, int changeBlockZ);
+    ItemStack[] createChangeBlockDrop();
+
+    /**
+     * Called when the Toggle Controller is broken
+     */
+    void resetAllChangeBlocks();
 }

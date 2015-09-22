@@ -17,11 +17,11 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.2.1291/forgeSrc-1.7.10-10.13.2.1291.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.3.1381-1.7.10/forgeSrc-1.7.10-10.13.3.1381-1.7.10.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.2.1291/forgeSrc-1.7.10-10.13.2.1291-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.3.1381-1.7.10/forgeSrc-1.7.10-10.13.3.1381-1.7.10-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -661,25 +661,34 @@
     <orderEntry type="module-library" exported="" scope="RUNTIME">
       <library>
         <CLASSES>
-          <root url="file://$USER_HOME$/.gradle/caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.2.1291/start" />
+          <root url="file://$USER_HOME$/.gradle/caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.3.1381-1.7.10/start" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/NotEnoughItems-1.7.10-1.0.3.74-dev.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/CodeChickenCore-1.0.5.37.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/CodeChickenCore-1.7.10-1.0.4.29-dev.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/CodeChickenLib-1.1.1.99.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/NotEnoughItems-1.0.4.95.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

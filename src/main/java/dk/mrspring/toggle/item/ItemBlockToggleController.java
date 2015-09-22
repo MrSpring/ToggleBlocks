@@ -1,7 +1,6 @@
 package dk.mrspring.toggle.item;
 
 import dk.mrspring.toggle.block.BlockToggleController;
-import dk.mrspring.toggle.tileentity.ControllerSize;
 import dk.mrspring.toggle.util.Translator;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,10 +37,10 @@ public class ItemBlockToggleController extends ItemBlock
         super.addInformation(stack, player, list, p_77624_4_);
 
         int meta = stack.getItemDamage();
-        ControllerSize size = BlockToggleController.getSizeFromMetadata(meta);
+        int size = BlockToggleController.getControllerSize(stack);
         String sizeName = BlockToggleController.getName(meta);
         String unlocalized = "tile." + sizeName + "_toggle_block.desc";
-        String s = Translator.translate(unlocalized, size.size);
+        String s = Translator.translate(unlocalized, size);
         list.add(s);
     }
 }

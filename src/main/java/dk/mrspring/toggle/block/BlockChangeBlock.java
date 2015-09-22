@@ -6,10 +6,14 @@ import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
@@ -23,7 +27,87 @@ import java.util.ArrayList;
  */
 public class BlockChangeBlock extends BlockContainer
 {
+    public static final String REMAINING_CHANGE_BLOCKS = "RemainingChangeBlocks";
+
     public static int renderId;
+
+    public static boolean doesPlayerHaveChangeBlockInInventory(InventoryPlayer player, ControllerInfo info)
+    {
+        return getChangeBlockFromInventory(player, info) != -1;
+    }
+
+    public static int getChangeBlockFromInventory(InventoryPlayer player, ControllerInfo info)
+    {
+        for (int slot = 0; slot < player.getSizeInventory(); slot++)
+        {
+            ItemStack inSlot = player.getStackInSlot(slot);
+            if (inSlot == null) continue;
+            ControllerInfo fromInSlot = new ControllerInfo(inSlot);
+            if (info.equals(fromInSlot)) return slot;
+        }
+        return -1;
+    }
+
+    public static boolean updateRemainingChangeBlocks(EntityPlayer player, ControllerInfo info, World world)
+    {
+        int slot = getChangeBlockFromInventory(player.inventory, info);
+        if (slot == -1)
+        {
+            ItemStack stack = createChangeBlock(info, 1);
+            updateRemainingChangeBlocks(stack, world);
+            Entity entity = new EntityItem(world, player.posX, player.posY, player.posZ, stack);
+            world.spawnEntityInWorld(entity);
+            return false;
+        } else
+        {
+            ItemStack stack = player.inventory.getStackInSlot(slot);
+            updateRemainingChangeBlocks(stack, world);
+            if (stack.stackSize == 0 && !player.capabilities.isCreativeMode)
+                player.inventory.setInventorySlotContents(slot, null);
+            else stack.stackSize = 1;
+            return true;
+        }
+    }
+
+    public static void clearChangeBlockFromInventory(InventoryPlayer player, ControllerInfo info)
+    {
+        int slot = getChangeBlockFromInventory(player, info);
+        if (slot != -1) player.setInventorySlotContents(slot, null);
+    }
+
+    public static void updateRemainingChangeBlocks(ItemStack stack, World world)
+    {
+        ControllerInfo info = new ControllerInfo(stack);
+        if (info.initialized)
+        {
+            int x = info.x, y = info.y, z = info.z;
+            TileEntity entity = world.getTileEntity(x, y, z);
+            if (entity instanceof IToggleController)
+            {
+                IToggleController controller = (IToggleController) entity;
+                int max = controller.getMaxChangeBlocks();
+                int remaining = max != -1 ? controller.getMaxChangeBlocks() - controller.getRegisteredChangeBlockCount() : -1;
+                if (remaining == 0)
+                    stack.stackSize = 0;
+                stack.setTagInfo(REMAINING_CHANGE_BLOCKS, new NBTTagInt(remaining));
+            }
+        }
+    }
+
+    public static int getRemainingChangeBlocks(ItemStack stack, World world)
+    {
+        if (!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
+        if (!stack.getTagCompound().hasKey(REMAINING_CHANGE_BLOCKS, 3)) updateRemainingChangeBlocks(stack, world);
+        return stack.getTagCompound().getInteger(REMAINING_CHANGE_BLOCKS);
+    }
+
+    public static ItemStack createChangeBlock(ControllerInfo info, int stackSize)
+    {
+        ItemStack stack = new ItemStack(BlockBase.change_block, stackSize);
+        BlockToggleController.populateChangeBlock(stack, info);
+        return stack;
+    }
+
     IIcon upIcon, downIcon, leftIcon, rightIcon, frontIcon;
     IIcon[] down, up, north, south, east, west;
 
@@ -121,27 +205,18 @@ public class BlockChangeBlock extends BlockContainer
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack placed)
     {
-        if (world.isRemote)
-            return;
-        NBTTagCompound placedCompound = placed.getTagCompound();
-        if (placedCompound != null)
-            if (placedCompound.hasKey("ControllerInfo"))
+        if (world.isRemote) return;
+        ControllerInfo info = new ControllerInfo(placed);
+        if (info.initialized)
+        {
+            TileEntity entity = world.getTileEntity(info.x, info.y, info.z);
+            if (entity instanceof IToggleController)
             {
-                NBTTagCompound controllerInfo = placedCompound.getCompoundTag("ControllerInfo");
-                int controllerX = controllerInfo.getInteger("X");
-                int controllerY = controllerInfo.getInteger("Y");
-                int controllerZ = controllerInfo.getInteger("Z");
-                TileEntity tileEntity = world.getTileEntity(controllerX, controllerY, controllerZ);
-                if (tileEntity != null && tileEntity instanceof IToggleController)
-                {
-                    System.out.println("Registering");
-                    IToggleController entity = (IToggleController) tileEntity;
-                    entity.registerChangeBlock(x, y, z);
-                }
-                tileEntity = world.getTileEntity(x, y, z);
-                if (tileEntity != null && tileEntity instanceof TileEntityChangeBlock)
-                    ((TileEntityChangeBlock) tileEntity).setControllerPos(controllerX, controllerY, controllerZ);
+                IToggleController controller = (IToggleController) entity;
+                controller.registerChangeBlock(x, y, z);
+                updateRemainingChangeBlocks((EntityPlayer) player, info, world);
             }
+        }
     }
 
     @Override
@@ -150,11 +225,8 @@ public class BlockChangeBlock extends BlockContainer
         TileEntity tileEntity = world.getTileEntity(x, y, z);
         if (tileEntity == null || !(tileEntity instanceof TileEntityChangeBlock))
             return super.getPickBlock(target, world, x, y, z, player);
-        TileEntityChangeBlock changeBlock = (TileEntityChangeBlock) tileEntity;
-        int cX = changeBlock.getCx(), cY = changeBlock.getCy(), cZ = changeBlock.getCz();
-        ItemStack changeBlockStack = new ItemStack(this, 1, 0);
-        BlockToggleController.populateChangeBlock(changeBlockStack, cX, cY, cZ);
-        return changeBlockStack;
+        ControllerInfo info = new ControllerInfo((TileEntityChangeBlock) tileEntity);
+        return createChangeBlock(info, 1);
     }
 
     @Override

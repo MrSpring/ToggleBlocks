@@ -1,5 +1,6 @@
 package dk.mrspring.toggle;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -7,17 +8,14 @@ import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import dk.mrspring.toggle.api.IBlockToggleRegistry;
 import dk.mrspring.toggle.block.BlockBase;
+import dk.mrspring.toggle.comp.nei.NEIToggleConfig;
 import dk.mrspring.toggle.tileentity.MessageSetMode;
 import dk.mrspring.toggle.tileentity.MessageSetOverride;
 import dk.mrspring.toggle.tileentity.MessageSetStoragePriority;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -55,6 +53,17 @@ public class ToggleBlocks
     @Mod.EventHandler
     public static void init(FMLInitializationEvent event)
     {
+        if (Loader.isModLoaded("NotEnoughItems"))
+        {
+            try
+            {
+                System.out.println("Registering NEI comp.");
+                codechicken.nei.NEIModContainer.plugins.add(new NEIToggleConfig());
+            } catch (Exception ignored)
+            {
+            }
+        }
+
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         proxy.registerRenderer();
         FMLInterModComms.sendRuntimeMessage(ModInfo.MOD_ID, "VersionChecker", "addVersionCheck", "http://mrspring.dk/mods/tb/versions.json");
