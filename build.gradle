@@ -12,34 +12,51 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+//
     }
 }
 
 apply plugin: 'forge'
 
-version = "1.2.0-1.7.2-10"
-group = "dk.mrspring.toggle" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+version = "1.2.0-1.7.10"
+group = "dk.mrspring" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "ToggleBlocks"
+ext.configFile = file "build.properties"
+
+configFile.withReader {
+    // Load config.  It shall from now be referenced as simply config or project.config
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
 
 minecraft {
-    version = "1.7.10-10.13.3.1381-1.7.10"
+    version = "1.7.10-10.13.4.1492-1.7.10"
     runDir = "eclipse"
 }
 
+repositories {
+    maven {
+        name "chickenbones"
+        url "http://chickenbones.net/maven/"
+    }
+    maven {
+        name "mobius"
+        url "http://mobiusstrip.eu/maven/"
+    }
+}
+
+configurations {
+    deployerJars
+}
+
 dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-
-    // real examples
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-
-    // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
+    compile "codechicken:CodeChickenLib:1.7.10-1.1.3.140:dev"
+    compile "codechicken:CodeChickenCore:1.7.10-1.0.7.47:dev"
+    compile "codechicken:NotEnoughItems:1.7.10-1.0.5.118:dev"
+    compile "mcp.mobius.waila:Waila:1.5.10_1.7.10"
+	
+    deployerJars "org.apache.maven.wagon:wagon-ftp:2.10"
 }
 
 processResources
@@ -62,9 +79,52 @@ processResources
             }
         }
 
-sourceSets
-        {
-            main {
-                output.resourcesDir = output.classesDir
+sourceSets {
+    api {
+        java {
+            srcDir "$projectDir"
+            include "src/api/java"
+        }
+    }
+}
+
+jar() {
+    from(sourceSets.main.output, sourceSets.api.output)
+}
+
+task sourceJar(type: Jar) {
+    from(sourceSets.main.java, sourceSets.api.output)
+    classifier = "src"
+}
+
+task devJar(type: Jar) {
+    from (sourceSets.main.output, sourceSets.api.output)
+    classifier = "deobf"
+}
+
+task apiJar(type: Jar) {
+    from (sourceSets.api.output)
+    classifier = "api"
+}
+
+artifacts {
+    archives sourceJar, devJar, apiJar
+}
+
+uploadArchives {
+    dependsOn "reobf"
+    repositories {
+        mavenDeployer {
+            configuration = configurations.deployerJars
+            repository(url: "${config.maven_url}") {
+                authentication(userName: "${config.maven_user}", password: "${config.maven_pass}")
             }
         }
+    }
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
