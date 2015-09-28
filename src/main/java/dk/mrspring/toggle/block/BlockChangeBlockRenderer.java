@@ -39,7 +39,7 @@ public class BlockChangeBlockRenderer implements ISimpleBlockRenderingHandler
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(0, 1, 0);
-        renderer.renderFaceYPos(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceYPos(block, 0, 0, 0, block.getIcon(1, 0));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
@@ -49,22 +49,22 @@ public class BlockChangeBlockRenderer implements ISimpleBlockRenderingHandler
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(1, 0, 0);
-        renderer.renderFaceXPos(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceXPos(block, 0, 0, 0, block.getIcon(2, 0));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(-1, 0, 0);
-        renderer.renderFaceXNeg(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceXNeg(block, 0, 0, 0, block.getIcon(3, 0));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(0, 0, 1);
-        renderer.renderFaceZPos(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceZPos(block, 0, 0, 0, block.getIcon(4, 0));
         tessellator.draw();
 
         tessellator.startDrawingQuads();
         tessellator.setNormal(0, 0, -1);
-        renderer.renderFaceZNeg(block, 0, 0, 0, block.getIcon(0, 0));
+        renderer.renderFaceZNeg(block, 0, 0, 0, block.getIcon(5, 0));
         tessellator.draw();
 
         GL11.glTranslatef(0.5F, 0.5F, 0.5F);

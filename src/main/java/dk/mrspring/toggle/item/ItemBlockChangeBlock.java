@@ -1,17 +1,16 @@
 package dk.mrspring.toggle.item;
 
 import dk.mrspring.toggle.api.IToggleController;
-import dk.mrspring.toggle.block.BlockChangeBlock;
 import dk.mrspring.toggle.block.ControllerInfo;
 import dk.mrspring.toggle.util.Translator;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.List;
 
@@ -57,7 +56,7 @@ public class ItemBlockChangeBlock extends ItemBlock
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata)
     {
-        if (world.isRemote)return false;
+        if (world.isRemote) return false;
         ControllerInfo info = new ControllerInfo(stack);
         if (info.initialized)
         {
@@ -66,7 +65,11 @@ public class ItemBlockChangeBlock extends ItemBlock
             {
                 IToggleController controller = (IToggleController) entity;
                 if (controller.canRegisterAnotherChangeBlock())
-                    return super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, side);
+                {
+                    ForgeDirection direction = ForgeDirection.getOrientation(side);
+                    return super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ,
+                            direction.getOpposite().ordinal());
+                }
                 player.addChatComponentMessage(new ChatComponentText(Translator.translate("message.full_toggle_controller")));
             }
         }

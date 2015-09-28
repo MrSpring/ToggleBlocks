@@ -13,7 +13,7 @@ import net.minecraft.util.StatCollector;
 /**
  * Created by Konrad on 27-02-2015.
  */
-public class TileEntityChangeBlock extends TileEntity implements IInventory // TODO: Get mostly rid of this class, use only for opening gui. Get the overrides from the Toggle Controller
+public class TileEntityChangeBlock extends TileEntity implements IInventory
 {
     ChangeBlockInfo info;
     int cx, cy, cz;
@@ -36,8 +36,7 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory // T
 
     public ChangeBlockInfo getBlockInfo()
     {
-        if (info == null)
-            info = new ChangeBlockInfo(xCoord, yCoord, zCoord, blockMetadata);
+        if (info == null) info = new ChangeBlockInfo(xCoord, yCoord, zCoord, blockMetadata);
         info.setCoordinates(xCoord, yCoord, zCoord);
         return info;
     }
@@ -45,16 +44,6 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory // T
     public void setBlockInfo(ChangeBlockInfo newInfo)
     {
         this.info = newInfo;
-    }
-
-    @Override
-    public void updateEntity()
-    {
-        if (info != null && getBlockMetadata() != info.getDirectionID())
-        {
-//            worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, info.getDirectionID(), 2);
-            info.setDirection(getBlockMetadata());
-        }
     }
 
     @Override
@@ -169,13 +158,11 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory // T
     @Override
     public void openInventory()
     {
-
     }
 
     @Override
     public void closeInventory()
     {
-
     }
 
     @Override

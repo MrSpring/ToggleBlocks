@@ -173,15 +173,25 @@ public class BlockChangeBlock extends BlockContainer
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float p_149727_7_,
-                                    float p_149727_8_, float p_149727_9_)
+    public TileEntity createNewTileEntity(World p_149915_1_, int p_149915_2_)
     {
-        TileEntity tileEntity = world.getTileEntity(x, y, z);
-        if (tileEntity == null || player.isSneaking())
+        return new TileEntityChangeBlock();
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side,
+                                    float hitX, float hitY, float hitZ)
+    {
+        if (player.isSneaking())
         {
-            ForgeDirection direction = ForgeDirection.getOrientation(side);
-            world.setBlockMetadataWithNotify(x, y, z, direction.getOpposite().ordinal(), 3);
-            return true;
+            ForgeDirection direction = ForgeDirection.getOrientation(side).getOpposite();
+            TileEntityChangeBlock changeBlock = (TileEntityChangeBlock) world.getTileEntity(x, y, z);
+            if (changeBlock.getBlockInfo().getDirection() != direction)
+            {
+                world.setBlockMetadataWithNotify(x, y, z, direction.ordinal(), 2);
+                changeBlock.getBlockInfo().setDirection(direction.ordinal());
+                return true;
+            } else return false;
         } else
         {
             player.openGui(ToggleBlocks.instance, 1, world, x, y, z);
@@ -220,11 +230,5 @@ public class BlockChangeBlock extends BlockContainer
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
     {
         return new ArrayList<ItemStack>();
-    }
-
-    @Override
-    public TileEntity createNewTileEntity(World world, int metadata)
-    {
-        return new TileEntityChangeBlock();
     }
 }

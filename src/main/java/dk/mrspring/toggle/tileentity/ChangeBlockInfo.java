@@ -1,6 +1,5 @@
 package dk.mrspring.toggle.tileentity;
 
-import com.mojang.authlib.GameProfile;
 import dk.mrspring.toggle.ToggleRegistry;
 import dk.mrspring.toggle.api.IBlockToggleAction;
 import dk.mrspring.toggle.api.IChangeBlockInfo;
@@ -10,13 +9,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by Konrad on 27-02-2015.

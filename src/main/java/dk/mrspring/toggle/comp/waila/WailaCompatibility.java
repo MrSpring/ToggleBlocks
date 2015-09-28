@@ -1,6 +1,8 @@
 package dk.mrspring.toggle.comp.waila;
 
+import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.block.BlockChangeBlock;
+import dk.mrspring.toggle.block.BlockToggleController;
 import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -15,15 +17,26 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.List;
 
+import static dk.mrspring.toggle.util.Translator.translate;
+
 /**
  * Created on 28-09-2015 for ToggleBlocks.
  */
 public class WailaCompatibility implements IWailaDataProvider
 {
+    private static final String[] DIRECTIONS = {
+            "direction.down",
+            "direction.up",
+            "direction.north",
+            "direction.south",
+            "direction.west",
+            "direction.east"
+    };
+
     @Override
     public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
-        return null;
+        return new ItemStack(accessor.getBlock(), 1, accessor.getMetadata());
     }
 
     @Override
@@ -38,11 +51,20 @@ public class WailaCompatibility implements IWailaDataProvider
         if (config.getConfig("show_change_block_direction"))
         {
             TileEntity entity = accessor.getTileEntity();
-            if (entity != null && entity instanceof TileEntityChangeBlock)
+            if (entity == null) return currenttip;
+            if (entity instanceof TileEntityChangeBlock)
             {
                 TileEntityChangeBlock changeBlock = (TileEntityChangeBlock) entity;
                 ForgeDirection direction = changeBlock.getBlockInfo().getDirection();
-                currenttip.add("Direction: " + direction.name());
+                String translatedDirection = translate(DIRECTIONS[direction.ordinal()]);
+                String translating = "tile.change_block.direction";
+                currenttip.add(translate(translating, translatedDirection));
+            } else if (entity instanceof IToggleController)
+            {
+                IToggleController controller = (IToggleController) entity;
+                int current = controller.getRegisteredChangeBlockCount(), max = controller.getMaxChangeBlocks();
+                String translating = "tile.toggle_block.container." + (max == -1 ? "infinite_blocks" : "registered_blocks");
+                currenttip.add(translate(translating, current, max));
             }
         }
         return currenttip;
@@ -68,6 +90,9 @@ public class WailaCompatibility implements IWailaDataProvider
 
         System.out.println("Register");
 
-        registrar.registerBodyProvider(new WailaCompatibility(), BlockChangeBlock.class);
+        IWailaDataProvider provider = new WailaCompatibility();
+        registrar.registerBodyProvider(provider, BlockChangeBlock.class);
+        registrar.registerBodyProvider(provider, BlockToggleController.class);
+        registrar.registerStackProvider(provider, BlockToggleController.class);
     }
 }

@@ -4,6 +4,14 @@ tile.change_block.container.on=On
 tile.change_block.container.off=Off
 tile.change_block.desc=Linked to controller: §c%1$d§7, §a%2$d§7, §9%3$d§r
 tile.change_block.not_linked=Not linked to controller!
+tile.change_block.direction=Direction: %s
+
+direction.up=Up
+direction.down=Down
+direction.north=North
+direction.south=South
+direction.west=West
+direction.east=East
 
 tile.toggle_block_tiny.name=Tiny Toggle Block
 tile.toggle_block_small.name=Small Toggle Block
