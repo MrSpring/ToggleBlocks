@@ -1,6 +1,5 @@
 package dk.mrspring.toggle.api;
 
-import dk.mrspring.toggle.tileentity.ChangeBlockInfo;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -22,7 +21,7 @@ public interface IToggleController
      * @return If the Change Block was successfully registered (If the controller has room for it) the Change Blocks
      * information will be returned. Null if the block was not registered.
      */
-    ChangeBlockInfo registerChangeBlock(int x, int y, int z);
+    IChangeBlockInfo registerChangeBlock(int x, int y, int z);
 
     /**
      * Removes the Change Block from the controller, if the change block can be found at the specified coordinates.
@@ -33,7 +32,7 @@ public interface IToggleController
      * @return If the Change Block was found, its information will be returned. Null if nothing was found at the
      * specified coordinates.
      */
-    ChangeBlockInfo unregisterChangeBlock(int x, int y, int z);
+    IChangeBlockInfo unregisterChangeBlock(int x, int y, int z);
 
     /**
      * @return Returns the controllers current state.
