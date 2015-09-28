@@ -1,5 +1,6 @@
 package dk.mrspring.toggle.tileentity;
 
+import com.mojang.authlib.GameProfile;
 import dk.mrspring.toggle.api.*;
 import dk.mrspring.toggle.block.BlockBase;
 import dk.mrspring.toggle.block.BlockToggleController;
@@ -13,11 +14,14 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static net.minecraftforge.common.util.ForgeDirection.*;
 
@@ -53,7 +57,8 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     List<ChangeBlockInfo> changeBlocks = new ArrayList<ChangeBlockInfo>();
     ItemStack[] states = new ItemStack[2]; // TODO: More states? "Cycle Block" with more than 2 states
     ItemStack[] itemStacks = new ItemStack[9];
-    ChangeBlockInfo.FakePlayer fakePlayer;
+    //    ChangeBlockInfo.FakePlayer fakePlayer;
+    EntityPlayer player;
     int size;
     IInventory[] adjacent = new IInventory[directions.length];
     StoragePriority priority = StoragePriority.STORAGE_FIRST;
@@ -64,14 +69,15 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
 
     public void setupFakePlayer()
     {
-        fakePlayer = new ChangeBlockInfo.FakePlayer(worldObj);
+        if (getWorldObj() != null && getWorldObj() instanceof WorldServer)
+            player = new FakePlayer((WorldServer) getWorldObj(), new GameProfile(new UUID(0, 0), "ToggleBlock"));
+        //fakePlayer = new ChangeBlockInfo.FakePlayer(worldObj);
     }
 
     public EntityPlayer getFakePlayer()
     {
-        if (this.fakePlayer == null)
-            this.setupFakePlayer();
-        return this.fakePlayer;
+        if (this.player == null) this.setupFakePlayer();
+        return this.player;
     }
 
     @Override

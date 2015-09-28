@@ -1,5 +1,8 @@
-package dk.mrspring.toggle.block;
+package dk.mrspring.toggle.item;
 
+import dk.mrspring.toggle.block.BlockBase;
+import dk.mrspring.toggle.block.BlockChangeBlock;
+import dk.mrspring.toggle.block.BlockChangeBlockRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.item.ItemStack;

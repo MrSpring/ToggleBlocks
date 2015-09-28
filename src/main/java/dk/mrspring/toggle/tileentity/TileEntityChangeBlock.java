@@ -52,7 +52,8 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory // T
     {
         if (info != null && getBlockMetadata() != info.getDirectionID())
         {
-            worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, info.getDirectionID(), 2);
+//            worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, info.getDirectionID(), 2);
+            info.setDirection(getBlockMetadata());
         }
     }
 

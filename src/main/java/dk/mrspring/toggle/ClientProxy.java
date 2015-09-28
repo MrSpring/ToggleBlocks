@@ -2,6 +2,7 @@ package dk.mrspring.toggle;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import dk.mrspring.toggle.block.*;
+import dk.mrspring.toggle.item.ItemBlockChangeBlockRenderer;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.MinecraftForgeClient;
 

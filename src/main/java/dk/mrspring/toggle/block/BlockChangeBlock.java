@@ -19,6 +19,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
 
@@ -167,25 +168,8 @@ public class BlockChangeBlock extends BlockContainer
     @Override
     public IIcon getIcon(int side, int metadata)
     {
-        final int UP = 0, DOWN = 1, NORTH = 2, EAST = 4, WEST = 5, SOUTH = 3;
-
-        switch (metadata)
-        {
-            case UP:
-                return up[side];
-            case DOWN:
-                return down[side];
-            case NORTH:
-                return north[side];
-            case SOUTH:
-                return south[side];
-            case EAST:
-                return east[side];
-            case WEST:
-                return west[side];
-            default:
-                return super.getIcon(side, metadata);
-        }
+        IIcon[][] icons = new IIcon[][]{down, up, south, north, west, east};
+        return icons[metadata][side];
     }
 
     @Override
@@ -195,11 +179,14 @@ public class BlockChangeBlock extends BlockContainer
         TileEntity tileEntity = world.getTileEntity(x, y, z);
         if (tileEntity == null || player.isSneaking())
         {
-            world.setBlockMetadataWithNotify(x, y, z, side, 2);
+            ForgeDirection direction = ForgeDirection.getOrientation(side);
+            world.setBlockMetadataWithNotify(x, y, z, direction.getOpposite().ordinal(), 3);
+            return true;
+        } else
+        {
+            player.openGui(ToggleBlocks.instance, 1, world, x, y, z);
             return true;
         }
-        player.openGui(ToggleBlocks.instance, 1, world, x, y, z);
-        return true;
     }
 
     @Override

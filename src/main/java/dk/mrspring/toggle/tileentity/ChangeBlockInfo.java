@@ -201,7 +201,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         this.direction = ForgeDirection.getOrientation(direction);
     }
 
-    public static class FakePlayer extends EntityPlayer
+    /*public static class FakePlayer extends EntityPlayer
     {
         public FakePlayer(World world)
         {
@@ -225,7 +225,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         {
             return null;
         }
-    }
+    }*/
 
     public static class StateOverride
     {

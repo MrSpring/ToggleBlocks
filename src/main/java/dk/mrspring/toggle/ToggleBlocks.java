@@ -68,6 +68,7 @@ public class ToggleBlocks
         proxy.registerRenderer();
         FMLInterModComms.sendRuntimeMessage(ModInfo.MOD_ID, "VersionChecker", "addVersionCheck", "http://mrspring.dk/mods/tb/versions.json");
         FMLInterModComms.sendMessage("tb", "register", "dk.mrspring.toggle.comp.vanilla.ToggleRegistryCallback.register");
+        FMLInterModComms.sendMessage("Waila", "register", "dk.mrspring.toggle.comp.waila.WailaCompatibility.callbackRegister");
         Recipes.register();
     }
 
