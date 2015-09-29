@@ -40,32 +40,18 @@ public class EventHandler
     public void blockPlaceEvent(BlockEvent.PlaceEvent event)
     {
         int x = event.x, y = event.y, z = event.z;
-        Block block = event.block;
         TileEntity entity = event.world.getTileEntity(x, y, z);
-        if (block == BlockBase.toggle_controller) // TODO: Test with tile entity
+        if (entity instanceof IToggleController)
         {
-            if (entity instanceof IToggleController)
+            IToggleController controller = (IToggleController) entity;
+            ItemStack[] drops = controller.createChangeBlockDrop();
+            for (ItemStack stack : drops)
             {
-                IToggleController controller = (IToggleController) entity;
-                ItemStack[] drops = controller.createChangeBlockDrop();
-                for (ItemStack stack : drops)
-                {
-                    if (stack.getItem() == Item.getItemFromBlock(BlockBase.change_block))
-                        BlockChangeBlock.updateRemainingChangeBlocks(stack, event.world);
-                    spawnItemStack(event.world, event.player, stack);
-                }
-//                BlockChangeBlock.updateRemainingChangeBlocks(event.player, new ControllerInfo(x, y, z), event.world);
+                if (stack.getItem() == Item.getItemFromBlock(BlockBase.change_block))
+                    BlockChangeBlock.updateRemainingChangeBlocks(stack, event.world);
+                spawnItemStack(event.world, event.player, stack);
             }
-        } /*else if (block == BlockBase.change_block)
-        {
-            if (entity instanceof TileEntityChangeBlock)
-            {
-                TileEntityChangeBlock changeBlock = (TileEntityChangeBlock) entity;
-                ControllerInfo info = new ControllerInfo(changeBlock.getCx(), changeBlock.getCy(), changeBlock.getCz());
-                System.out.println("Updating. info: "+info.toString());
-                BlockChangeBlock.updateRemainingChangeBlocks(event.player, info, event.world);
-            }
-        }*/
+        }
     }
 
     private void breakToggleController(World world, int x, int y, int z, EntityPlayer player,
