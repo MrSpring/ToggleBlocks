@@ -37,7 +37,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public static final String ITEM_SLOT = "Slot";
     public static final String ITEMS = "Items";
     public static final String CONTROLLER_SIZE = "ControllerSize";
-    public static final String MAX_CHANGE_BLOCKS = "ControllerSize";
+    public static final String MAX_CHANGE_BLOCKS = "MaxBlocks";
     private static final int ON = 1;
     private static final int OFF = 0;
     private static final String[] STATE_NAMES = new String[]{"OffState", "OnState"};
@@ -611,9 +611,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         compound.setInteger(STATE, this.state);
         compound.setString(MODE, this.getCurrentMode().name());
         compound.setInteger(PRIORITY, getStoragePriority().getId());
-        NBTTagCompound sizeCompound = new NBTTagCompound();
-        sizeCompound.setInteger(MAX_CHANGE_BLOCKS, getMaxChangeBlocks());
-        compound.setTag(CONTROLLER_SIZE, sizeCompound);
+        compound.setInteger(MAX_CHANGE_BLOCKS, getMaxChangeBlocks());
 
         NBTTagList storageList = new NBTTagList();
 
@@ -661,9 +659,13 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
 
 //        this.maxChangeBlocks = compound.getInteger(MAX_CHANGE_BLOCKS);
 //        if (maxChangeBlocks == 0) maxChangeBlocks = BlockToggleController.getSizeFromMetadata(getBlockMetadata());
-        NBTTagCompound sizeCompound = compound.getCompoundTag(CONTROLLER_SIZE);
-        if (sizeCompound != null) this.size = sizeCompound.getInteger(MAX_CHANGE_BLOCKS);
-        else this.loadSizeFromMetadata();
+//        NBTTagCompound sizeCompound = compound.getCompoundTag(CONTROLLER_SIZE);
+//        if (sizeCompound != null) this.size = sizeCompound.getInteger(MAX_CHANGE_BLOCKS);
+//        else this.loadSizeFromMetadata();
+        if (compound.hasKey(CONTROLLER_SIZE, 10))
+            this.size = compound.getCompoundTag(CONTROLLER_SIZE).getInteger(MAX_CHANGE_BLOCKS);
+        else this.size = compound.getInteger(MAX_CHANGE_BLOCKS);
+        if (this.size == 0) this.loadSizeFromMetadata();
 
         NBTTagList storageList = compound.getTagList(ITEMS, 10);
         this.itemStacks = new ItemStack[getStorageSlots()];
