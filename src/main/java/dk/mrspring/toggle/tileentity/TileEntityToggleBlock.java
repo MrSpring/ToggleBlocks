@@ -594,7 +594,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound compound) // TODO: Clean up
+    public void writeToNBT(NBTTagCompound compound)
     {
         super.writeToNBT(compound);
 
@@ -640,7 +640,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound compound) // TODO: Clean up
+    public void readFromNBT(NBTTagCompound compound)
     {
         super.readFromNBT(compound);
 
@@ -657,11 +657,6 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         this.currentMode = Mode.valueOf(compound.getString(MODE));
         this.priority = StoragePriority.fromInt(compound.getInteger(PRIORITY));
 
-//        this.maxChangeBlocks = compound.getInteger(MAX_CHANGE_BLOCKS);
-//        if (maxChangeBlocks == 0) maxChangeBlocks = BlockToggleController.getSizeFromMetadata(getBlockMetadata());
-//        NBTTagCompound sizeCompound = compound.getCompoundTag(CONTROLLER_SIZE);
-//        if (sizeCompound != null) this.size = sizeCompound.getInteger(MAX_CHANGE_BLOCKS);
-//        else this.loadSizeFromMetadata();
         if (compound.hasKey(CONTROLLER_SIZE, 10))
             this.size = compound.getCompoundTag(CONTROLLER_SIZE).getInteger(MAX_CHANGE_BLOCKS);
         else this.size = compound.getInteger(MAX_CHANGE_BLOCKS);
