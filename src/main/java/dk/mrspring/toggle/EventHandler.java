@@ -2,12 +2,12 @@ package dk.mrspring.toggle;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import dk.mrspring.toggle.api.IToggleController;
+import dk.mrspring.toggle.api.IToggleStorage;
 import dk.mrspring.toggle.block.BlockBase;
 import dk.mrspring.toggle.block.BlockChangeBlock;
 import dk.mrspring.toggle.block.BlockToggleController;
 import dk.mrspring.toggle.block.ControllerInfo;
 import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
-import dk.mrspring.toggle.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,10 +29,11 @@ public class EventHandler
     {
         int x = event.x, y = event.y, z = event.z;
         Block block = event.block;
+        TileEntity entity = event.world.getTileEntity(x, y, z);
         if (block == BlockBase.change_block)
             this.breakChangeBlock(event.world, x, y, z, event.getPlayer());
-        else if (block == BlockBase.toggle_controller)
-            this.breakToggleBlock(event.world, x, y, z, event.getPlayer());
+        else if (entity instanceof IToggleController)
+            this.breakToggleController(event.world, x, y, z, event.getPlayer(), (IToggleController) entity);
     }
 
     @SubscribeEvent
@@ -67,15 +68,13 @@ public class EventHandler
         }*/
     }
 
-    private void breakToggleBlock(World world, int x, int y, int z, EntityPlayer player)
+    private void breakToggleController(World world, int x, int y, int z, EntityPlayer player,
+                                       IToggleController controller)
     {
-        TileEntity entity = world.getTileEntity(x, y, z);
-        if (entity == null || !(entity instanceof TileEntityToggleBlock)) return;
-        IToggleController controller = (IToggleController) entity;
         int size = controller.getMaxChangeBlocks();
         int metadata = world.getBlockMetadata(x, y, z);
         ItemStack controllerStack = BlockToggleController.createToggleController(size, 1, metadata);
-        System.out.println(player.capabilities.isCreativeMode+", "+breakDrop(world));
+        System.out.println(player.capabilities.isCreativeMode + ", " + breakDrop(world));
         if (!player.capabilities.isCreativeMode && breakDrop(world))
         {
             System.out.println("Spawn");
@@ -84,6 +83,10 @@ public class EventHandler
         controller.resetAllChangeBlocks();
         ControllerInfo info = new ControllerInfo(x, y, z);
         BlockChangeBlock.clearChangeBlockFromInventory(player.inventory, info);
+        IToggleStorage storage = controller.getStorageHandler();
+        Random rand = new Random();
+        for (int s = 0; s < storage.getStorageSlots(); s++)
+            spawnItemStack(world, x, y, z, storage.getItemFromSlot(s), rand);
     }
 
     private void breakChangeBlock(World world, int x, int y, int z, EntityPlayer player)
@@ -103,12 +106,19 @@ public class EventHandler
 
     private void spawnItemStack(World world, double x, double y, double z, ItemStack stack, Random random)
     {
-        EntityItem entityitem = new EntityItem(world, x, y, z, stack);
-        float f3 = 0.05F;
-        entityitem.motionX = (double) ((float) random.nextGaussian() * f3);
-        entityitem.motionY = (double) ((float) random.nextGaussian() * f3 + 0.2F);
-        entityitem.motionZ = (double) ((float) random.nextGaussian() * f3);
-        world.spawnEntityInWorld(entityitem);
+        if (stack != null && stack.stackSize > 0)
+        {
+            float xRand = random.nextFloat() * 0.8F + 0.1F;
+            float yRand = random.nextFloat() * 0.8F + 0.1F;
+            float zRand = random.nextFloat() * 0.8F + 0.1F;
+            EntityItem entityitem = new EntityItem(world,
+                    ((float) x + xRand), ((float) y + yRand), ((float) z + zRand), stack.copy());
+            float f = 0.05F;
+            entityitem.motionX = (double) ((float) random.nextGaussian() * f);
+            entityitem.motionY = (double) ((float) random.nextGaussian() * f + 0.2F);
+            entityitem.motionZ = (double) ((float) random.nextGaussian() * f);
+            world.spawnEntityInWorld(entityitem);
+        }
     }
 
     private void spawnItemStack(World world, EntityPlayer player, ItemStack stack)
