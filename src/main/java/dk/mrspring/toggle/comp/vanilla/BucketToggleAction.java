@@ -20,7 +20,7 @@ import net.minecraftforge.fluids.IFluidBlock;
 /**
  * Created by MrSpring on 02-03-2015 for ToggleBlocks.
  */
-public class BucketToggleAction extends BasicBlockToggleAction // TODO: FML Fluid support
+public class BucketToggleAction extends BasicBlockToggleAction
 {
     @Override
     public ItemStack[] harvestBlock(World world, int x, int y, int z, EntityPlayer player, IToggleController controller)
