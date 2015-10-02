@@ -18,7 +18,7 @@ buildscript {
 apply plugin: 'forge'
 
 String mc_version = "1.7.10"
-String mod_version = "1.2.0"
+String mod_version = "1.2.1"
 version = "${mod_version}-${mc_version}"
 group = "dk.mrspring" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "ToggleBlocks"
