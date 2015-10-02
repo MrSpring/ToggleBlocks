@@ -747,7 +747,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
             if (stack != null)
             {
                 states[slot] = stack.copy();
-                states[slot].stackSize = 1;
+                states[slot].stackSize = 0;
             }
         } else if (slot >= 0)
         {
