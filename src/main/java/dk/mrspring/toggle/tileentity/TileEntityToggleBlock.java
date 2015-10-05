@@ -298,6 +298,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     @Override
     public ItemStack[] addItemStacksToStorage(ItemStack[] stacks)
     {
+        if (stacks == null) return null;
         ItemStack[] returning = new ItemStack[stacks.length];
         for (int i = 0; i < stacks.length; i++)
         {

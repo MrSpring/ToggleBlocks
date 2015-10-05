@@ -48,7 +48,6 @@ public class BucketToggleAction extends BasicBlockToggleAction
             return new ItemStack[]{filledContainer};
         } else if (block instanceof BlockStaticLiquid)
         {
-            BlockStaticLiquid liquid = (BlockStaticLiquid) block;
             ItemStack emptyBucket = controller.getStorageHandler().getItemFromStorage(new ItemStack(Items.bucket));
             if (emptyBucket != null)
             {
