@@ -1,10 +1,10 @@
 package dk.mrspring.toggle;
 
-import cpw.mods.fml.common.registry.GameRegistry;
 import dk.mrspring.toggle.block.BlockBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
 import static dk.mrspring.toggle.block.BlockToggleController.createToggleController;

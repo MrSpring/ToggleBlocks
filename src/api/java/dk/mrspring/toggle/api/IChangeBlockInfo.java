@@ -3,18 +3,19 @@ package dk.mrspring.toggle.api;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 /**
  * Created by Konrad on 03-04-2015.
  */
 public interface IChangeBlockInfo
 {
-    void setCoordinates(int x, int y, int z);
+    void setCoordinates(BlockPos newPos);
 
     void doActionForState(World world, int state, EntityPlayer player, ItemStack defaultPlacingForState,
-                                 IToggleController controller);
+                          IToggleController controller);
 
     void placeChangeBlock(World world, EntityPlayer player, IToggleController controller);
 
@@ -30,5 +31,5 @@ public interface IChangeBlockInfo
 
     void setOverrideStackForState(int state, ItemStack overrider);
 
-    ForgeDirection getDirection();
+    EnumFacing getDirection();
 }

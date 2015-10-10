@@ -9,8 +9,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.List;
 
@@ -21,20 +22,18 @@ public class ChangeBlockInfo implements IChangeBlockInfo
 {
     public static final IBlockToggleAction FALLBACK_ACTION = new BasicBlockToggleAction();
 
-    public int x, y, z;
+    public BlockPos pos;
     StateOverride[] overrides = new StateOverride[2];
-    ForgeDirection direction = ForgeDirection.DOWN;
+    EnumFacing direction = EnumFacing.DOWN;
 
-    public ChangeBlockInfo(int x, int y, int z, int direction)
+    public ChangeBlockInfo(BlockPos pos, EnumFacing direction)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.pos = pos;
         this.overrides = new StateOverride[]{
                 new StateOverride(false),
                 new StateOverride(false)
         };
-        this.direction = ForgeDirection.getOrientation(direction);
+        this.direction = direction;
     }
 
     public ChangeBlockInfo(NBTTagCompound compound)
@@ -42,11 +41,9 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         this.readFromNBT(compound, true);
     }
 
-    public void setCoordinates(int newX, int newY, int newZ)
+    public void setCoordinates(BlockPos newPos)
     {
-        this.x = newX;
-        this.y = newY;
-        this.z = newZ;
+        this.pos = newPos;
     }
 
     public void doActionForState(World world, int state, EntityPlayer player, ItemStack defaultPlacing,
@@ -72,14 +69,14 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         boolean placed = false;
         if (placing != null)
             for (IBlockToggleAction action : actions)
-                if (action.canPlaceBlock(world, x, y, z, placing, controller))
+                if (action.canPlaceBlock(world, pos, placing, controller))
                 {
-                    action.placeBlock(world, x, y, z, getDirection(), player, placing, controller);
+                    action.placeBlock(world, pos, getDirection(), player, placing, controller);
                     placed = true;
                     break;
                 }
         if (!placed)
-            FALLBACK_ACTION.placeBlock(world, x, y, z, getDirection(), player, placing, controller);
+            FALLBACK_ACTION.placeBlock(world, pos, getDirection(), player, placing, controller);
     }
 
     private ItemStack[] harvest(World world, EntityPlayer player, IToggleController controller)
@@ -87,35 +84,31 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         List<IBlockToggleAction> actions = ToggleRegistry.instance().getRegisteredActions();
         for (IBlockToggleAction action : actions)
         {
-            if (action.canHarvestBlock(world, x, y, z, controller))
+            if (action.canHarvestBlock(world, pos, controller))
             {
-                return action.harvestBlock(world, x, y, z, player, controller);
+                return action.harvestBlock(world, pos, player, controller);
             }
         }
-        return FALLBACK_ACTION.harvestBlock(world, x, y, z, player, controller);
+        return FALLBACK_ACTION.harvestBlock(world, pos, player, controller);
     }
 
     public void placeChangeBlock(World world, EntityPlayer player, IToggleController controller)
     {
         controller.getStorageHandler().addItemStacksToStorage(this.harvest(world, player, controller));
-        world.setBlock(x, y, z, BlockBase.change_block);
-        world.setBlockMetadataWithNotify(x, y, z, getDirectionID(), 2);
-        world.setTileEntity(x, y, z, new TileEntityChangeBlock(x, y, z, this));
-        ((TileEntityChangeBlock) world.getTileEntity(x, y, z)).setControllerPos(controller.x(), controller.y(), controller.z());
-    }
-
-    public int getDirectionID()
-    {
-        return direction.ordinal();
+//        world.setBlock(x, y, z, BlockBase.change_block);
+//        world.setBlockMetadataWithNotify(x, y, z, getDirectionID(), 2);
+        world.setBlockState(pos, BlockBase.change_block.makeStateFromDirection(getDirection()));
+        world.setTileEntity(pos, new TileEntityChangeBlock(pos, this));
+        ((TileEntityChangeBlock) world.getTileEntity(pos)).setControllerPos(controller.pos());
     }
 
     public void writeToNBT(NBTTagCompound compound, boolean writeCoords)
     {
         if (writeCoords)
         {
-            compound.setInteger("X", x);
-            compound.setInteger("Y", y);
-            compound.setInteger("Z", z);
+            compound.setInteger("X", pos.getX());
+            compound.setInteger("Y", pos.getY());
+            compound.setInteger("Z", pos.getZ());
         }
 
         NBTTagList overrideList = new NBTTagList();
@@ -136,9 +129,10 @@ public class ChangeBlockInfo implements IChangeBlockInfo
     {
         if (readCoords)
         {
-            this.x = compound.getInteger("X");
-            this.y = compound.getInteger("Y");
-            this.z = compound.getInteger("Z");
+            int x = compound.getInteger("X");
+            int y = compound.getInteger("Y");
+            int z = compound.getInteger("Z");
+            this.pos = new BlockPos(x, y, z);
         }
 
         NBTTagList overrideList = compound.getTagList("OverrideList", 10);
@@ -157,7 +151,7 @@ public class ChangeBlockInfo implements IChangeBlockInfo
             }
         }
         int direction = compound.getInteger("Direction");
-        this.direction = ForgeDirection.getOrientation(direction);
+        this.direction = EnumFacing.getFront(direction);
     }
 
     private StateOverride getOverrideForState(int state)
@@ -187,41 +181,15 @@ public class ChangeBlockInfo implements IChangeBlockInfo
         getOverrideForState(state).overridesWith = overrider;
     }
 
-    public ForgeDirection getDirection()
+    public EnumFacing getDirection()
     {
         return direction;
     }
 
-    public void setDirection(int direction)
+    public void setDirection(EnumFacing direction)
     {
-        this.direction = ForgeDirection.getOrientation(direction);
+        this.direction = direction;
     }
-
-    /*public static class FakePlayer extends EntityPlayer
-    {
-        public FakePlayer(World world)
-        {
-            super(world, new GameProfile(new UUID(0, 0), "ToggleBlock"));
-        }
-
-        @Override
-        public void addChatMessage(IChatComponent p_145747_1_)
-        {
-
-        }
-
-        @Override
-        public boolean canCommandSenderUseCommand(int p_70003_1_, String p_70003_2_)
-        {
-            return false;
-        }
-
-        @Override
-        public ChunkCoordinates getPlayerCoordinates()
-        {
-            return null;
-        }
-    }*/
 
     public static class StateOverride
     {

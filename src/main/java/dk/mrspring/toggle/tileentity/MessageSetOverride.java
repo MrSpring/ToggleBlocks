@@ -1,30 +1,29 @@
 package dk.mrspring.toggle.tileentity;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 /**
  * Created by Konrad on 01-03-2015.
  */
 public class MessageSetOverride implements IMessage
 {
-    int changeX, changeY, changeZ;
+    BlockPos changePos;
     boolean override;
     int state;
 
     public MessageSetOverride()
     {
-
     }
 
-    public MessageSetOverride(int x, int y, int z, boolean override, int state)
+    public MessageSetOverride(BlockPos pos, boolean override, int state)
     {
-        this.changeX = x;
-        this.changeY = y;
-        this.changeZ = z;
+        this.changePos = new BlockPos(pos);
         this.override = override;
         this.state = state;
     }
@@ -32,9 +31,10 @@ public class MessageSetOverride implements IMessage
     @Override
     public void fromBytes(ByteBuf buffer)
     {
-        changeX = buffer.readInt();
-        changeY = buffer.readInt();
-        changeZ = buffer.readInt();
+        int x = buffer.readInt();
+        int y = buffer.readInt();
+        int z = buffer.readInt();
+        this.changePos = new BlockPos(x, y, z);
         override = buffer.readBoolean();
         state = buffer.readInt();
     }
@@ -42,9 +42,9 @@ public class MessageSetOverride implements IMessage
     @Override
     public void toBytes(ByteBuf buffer)
     {
-        buffer.writeInt(changeX);
-        buffer.writeInt(changeY);
-        buffer.writeInt(changeZ);
+        buffer.writeInt(changePos.getX());
+        buffer.writeInt(changePos.getY());
+        buffer.writeInt(changePos.getZ());
         buffer.writeBoolean(override);
         buffer.writeInt(state);
     }
@@ -59,13 +59,13 @@ public class MessageSetOverride implements IMessage
                 if (!context.getServerHandler().playerEntity.worldObj.isRemote)
                 {
                     World world = context.getServerHandler().playerEntity.worldObj;
-                    int x = message.changeX, y = message.changeY, z = message.changeZ;
-                    if (world.getTileEntity(x, y, z) instanceof TileEntityChangeBlock)
+                    TileEntity te = world.getTileEntity(message.changePos);
+                    if (te instanceof TileEntityChangeBlock)
                     {
-                        TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) world.getTileEntity(x, y, z);
-                        System.out.println("Overrides " + message.state + " with: " + message.override);
+                        TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) te;
+//                        System.out.println("Overrides " + message.state + " with: " + message.override);
                         tileEntity.getBlockInfo().setOverridesState(message.state, message.override);
-                        world.markBlockForUpdate(x, y, z);
+                        world.markBlockForUpdate(message.changePos);
                     }
                 }
             }

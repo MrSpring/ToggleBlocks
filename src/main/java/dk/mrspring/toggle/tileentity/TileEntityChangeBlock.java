@@ -1,5 +1,7 @@
 package dk.mrspring.toggle.tileentity;
 
+import dk.mrspring.toggle.block.BlockBase;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -8,6 +10,9 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
 
 /**
@@ -16,28 +21,30 @@ import net.minecraft.util.StatCollector;
 public class TileEntityChangeBlock extends TileEntity implements IInventory
 {
     ChangeBlockInfo info;
-    int cx, cy, cz;
+    BlockPos cpos;
 
     public TileEntityChangeBlock()
     {
         super();
     }
 
-    public TileEntityChangeBlock(int x, int y, int z, ChangeBlockInfo info)
+    public TileEntityChangeBlock(BlockPos pos, ChangeBlockInfo info)
     {
         super();
 
-        xCoord = x;
-        yCoord = y;
-        zCoord = z;
+        this.setControllerPos(pos);
 
         this.setBlockInfo(info);
     }
 
     public ChangeBlockInfo getBlockInfo()
     {
-        if (info == null) info = new ChangeBlockInfo(xCoord, yCoord, zCoord, blockMetadata);
-        info.setCoordinates(xCoord, yCoord, zCoord);
+        if (info == null)
+        {
+            IBlockState state = worldObj.getBlockState(getPos());
+            info = new ChangeBlockInfo(getPos(), BlockBase.change_block.getDirectionFromState(state));
+        }
+        info.setCoordinates(getPos());
         return info;
     }
 
@@ -51,9 +58,9 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
     {
         super.writeToNBT(compound);
         this.getBlockInfo().writeToNBT(compound, false);
-        compound.setInteger("ControllerX", cx);
-        compound.setInteger("ControllerY", cy);
-        compound.setInteger("ControllerZ", cz);
+        compound.setInteger("ControllerX", cpos.getX());
+        compound.setInteger("ControllerY", cpos.getY());
+        compound.setInteger("ControllerZ", cpos.getZ());
     }
 
     @Override
@@ -61,24 +68,10 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
     {
         super.readFromNBT(compound);
         this.getBlockInfo().readFromNBT(compound, false);
-        cx = compound.getInteger("ControllerX");
-        cy = compound.getInteger("ControllerY");
-        cz = compound.getInteger("ControllerZ");
-    }
-
-    public int getCx()
-    {
-        return cx;
-    }
-
-    public int getCy()
-    {
-        return cy;
-    }
-
-    public int getCz()
-    {
-        return cz;
+        int cx = compound.getInteger("ControllerX");
+        int cy = compound.getInteger("ControllerY");
+        int cz = compound.getInteger("ControllerZ");
+        this.cpos = new BlockPos(cx, cy, cz);
     }
 
     @Override
@@ -86,13 +79,13 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
     {
         NBTTagCompound compound = new NBTTagCompound();
         this.writeToNBT(compound);
-        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 2, compound);
+        return new S35PacketUpdateTileEntity(getPos(), 2, compound);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
     {
-        this.readFromNBT(pkt.func_148857_g());
+        this.readFromNBT(pkt.getNbtCompound());
     }
 
     @Override
@@ -132,15 +125,21 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
     }
 
     @Override
-    public String getInventoryName()
+    public String getName()
     {
         return StatCollector.translateToLocal("tile.change_block.container.name");
     }
 
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
         return false;
+    }
+
+    @Override
+    public IChatComponent getDisplayName()
+    {
+        return new ChatComponentText(getName());
     }
 
     @Override
@@ -156,12 +155,12 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
     }
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer player)
     {
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer player)
     {
     }
 
@@ -171,10 +170,37 @@ public class TileEntityChangeBlock extends TileEntity implements IInventory
         return true;
     }
 
-    public void setControllerPos(int controllerX, int controllerY, int controllerZ)
+    @Override
+    public int getField(int id)
     {
-        this.cx = controllerX;
-        this.cy = controllerY;
-        this.cz = controllerZ;
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value)
+    {
+
+    }
+
+    @Override
+    public int getFieldCount()
+    {
+        return 0;
+    }
+
+    @Override
+    public void clear()
+    {
+
+    }
+
+    public void setControllerPos(BlockPos pos)
+    {
+        this.cpos = pos;
+    }
+
+    public BlockPos getCPos()
+    {
+        return cpos;
     }
 }

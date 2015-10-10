@@ -68,9 +68,7 @@ public class GuiChangeBlock extends GuiContainer
             ContainerChangeBlock container = (ContainerChangeBlock) this.inventorySlots;
             TileEntityChangeBlock tileEntity = container.getTileEntity();
             boolean current = tileEntity.getBlockInfo().overridesState(button.id);
-            System.out.println("current = " + current);
-            int x = tileEntity.xCoord, y = tileEntity.yCoord, z = tileEntity.zCoord;
-            MessageSetOverride message = new MessageSetOverride(x, y, z, !current, button.id);
+            MessageSetOverride message = new MessageSetOverride(tileEntity.getPos(), !current, button.id);
             ToggleBlocks.network.sendToServer(message);
         }
     }

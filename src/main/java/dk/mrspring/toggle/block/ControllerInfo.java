@@ -3,20 +3,19 @@ package dk.mrspring.toggle.block;
 import dk.mrspring.toggle.tileentity.TileEntityChangeBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 
 /**
  * Created on 22-09-2015 for ToggleBlocks.
  */
 public class ControllerInfo
 {
-    public int x, y, z;
+    public BlockPos pos;
     public boolean initialized = false;
 
-    public ControllerInfo(int x, int y, int z)
+    public ControllerInfo(BlockPos pos)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.pos = pos;
         this.initialized = true;
     }
 
@@ -28,9 +27,10 @@ public class ControllerInfo
             if (compound.hasKey("ControllerInfo", 10)) reading = compound.getCompoundTag("ControllerInfo");
             if (reading.hasKey("X", 3) && reading.hasKey("Y", 3) && reading.hasKey("Z", 3))
             {
-                this.x = reading.getInteger("X");
-                this.y = reading.getInteger("Y");
-                this.z = reading.getInteger("Z");
+                int x = reading.getInteger("X");
+                int y = reading.getInteger("Y");
+                int z = reading.getInteger("Z");
+                this.pos = new BlockPos(x, y, z);
                 initialized = true;
             }
         }
@@ -43,7 +43,7 @@ public class ControllerInfo
 
     public ControllerInfo(TileEntityChangeBlock changeBlock)
     {
-        this(changeBlock.getCx(), changeBlock.getCy(), changeBlock.getCz());
+        this(changeBlock.getCPos());
     }
 
     @Override
@@ -53,9 +53,7 @@ public class ControllerInfo
         {
             ControllerInfo that = (ControllerInfo) obj;
             return this.initialized && that.initialized &&
-                    this.x == that.x &&
-                    this.y == that.y &&
-                    this.z == that.z;
+                    this.pos.equals(that.pos);
         }
         return super.equals(obj);
     }
@@ -63,6 +61,6 @@ public class ControllerInfo
     @Override
     public String toString()
     {
-        return "x:" + x + ",y:" + y + ",z:" + z;
+        return "pos:"+pos.toString();
     }
 }

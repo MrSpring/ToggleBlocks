@@ -1,18 +1,20 @@
 package dk.mrspring.toggle.tileentity;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import dk.mrspring.toggle.api.StoragePriority;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 /**
  * Created by Konrad on 06-04-2015.
  */
 public class MessageSetStoragePriority implements IMessage
 {
-    int controllerX, controllerY, controllerZ;
+    BlockPos controllerPos;
     StoragePriority priority;
     boolean markForUpdate;
 
@@ -21,11 +23,9 @@ public class MessageSetStoragePriority implements IMessage
         priority = StoragePriority.STORAGE_FIRST;
     }
 
-    public MessageSetStoragePriority(int x, int y, int z, StoragePriority priority, boolean update)
+    public MessageSetStoragePriority(BlockPos pos, StoragePriority priority, boolean update)
     {
-        this.controllerX = x;
-        this.controllerY = y;
-        this.controllerZ = z;
+        this.controllerPos = new BlockPos(pos);
         this.priority = priority;
         this.markForUpdate = update;
     }
@@ -34,9 +34,10 @@ public class MessageSetStoragePriority implements IMessage
     public void fromBytes(ByteBuf buffer)
     {
         this.priority = StoragePriority.fromInt(buffer.readInt());
-        this.controllerX = buffer.readInt();
-        this.controllerY = buffer.readInt();
-        this.controllerZ = buffer.readInt();
+        int x = buffer.readInt();
+        int y = buffer.readInt();
+        int z = buffer.readInt();
+        this.controllerPos = new BlockPos(x, y, z);
         this.markForUpdate = buffer.readBoolean();
     }
 
@@ -44,9 +45,9 @@ public class MessageSetStoragePriority implements IMessage
     public void toBytes(ByteBuf buffer)
     {
         buffer.writeInt(priority.getId());
-        buffer.writeInt(controllerX);
-        buffer.writeInt(controllerY);
-        buffer.writeInt(controllerZ);
+        buffer.writeInt(controllerPos.getX());
+        buffer.writeInt(controllerPos.getY());
+        buffer.writeInt(controllerPos.getZ());
         buffer.writeBoolean(markForUpdate);
     }
 
@@ -60,10 +61,10 @@ public class MessageSetStoragePriority implements IMessage
                 if (!context.getServerHandler().playerEntity.worldObj.isRemote)
                 {
                     World world = context.getServerHandler().playerEntity.worldObj;
-                    int x = message.controllerX, y = message.controllerY, z = message.controllerZ;
-                    if (world.getTileEntity(x, y, z) instanceof TileEntityToggleBlock)
+                    TileEntity te = world.getTileEntity(message.controllerPos);
+                    if (te instanceof TileEntityToggleBlock)
                     {
-                        TileEntityToggleBlock tileEntity = (TileEntityToggleBlock) world.getTileEntity(x, y, z);
+                        TileEntityToggleBlock tileEntity = (TileEntityToggleBlock) te;
                         tileEntity.getStorageHandler().setStoragePriority(message.priority);
                     }
                 }

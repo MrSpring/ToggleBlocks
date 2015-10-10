@@ -1,21 +1,20 @@
 package dk.mrspring.toggle;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLInterModComms;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
 import dk.mrspring.toggle.api.IBlockToggleRegistry;
 import dk.mrspring.toggle.block.BlockBase;
-import dk.mrspring.toggle.comp.nei.NEIToggleConfig;
 import dk.mrspring.toggle.tileentity.MessageSetMode;
 import dk.mrspring.toggle.tileentity.MessageSetOverride;
 import dk.mrspring.toggle.tileentity.MessageSetStoragePriority;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -53,7 +52,7 @@ public class ToggleBlocks
     @Mod.EventHandler
     public static void init(FMLInitializationEvent event)
     {
-        if (Loader.isModLoaded("NotEnoughItems"))
+        /*if (Loader.isModLoaded("NotEnoughItems"))
         {
             try
             {
@@ -62,7 +61,7 @@ public class ToggleBlocks
             } catch (Exception ignored)
             {
             }
-        }
+        }*/
 
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         proxy.registerRenderer();

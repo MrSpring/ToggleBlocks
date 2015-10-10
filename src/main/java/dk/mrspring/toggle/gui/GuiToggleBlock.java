@@ -96,7 +96,6 @@ public class GuiToggleBlock extends GuiContainer
         {
             ContainerToggleBlock container = (ContainerToggleBlock) this.inventorySlots;
             TileEntityToggleBlock tileEntity = container.getTileEntity();
-            int x = tileEntity.xCoord, y = tileEntity.yCoord, z = tileEntity.zCoord;
             switch (id.id)
             {
                 case 0:
@@ -104,13 +103,13 @@ public class GuiToggleBlock extends GuiContainer
                     if (tileEntity.getCurrentMode() == Mode.EDITING)
                         newMode = Mode.READY;
                     else newMode = Mode.EDITING;
-                    MessageSetMode message = new MessageSetMode(x, y, z, newMode, true);
+                    MessageSetMode message = new MessageSetMode(tileEntity.getPos(), newMode, true);
                     ToggleBlocks.network.sendToServer(message);
                     break;
                 case 1:
                     StoragePriority currentPriority = tileEntity.getStoragePriority();
                     StoragePriority newPriority = StoragePriority.getNext(currentPriority);
-                    MessageSetStoragePriority priorityMessage = new MessageSetStoragePriority(x, y, z, newPriority, true);
+                    MessageSetStoragePriority priorityMessage = new MessageSetStoragePriority(tileEntity.getPos(), newPriority, true);
                     ToggleBlocks.network.sendToServer(priorityMessage);
             }
         }

@@ -1,9 +1,11 @@
 package dk.mrspring.toggle.block;
 
+import net.minecraft.util.IStringSerializable;
+
 /**
  * Created on 10-10-2015 for ToggleBlocks18.
  */
-public enum ToggleBlockSize
+public enum ToggleBlockSize implements IStringSerializable
 {
     TINY(3, 5),
     SMALL(0, 15),

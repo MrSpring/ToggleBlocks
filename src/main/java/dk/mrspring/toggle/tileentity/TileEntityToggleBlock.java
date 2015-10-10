@@ -13,22 +13,26 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import static net.minecraftforge.common.util.ForgeDirection.*;
+import static net.minecraft.util.EnumFacing.*;
 
 /**
  * Created by Konrad on 27-02-2015.
  */
-public class TileEntityToggleBlock extends TileEntity implements ISidedInventory, IToggleController, IToggleStorage
+public class TileEntityToggleBlock extends TileEntity implements ISidedInventory, IToggleController, IToggleStorage, IUpdatePlayerListBox
 {
     public static final String CHANGE_BLOCKS = "ChangeBlocks";
     public static final String STATE = "State";
@@ -51,13 +55,12 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         toolTypeClasses.put("axe", ItemAxe.class);
     }
 
-    final ForgeDirection[] directions = new ForgeDirection[]{NORTH, SOUTH, WEST, EAST};
+    final EnumFacing[] directions = new EnumFacing[]{NORTH, SOUTH, WEST, EAST};
     int state = OFF;
     Mode currentMode = Mode.EDITING;
     List<ChangeBlockInfo> changeBlocks = new ArrayList<ChangeBlockInfo>();
     ItemStack[] states = new ItemStack[2]; // TODO: More states? "Cycle Block" with more than 2 states
     ItemStack[] itemStacks = new ItemStack[9];
-    //    ChangeBlockInfo.FakePlayer fakePlayer;
     EntityPlayer player;
     int size;
     IInventory[] adjacent = new IInventory[directions.length];
@@ -69,9 +72,8 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
 
     public void setupFakePlayer()
     {
-        if (getWorldObj() != null && getWorldObj() instanceof WorldServer)
-            player = new FakePlayer((WorldServer) getWorldObj(), new GameProfile(new UUID(0, 0), "ToggleBlock"));
-        //fakePlayer = new ChangeBlockInfo.FakePlayer(worldObj);
+        if (getWorld() != null && getWorld() instanceof WorldServer)
+            player = new FakePlayer((WorldServer) getWorld(), new GameProfile(new UUID(0, 0), "ToggleBlock"));
     }
 
     public EntityPlayer getFakePlayer()
@@ -81,12 +83,11 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public void updateEntity()
+    public void update()
     {
-        super.updateEntity();
         this.updateAdjacent();
 
-        int newState = worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord) ? 1 : 0;
+        int newState = worldObj.isBlockIndirectlyGettingPowered(getPos()) > 0 ? 1 : 0;
         if (newState != this.state)
             this.setState(newState);
 
@@ -98,9 +99,8 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         adjacent = new IInventory[directions.length];
         for (int i = 0; i < adjacent.length; i++)
         {
-            ForgeDirection direction = directions[i];
-            int adX = xCoord + direction.offsetX, adY = yCoord, adZ = zCoord + direction.offsetZ;
-            TileEntity adjacentTileEntity = this.worldObj.getTileEntity(adX, adY, adZ);
+            EnumFacing direction = directions[i];
+            TileEntity adjacentTileEntity = this.worldObj.getTileEntity(getPos().add(direction.getDirectionVec()));
             if (adjacentTileEntity != null && adjacentTileEntity instanceof IInventory)
                 adjacent[i] = (IInventory) adjacentTileEntity;
         }
@@ -139,23 +139,23 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public ChangeBlockInfo registerChangeBlock(int x, int y, int z)
+    public ChangeBlockInfo registerChangeBlock(BlockPos pos)
     {
         if (getMaxChangeBlocks() < 0 || this.changeBlocks.size() + 1 <= getMaxChangeBlocks())
         {
-            ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z, worldObj.getBlockMetadata(x, y, z));
+            ChangeBlockInfo blockInfo = new ChangeBlockInfo(pos, BlockBase.change_block.getDirectionFromState(getWorld().getBlockState(pos)));
             this.changeBlocks.add(blockInfo);
-            TileEntityChangeBlock entity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
-            entity.setControllerPos(xCoord, yCoord, zCoord);
+            TileEntityChangeBlock entity = (TileEntityChangeBlock) worldObj.getTileEntity(pos);
+            entity.setControllerPos(getPos());
             return blockInfo;
         } else return null;
     }
 
     @Override
-    public ChangeBlockInfo unregisterChangeBlock(int x, int y, int z)
+    public ChangeBlockInfo unregisterChangeBlock(BlockPos position)
     {
         for (ChangeBlockInfo pos : changeBlocks)
-            if (pos.x == x && pos.y == y && pos.z == z)
+            if (pos.pos.equals(position))
             {
                 changeBlocks.remove(pos);
                 return pos;
@@ -209,21 +209,9 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public int x()
+    public BlockPos pos()
     {
-        return xCoord;
-    }
-
-    @Override
-    public int y()
-    {
-        return yCoord;
-    }
-
-    @Override
-    public int z()
-    {
-        return zCoord;
+        return getPos();
     }
 
     @Override
@@ -236,7 +224,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public ItemStack[] createChangeBlockDrop()
     {
         ItemStack stack = new ItemStack(BlockBase.change_block, 1, 0);
-        BlockToggleController.populateChangeBlock(stack, x(), y(), z());
+        BlockToggleController.populateChangeBlock(stack, pos());
         return new ItemStack[]{stack};
     }
 
@@ -253,7 +241,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
             this.collectChangeBlockInfo();
             this.updateChangeBlocks();
         } else this.placeChangeBlocks();
-        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        worldObj.markBlockForUpdate(getPos());
     }
 
     public void collectChangeBlockInfo()
@@ -261,10 +249,9 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         for (int i = 0; i < changeBlocks.size(); i++)
         {
             ChangeBlockInfo info = changeBlocks.get(i);
-            int x = info.x, y = info.y, z = info.z;
-            if (worldObj.getTileEntity(x, y, z) instanceof TileEntityChangeBlock)
+            if (worldObj.getTileEntity(info.pos) instanceof TileEntityChangeBlock)
             {
-                TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
+                TileEntityChangeBlock tileEntity = (TileEntityChangeBlock) worldObj.getTileEntity(info.pos);
                 ChangeBlockInfo newInfo = tileEntity.getBlockInfo();
                 changeBlocks.set(i, newInfo);
             }
@@ -288,9 +275,8 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     {
         for (ChangeBlockInfo pos : changeBlocks)
         {
-            int x = pos.x, y = pos.y, z = pos.z;
-            if (worldObj.getBlock(x, y, z) == BlockBase.change_block)
-                worldObj.setBlockToAir(x, y, z);
+            if (getWorld().getBlockState(pos.pos).getBlock() == BlockBase.change_block)
+                worldObj.setBlockToAir(pos.pos);
         }
         changeBlocks.clear();
     }
@@ -337,7 +323,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
 
     private ItemStack addStorage(ItemStack stack)
     {
-        return addToInventory(this, 0, stack);
+        return addToInventory(this, EnumFacing.DOWN, stack);
     }
 
     private ItemStack addAdjacent(ItemStack stack)
@@ -345,11 +331,11 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         ItemStack adding = stack.copy();
         for (int i = 0; i < adjacent.length && adding.stackSize > 0; i++)
             if (adjacent[i] != null)
-                adding = addToInventory(adjacent[i], directions[i].getOpposite().ordinal(), adding);
+                adding = addToInventory(adjacent[i], directions[i].getOpposite(), adding);
         return adding;
     }
 
-    private ItemStack addToInventory(IInventory inventory, int side, ItemStack stack)
+    private ItemStack addToInventory(IInventory inventory, EnumFacing side, ItemStack stack)
     {
         if (inventory instanceof ISidedInventory)
             return addToSidedInventory((ISidedInventory) inventory, side, stack);
@@ -383,10 +369,11 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         }
     }
 
-    private ItemStack addToSidedInventory(ISidedInventory inventory, int side, ItemStack stack)
+    private ItemStack addToSidedInventory(ISidedInventory inventory, EnumFacing side, ItemStack stack)
     {
         ItemStack adding = stack.copy();
-        int[] accessibleSlots = inventory.getAccessibleSlotsFromSide(side);
+//        int[] accessibleSlots = inventory.getAccessibleSlotsFromSide(side);
+        int[] accessibleSlots = inventory.getSlotsForFace(side);
         for (int i = 0; i < accessibleSlots.length && adding.stackSize > 0; i++)
         {
             int slot = accessibleSlots[i];
@@ -423,7 +410,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public void setStoragePriority(StoragePriority newPriority)
     {
         this.priority = newPriority;
-        worldObj.markBlockForUpdate(x(), y(), z());
+        worldObj.markBlockForUpdate(getPos());
     }
 
     @Override
@@ -456,16 +443,16 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         ItemStack result = null;
         for (int i = 0; i < adjacent.length && result == null; i++)
             if (adjacent[i] != null)
-                result = getFromInventory(adjacent[i], directions[i].getOpposite().ordinal(), stack);
+                result = getFromInventory(adjacent[i], directions[i].getOpposite(), stack);
         return result;
     }
 
     private ItemStack getFromStorage(ItemStack stack)
     {
-        return getFromInventory(this, 0, stack);
+        return getFromInventory(this, EnumFacing.DOWN, stack);
     }
 
-    private ItemStack getFromInventory(IInventory inventory, int side, ItemStack stack)
+    private ItemStack getFromInventory(IInventory inventory, EnumFacing side, ItemStack stack)
     {
         if (inventory instanceof ISidedInventory)
             return getFromSidedInventory((ISidedInventory) inventory, side, stack);
@@ -483,10 +470,10 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         }
     }
 
-    private ItemStack getFromSidedInventory(ISidedInventory inventory, int side, ItemStack stack)
+    private ItemStack getFromSidedInventory(ISidedInventory inventory, EnumFacing side, ItemStack stack)
     {
         ItemStack result = null;
-        int[] accessibleSlots = inventory.getAccessibleSlotsFromSide(side);
+        int[] accessibleSlots = inventory.getSlotsForFace(side);
         for (int i = 0; i < accessibleSlots.length && result == null; i++)
         {
             int slot = accessibleSlots[i];
@@ -524,7 +511,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
 
     private ItemStack getTFromStorage(String toolType)
     {
-        return getTFromInventory(this, 0, toolType);
+        return getTFromInventory(this, EnumFacing.DOWN, toolType);
     }
 
     private ItemStack getTFromAdjacent(String toolType)
@@ -532,11 +519,11 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         ItemStack result = null;
         for (int i = 0; i < adjacent.length && result == null; i++)
             if (adjacent[i] != null)
-                result = getTFromInventory(adjacent[i], directions[i].getOpposite().ordinal(), toolType);
+                result = getTFromInventory(adjacent[i], directions[i].getOpposite(), toolType);
         return result;
     }
 
-    private ItemStack getTFromInventory(IInventory inventory, int side, String toolType)
+    private ItemStack getTFromInventory(IInventory inventory, EnumFacing side, String toolType)
     {
         if (inventory instanceof ISidedInventory)
             return getTFromSidedInventory((ISidedInventory) inventory, side, toolType);
@@ -554,10 +541,10 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         }
     }
 
-    private ItemStack getTFromSidedInventory(ISidedInventory inventory, int side, String toolType)
+    private ItemStack getTFromSidedInventory(ISidedInventory inventory, EnumFacing side, String toolType)
     {
         ItemStack result = null;
-        int[] accessibleSlots = inventory.getAccessibleSlotsFromSide(side);
+        int[] accessibleSlots = inventory.getSlotsForFace(side);
         for (int slot : accessibleSlots)
         {
             ItemStack inSlot = inventory.getStackInSlot(slot);
@@ -691,13 +678,13 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     {
         NBTTagCompound compound = new NBTTagCompound();
         this.writeToNBT(compound);
-        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 2, compound);
+        return new S35PacketUpdateTileEntity(getPos(), 2, compound);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
     {
-        this.readFromNBT(pkt.func_148857_g());
+        this.readFromNBT(pkt.getNbtCompound());
     }
 
     @Override
@@ -757,13 +744,13 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public String getInventoryName()
+    public String getName()
     {
         return "Toggle Block";
     }
 
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
         return false;
     }
@@ -781,13 +768,13 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer player)
     {
 
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer player)
     {
 
     }
@@ -799,19 +786,19 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     }
 
     @Override
-    public int[] getAccessibleSlotsFromSide(int side)
+    public int[] getSlotsForFace(EnumFacing side)
     {
         return new int[]{2, 3, 4, 5, 6, 7, 8, 9, 10};
     }
 
     @Override
-    public boolean canInsertItem(int slot, ItemStack stack, int side)
+    public boolean canInsertItem(int slot, ItemStack stack, EnumFacing side)
     {
         return slot > 1 && slot < 11;
     }
 
     @Override
-    public boolean canExtractItem(int slot, ItemStack stack, int side)
+    public boolean canExtractItem(int slot, ItemStack stack, EnumFacing side)
     {
         return slot > 1 && slot < 11;
     }
@@ -819,5 +806,35 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public void setSize(int size)
     {
         this.size = size;
+    }
+
+    @Override
+    public int getField(int id)
+    {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value)
+    {
+    }
+
+    @Override
+    public int getFieldCount()
+    {
+        return 0;
+    }
+
+    @Override
+    public void clear()
+    {
+        for (int i = 0; i < getStorageHandler().getStorageSlots(); i++)
+            getStorageHandler().setItemInSlot(i, null);
+    }
+
+    @Override
+    public IChatComponent getDisplayName()
+    {
+        return new ChatComponentText(getName());
     }
 }
