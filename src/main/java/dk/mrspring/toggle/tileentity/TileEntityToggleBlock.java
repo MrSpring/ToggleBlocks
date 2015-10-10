@@ -683,7 +683,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
 
     private void loadSizeFromMetadata()
     {
-        this.size = BlockToggleController.getSizeFromMetadata(getBlockMetadata()).size;
+        this.size = BlockToggleController.getSizeFromMetadata(getBlockMetadata()).getControllerSize();
     }
 
     @Override
