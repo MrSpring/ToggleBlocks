@@ -3,7 +3,4 @@
 build
 classes
 eclipse
-gradle
 build.properties
-gradlew
-gradlew.bat
