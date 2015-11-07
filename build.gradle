@@ -21,7 +21,7 @@ String mc_version = "1.7.10"
 String mod_version = "1.2.2"
 version = "${mod_version}-${mc_version}"
 if (System.getenv("GIT_COMMIT"))
-    version += "-${System.getenv("GIT_COMMIT")}";
+    version += "-${System.getenv("GIT_COMMIT").take(7)}";
 group = "dk.mrspring" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "ToggleBlocks"
 ext.configFile = file "build.properties"
