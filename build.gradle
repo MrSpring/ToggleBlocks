@@ -24,12 +24,12 @@ group = "dk.mrspring" // http://maven.apache.org/guides/mini/guide-naming-conven
 archivesBaseName = "ToggleBlocks"
 ext.configFile = file "build.properties"
 
-configFile.withReader {
+/*configFile.withReader {
     // Load config.  It shall from now be referenced as simply config or project.config
     def prop = new Properties()
     prop.load(it)
     project.ext.config = new ConfigSlurper().parse prop
-}
+}*/
 
 minecraft {
     version = "1.7.10-10.13.4.1517-1.7.10"
@@ -106,7 +106,7 @@ dependencies {
     deployerJars "org.apache.maven.wagon:wagon-ftp:2.10"
 }
 
-uploadArchives {
+/*8uploadArchives {
     dependsOn "reobf"
     repositories {
         mavenDeployer {
@@ -116,6 +116,6 @@ uploadArchives {
             }
         }
     }
-}
+}*/
 
 idea { module { inheritOutputDirs = true } }
