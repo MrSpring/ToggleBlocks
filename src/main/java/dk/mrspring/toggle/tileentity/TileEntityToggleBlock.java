@@ -18,16 +18,14 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static net.minecraftforge.common.util.ForgeDirection.*;
 
 /**
  * Created by Konrad on 27-02-2015.
  */
+// TODO: Clean up the mess
 public class TileEntityToggleBlock extends TileEntity implements ISidedInventory, IToggleController, IToggleStorage
 {
     public static final String CHANGE_BLOCKS = "ChangeBlocks";
@@ -54,14 +52,50 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     final ForgeDirection[] directions = new ForgeDirection[]{NORTH, SOUTH, WEST, EAST};
     int state = OFF;
     Mode currentMode = Mode.EDITING;
-    List<ChangeBlockInfo> changeBlocks = new ArrayList<ChangeBlockInfo>();
-    ItemStack[] states = new ItemStack[2]; // TODO: More states? "Cycle Block" with more than 2 states
+    //    List<ChangeBlockInfo> changeBlocks = new ArrayList<ChangeBlockInfo>();
+
+    String defaultGroup = "Default";
+    List<GroupedChangeBlockInfo> changeBlocks = new ArrayList<GroupedChangeBlockInfo>();
+    Map<String, Group> groups = new HashMap<String, Group>();
+
+    ItemStack[] states = new ItemStack[2];
     ItemStack[] itemStacks = new ItemStack[9];
-    //    ChangeBlockInfo.FakePlayer fakePlayer;
     EntityPlayer player;
     int size;
     IInventory[] adjacent = new IInventory[directions.length];
     StoragePriority priority = StoragePriority.STORAGE_FIRST;
+
+    private class GroupedChangeBlockInfo
+    {
+        Group group;
+        ChangeBlockInfo info;
+
+        public GroupedChangeBlockInfo(Group group, ChangeBlockInfo info)
+        {
+            this.group = group;
+            this.info = info;
+        }
+    }
+
+    private class Group
+    {
+        List<GroupedChangeBlockInfo> infos = new ArrayList<GroupedChangeBlockInfo>();
+        ItemStack[] states;
+        String name;
+
+        private Group(String name)
+        {
+            this.states = TileEntityToggleBlock.this.getCopyOfStates();
+            this.name = name;
+        }
+
+        GroupedChangeBlockInfo addToGroup(ChangeBlockInfo info)
+        {
+            GroupedChangeBlockInfo grouped = new GroupedChangeBlockInfo(this, info);
+            this.infos.add(grouped);
+            return grouped;
+        }
+    }
 
     public TileEntityToggleBlock()
     {
@@ -71,13 +105,26 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     {
         if (getWorldObj() != null && getWorldObj() instanceof WorldServer)
             player = new FakePlayer((WorldServer) getWorldObj(), new GameProfile(new UUID(0, 0), "ToggleBlock"));
-        //fakePlayer = new ChangeBlockInfo.FakePlayer(worldObj);
     }
 
     public EntityPlayer getFakePlayer()
     {
         if (this.player == null) this.setupFakePlayer();
         return this.player;
+    }
+
+    public Group getGroupAndMakeIfNotPresent(String name)
+    {
+        Group g = groups.get(name);
+        if (g == null) groups.put(name, g = new Group(name));
+        return g;
+    }
+
+    private ItemStack[] getCopyOfStates()
+    {
+        ItemStack[] copy = new ItemStack[states.length];
+        for (int i = 0; i < this.states.length; i++) copy[i] = this.states[i].copy();
+        return copy;
     }
 
     @Override
@@ -110,7 +157,7 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public IChangeBlockInfo getChangeBlockInfo(int index)
     {
         if (index >= 0 && index < changeBlocks.size())
-            return changeBlocks.get(index);
+            return changeBlocks.get(index).info;
         return null;
     }
 
@@ -123,18 +170,18 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
     public void updateChangeBlocks()
     {
         if (this.isReady() && !worldObj.isRemote)
-            for (ChangeBlockInfo pos : this.changeBlocks)
+            for (GroupedChangeBlockInfo pos : this.changeBlocks)
             {
-                ItemStack stateStack = states[getState()];
-                pos.doActionForState(worldObj, getState(), getFakePlayer(), stateStack, this);
+                ItemStack stateStack = pos.group.states[getState()];
+                pos.info.doActionForState(worldObj, getState(), getFakePlayer(), stateStack, this);
             }
     }
 
     public void placeChangeBlocks()
     {
-        for (ChangeBlockInfo pos : this.changeBlocks)
+        for (GroupedChangeBlockInfo pos : this.changeBlocks)
         {
-            pos.placeChangeBlock(worldObj, getFakePlayer(), this);
+            pos.info.placeChangeBlock(worldObj, getFakePlayer(), this);
         }
     }
 
@@ -144,7 +191,9 @@ public class TileEntityToggleBlock extends TileEntity implements ISidedInventory
         if (getMaxChangeBlocks() < 0 || this.changeBlocks.size() + 1 <= getMaxChangeBlocks())
         {
             ChangeBlockInfo blockInfo = new ChangeBlockInfo(x, y, z, worldObj.getBlockMetadata(x, y, z));
-            this.changeBlocks.add(blockInfo);
+//            this.changeBlocks.add(blockInfo);
+            GroupedChangeBlockInfo groupedBlockInfo = getGroupAndMakeIfNotPresent(defaultGroup).addToGroup(blockInfo);
+            this.changeBlocks.add(groupedBlockInfo);
             TileEntityChangeBlock entity = (TileEntityChangeBlock) worldObj.getTileEntity(x, y, z);
             entity.setControllerPos(xCoord, yCoord, zCoord);
             return blockInfo;
