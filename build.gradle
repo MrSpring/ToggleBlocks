@@ -112,7 +112,7 @@ task buildInfo << {
             mod_version: mod_version,
             mc_version: mc_version,
             commit_full: System.getenv("DRONE_COMMIT"),
-            build_time: System.nanoTime()));
+            build_time: System.currentTimeMillis()));
     File infoFile = new File("build/libs/${archivesBaseName}-${project.version}.json")
     println(infoFile.toString());
     infoFile.createNewFile()
