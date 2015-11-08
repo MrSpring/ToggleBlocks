@@ -20,6 +20,10 @@ apply plugin: 'forge'
 String mc_version = "1.7.10"
 String mod_version = "1.2.2"
 version = "${mod_version}-${mc_version}"
+if (System.getenv("GIT_COMMIT"))
+    version += "-${System.getenv("GIT_COMMIT").take(7)}";
+if (System.getenv("DRONE_BUILD_NUMBER"))
+    version += "-${System.getenv("DRONE_BUILD_NUMBER")}";
 group = "dk.mrspring" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "ToggleBlocks"
 ext.configFile = file "build.properties"
@@ -66,7 +70,7 @@ processResources
                 include 'mcmod.info'
 
                 // replace version and mcversion
-                expand 'version': project.version, 'mcversion': project.minecraft.version
+                expand 'version': mod_version, 'mcversion': project.minecraft.version
             }
 
             // copy everything else, thats not the mcmod.info
@@ -106,7 +110,7 @@ dependencies {
     deployerJars "org.apache.maven.wagon:wagon-ftp:2.10"
 }
 
-/*8uploadArchives {
+/*uploadArchives {
     dependsOn "reobf"
     repositories {
         mavenDeployer {
