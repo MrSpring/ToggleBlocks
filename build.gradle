@@ -123,7 +123,8 @@ build.finalizedBy buildInfo
 
 class BuildInformation {
     String commit, branch, mod_version, mc_version, commit_full;
-    int build_number, build_time;
+    int build_number;
+    long build_time;
 }
 
 artifacts {
