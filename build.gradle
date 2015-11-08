@@ -19,11 +19,15 @@ apply plugin: 'forge'
 
 String mc_version = "1.7.10"
 String mod_version = "1.2.2"
+boolean isDrone = System.getenv("DRONE") == "true";
 version = "${mod_version}-${mc_version}"
-if (System.getenv("GIT_COMMIT"))
-    version += "-${System.getenv("GIT_COMMIT").take(7)}";
-if (System.getenv("DRONE_BUILD_NUMBER"))
-    version += "-${System.getenv("DRONE_BUILD_NUMBER")}";
+String commit, buildNumber, branch;
+if (isDrone) {
+    commit = System.getenv("DRONE_COMMIT").take(7)
+    buildNumber = System.getenv("DRONE_BUILD_NUMBER")
+    branch = System.getenv("DRONE_BRANCH")
+    version += "-${commit}-${buildNumber}-${branch}"
+}
 group = "dk.mrspring" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "ToggleBlocks"
 ext.configFile = file "build.properties"
@@ -96,6 +100,26 @@ task devJar(type: Jar) {
 task apiJar(type: Jar) {
     from(sourceSets.api.output)
     classifier = "api"
+}
+
+import groovy.json.JsonOutput
+
+task buildInfo << {
+    String jsonCode = JsonOutput.toJson(new BuildInformation(
+            commit: commit,
+            build_number: Integer.valueOf(buildNumber),
+            branch: branch,
+            mod_version: mod_version,
+            mc_version: mc_version));
+    File infoFile = new File("libs", "${archivesBaseName}-${project.version}")
+    infoFile.setText(jsonCode)
+}
+buildInfo.enabled = isDrone;
+build.finalizedBy buildInfo
+
+class BuildInformation {
+    String commit, branch, mod_version, mc_version;
+    int build_number;
 }
 
 artifacts {
