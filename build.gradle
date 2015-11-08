@@ -110,7 +110,9 @@ task buildInfo << {
             build_number: Integer.valueOf(buildNumber),
             branch: branch,
             mod_version: mod_version,
-            mc_version: mc_version));
+            mc_version: mc_version,
+            commit_full: System.getenv("DRONE_COMMIT"),
+            build_time: System.nanoTime()));
     File infoFile = new File("build/libs/${archivesBaseName}-${project.version}.json")
     println(infoFile.toString());
     infoFile.createNewFile()
@@ -120,8 +122,8 @@ buildInfo.enabled = isDrone;
 build.finalizedBy buildInfo
 
 class BuildInformation {
-    String commit, branch, mod_version, mc_version;
-    int build_number;
+    String commit, branch, mod_version, mc_version, commit_full;
+    int build_number, build_time;
 }
 
 artifacts {
