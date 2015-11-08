@@ -111,7 +111,8 @@ task buildInfo << {
             branch: branch,
             mod_version: mod_version,
             mc_version: mc_version));
-    File infoFile = new File("libs", "${archivesBaseName}-${project.version}")
+    File infoFile = new File("libs", "${archivesBaseName}-${project.version}.json")
+    infoFile.createNewFile()
     infoFile.setText(jsonCode)
 }
 buildInfo.enabled = isDrone;
