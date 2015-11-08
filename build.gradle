@@ -112,7 +112,8 @@ task buildInfo << {
             mod_version: mod_version,
             mc_version: mc_version,
             commit_full: System.getenv("DRONE_COMMIT"),
-            build_time: System.currentTimeMillis() / 1000L));
+            build_time: System.currentTimeMillis() / 1000L,
+            files: ["api", "deobf", "src"]));
     File infoFile = new File("build/libs/${archivesBaseName}-${project.version}.json")
     println(infoFile.toString());
     infoFile.createNewFile()
@@ -123,6 +124,7 @@ build.finalizedBy buildInfo
 
 class BuildInformation {
     String commit, branch, mod_version, mc_version, commit_full;
+    String[] files;
     int build_number;
     long build_time;
 }
