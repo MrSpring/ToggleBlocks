@@ -1,7 +1,7 @@
-package dk.mrspring.toggle.block;
+package dk.mrspring.toggle.common.tileentity;
 
 /**
- * Created on 10-10-2015 for ToggleBlocks18.
+ * Created on 10-11-2015 for ToggleBlocks.
  */
 public enum ToggleBlockSize
 {
@@ -47,5 +47,10 @@ public enum ToggleBlockSize
     public static ToggleBlockSize fromName(String name)
     {
         return valueOf(name.toUpperCase());
+    }
+
+    public static ToggleBlockSize fromMeta(int metadata)
+    {
+        return metadata >= 0 && metadata < META_MAPPED.length ? META_MAPPED[metadata] : SMALL;
     }
 }

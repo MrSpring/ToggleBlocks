@@ -1,7 +1,7 @@
 package dk.mrspring.toggle;
 
 /**
- * Created by Konrad on 27-02-2015.
+ * Created on 10-11-2015 for ToggleBlocks.
  */
 public class ModInfo
 {
