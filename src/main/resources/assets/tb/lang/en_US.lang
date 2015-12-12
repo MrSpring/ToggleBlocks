@@ -1,0 +1,47 @@
+tile.change_block.name=Change Block
+tile.change_block.container.name=Change Block
+tile.change_block.container.on=On
+tile.change_block.container.off=Off
+tile.change_block.desc=Linked to controller: §c%1$d§7, §a%2$d§7, §9%3$d§r
+tile.change_block.not_linked=Not linked to controller!
+tile.change_block.direction=Direction: %s
+
+direction.up=Up
+direction.down=Down
+direction.north=North
+direction.south=South
+direction.west=West
+direction.east=East
+
+tile.toggle_block_tiny.name=Tiny Toggle Block
+tile.toggle_block_small.name=Small Toggle Block
+tile.toggle_block_medium.name=Medium Toggle Block
+tile.toggle_block_large.name=Large Toggle Block
+tile.toggle_block_huge.name=Huge Toggle Block
+tile.toggle_block_creative.name=Creative Toggle Block
+tile.tiny_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
+tile.small_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
+tile.medium_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
+tile.large_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
+tile.huge_toggle_block.desc=Holds up to: §3%1$s§7 Change Blocks§r
+tile.creative_toggle_block.desc=Can hold §dinfinite§7 Change Blocks
+tile.toggle_block.container.name=Toggle Block Controller
+tile.toggle_block.container.toggle_mode=Toggle Mode
+tile.toggle_block.container.cycle_storage_priority=Cycle Storage Priority
+tile.toggle_block.container.on=On
+tile.toggle_block.container.off=Off
+tile.toggle_block.container.storage=Storage
+tile.toggle_block.container.registered_blocks=Blocks: %1$s/%2$s
+tile.toggle_block.container.infinite_blocks=Blocks: %1$s
+tile.toggle_block.container.change_block_mode=Change Block Mode
+tile.toggle_block.container.storage_mode=Storage Priorities
+tile.toggle_block.container.storage_mode.storage_first.name=Local Storage First
+tile.toggle_block.container.storage_mode.storage_first.desc=Fills up the toggle block's local storage before putting items into surrounding chests.
+tile.toggle_block.container.storage_mode.storage_only.name=Local Storage Only
+tile.toggle_block.container.storage_mode.storage_only.desc=Only uses the toggle block's own local storage, and ignores any nearby chests.
+tile.toggle_block.container.storage_mode.chests_first.name=Chests First
+tile.toggle_block.container.storage_mode.chests_first.desc=Fills up nearby chests before putting items into the toggle block's local storage.
+tile.toggle_block.container.storage_mode.chests_only.name=Chests Only
+tile.toggle_block.container.storage_mode.chests_only.desc=Only uses nearby chests, and ignores the toggle block's local storage.
+
+message.full_toggle_controller=Controller is already at full capacity!
