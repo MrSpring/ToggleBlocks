@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "normal": {"model": "tb:builtin/toggle_controller_large"}
+  }
+}

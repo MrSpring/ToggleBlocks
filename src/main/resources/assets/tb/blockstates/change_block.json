@@ -1,6 +1,5 @@
 {
   "variants": {
-    "normal": {"model": "tb:change_block_down"},
     "inventory": {"model": "tb:change_block_down"},
     "direction=down": {"model": "tb:change_block_down"},
     "direction=up": {"model": "tb:change_block_up"},
