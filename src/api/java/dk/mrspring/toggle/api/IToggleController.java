@@ -1,5 +1,6 @@
 package dk.mrspring.toggle.api;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 
@@ -25,15 +26,35 @@ public interface IToggleController
      */
     void onChangeBlockRemoved(BlockPos position, IChangeBlock changeBlock);
 
+    /**
+     * Call this when a Change Block is right-clicked. Used to open the individual Change Block override GUI.
+     *
+     * @param player The player that activated the Change Block.
+     * @param position The The position of the Change Block.
+     * @param changeBlock The Change Block that was activated.
+     */
+    void onChangeBlockActivated(EntityPlayer player, BlockPos position, IChangeBlock changeBlock);
+
+    /**
+     * Called when the Toggle Controller is activated. Opens the configuration GUI.
+     *
+     * @param player The player that activated the Toggle Block.
+     */
+    void onToggleControllerActivated(EntityPlayer player);
+
     int getState();
 
     int getStateCount();
 
     int getMaxChangeBlocks();
 
+    Mode getCurrentMode();
+
+    void setCurrentMode(Mode newMode);
+
     int getRegisteredChangeBlockCount();
 
-//    IToggleStorage getStorageHandler(); TODO: Implement
+    IToggleStorage getStorageHandler();
 
     boolean canRegisterAnotherChangeBlock();
 

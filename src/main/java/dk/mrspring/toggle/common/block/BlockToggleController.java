@@ -1,5 +1,6 @@
 package dk.mrspring.toggle.common.block;
 
+import dk.mrspring.toggle.api.IToggleController;
 import dk.mrspring.toggle.common.tileentity.TileEntityToggleBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -11,6 +12,7 @@ import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -71,6 +73,19 @@ public class BlockToggleController extends BlockContainer
         else return ToggleBlockSize.SMALL;
     }
 
+    public static int getControllerSize(ItemStack controllerStack)
+    {
+        if (controllerStack.hasTagCompound() && controllerStack.getTagCompound().hasKey(CONTROLLER_SIZE, 3))
+        {
+            NBTTagCompound comp = controllerStack.getTagCompound();
+            return comp.getInteger(CONTROLLER_SIZE);
+        } else
+        {
+            int meta = controllerStack.getItemDamage();
+            return getSizeFromMetadata(meta).getControllerSize();
+        }
+    }
+
     protected BlockToggleController()
     {
         super(Material.iron);
@@ -83,6 +98,17 @@ public class BlockToggleController extends BlockContainer
                 4 * P, 4 * P, 4 * P,
                 12 * P, 12 * P, 12 * P);
         this.setCreativeTab(CreativeTabs.tabRedstone);
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        if (player.isSneaking() && player.getCurrentEquippedItem() == null)
+            if (!world.isRemote) BlockChangeBlock.updateRemainingChangeBlocks(player, new ControllerInfo(pos), world);
+        IToggleController controller = (IToggleController) world.getTileEntity(pos);
+        controller.onToggleControllerActivated(player);
+//        player.openGui(ToggleBlocks.instance, 0, world, pos.getX(), pos.getY(), pos.getZ()); // TODO: IToggleController onControllerActivated
+        return true;
     }
 
     @Override
@@ -110,7 +136,7 @@ public class BlockToggleController extends BlockContainer
         return getSizeFromState(state).getMetaValue();
     }
 
-    private ToggleBlockSize getSizeFromState(IBlockState state)
+    public ToggleBlockSize getSizeFromState(IBlockState state)
     {
         return state.getValue(SIZE);
     }
@@ -133,17 +159,26 @@ public class BlockToggleController extends BlockContainer
             return state;
     }
 
-    @Override
-    public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
-    {
-        System.out.println("Placing with meta: " + meta);
-        return super.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer);
-    }
-
     public boolean canConnectTo(IBlockAccess worldIn, BlockPos pos)
     {
         Block block = worldIn.getBlockState(pos).getBlock();
         return block != Blocks.barrier && block != this && (block.getMaterial().isOpaque() && block.isFullCube() && block.getMaterial() != Material.gourd);
+    }
+
+    @Override
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    {
+        if (world.isRemote) return;
+        int size = getControllerSize(stack);
+        TileEntityToggleBlock controller = (TileEntityToggleBlock) world.getTileEntity(pos);
+        controller.setSize(size);
+    }
+
+    @Override
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
+    {
+        TileEntityToggleBlock controller = (TileEntityToggleBlock) worldIn.getTileEntity(pos);
+        controller.checkSignal();
     }
 
     @Override

@@ -1,0 +1,40 @@
+package dk.mrspring.toggle.api;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
+
+/**
+ * Created on 14-12-2015 for ToggleBlocks.
+ */
+public interface IBlockToggleAction
+{
+    /**
+     * Harvests the block before replacing it with the new one.
+     *
+     * @param world      World object
+     * @param pos        The position of the block to harvest
+     * @param player     The player. WARNING! This is a fake player, see FakePlayer
+     * @param controller The Toggle Block Controller instance, calling for the block to be harvested
+     * @return Returns the dropped items, which will be added to the controller's storage.
+     */
+    ItemStack[] harvestBlock(World world, BlockPos pos, EntityPlayer player, IToggleController controller);
+
+    /**
+     * @param world      World object
+     * @param x          The position of the block to change
+     * @param direction  The direction the change block is configured with
+     * @param player     The player. WARNING! This is a fake player, see FakePlayer
+     * @param placing    The ItemStack to place, remember to reduce stack size! When null the block should simply
+     *                   be left as air
+     * @param controller The TileEntity of the toggle block
+     */
+    void placeBlock(World world, BlockPos pos, EnumFacing direction, EntityPlayer player,
+                    ItemStack placing, IToggleController controller);
+
+    boolean canPlaceBlock(World world, BlockPos pos, ItemStack placing, IToggleController controller);
+
+    boolean canHarvestBlock(World world, BlockPos pos, IToggleController controller);
+}

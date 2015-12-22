@@ -1,5 +1,6 @@
 package dk.mrspring.toggle.common.block;
 
+import dk.mrspring.toggle.common.item.ItemBlockChangeBlock;
 import dk.mrspring.toggle.common.item.ItemBlockToggleController;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -21,7 +22,7 @@ public class BlockBase
     public static void registerBlocks()
     {
         GameRegistry.registerBlock(toggle_controller, ItemBlockToggleController.class, "toggle_block");
-        GameRegistry.registerBlock(change_block/*, ItemBlockChangeBlock.class*/, "change_block");
+        GameRegistry.registerBlock(change_block, ItemBlockChangeBlock.class, "change_block");
         GameRegistry.registerBlock(tester, "render_tester");
 
         GameRegistry.registerTileEntity(TileEntityToggleBlock.class, "tileEntityToggleBlock");

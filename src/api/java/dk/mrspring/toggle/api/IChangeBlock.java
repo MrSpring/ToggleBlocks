@@ -21,5 +21,15 @@ public interface IChangeBlock
      */
     void onUnregistered(IToggleController controller);
 
+    /**
+     * Called when the Change Block is placed by the Toggle Controller, and when the Toggle Controller reloads all
+     * Change Blocks from NBT.
+     *
+     * @param controller The controller which this Change Block is registered to.
+     */
+    void onControllerReload(IToggleController controller);
+
+    IToggleController getController();
+
     EnumFacing getDirection();
 }

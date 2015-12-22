@@ -8,7 +8,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -109,7 +108,6 @@ public class BlockChangeBlock extends BlockContainer
     {
         super(Material.iron);
 
-        this.setCreativeTab(CreativeTabs.tabBlock);
         this.setHardness(5.0F);
 
         this.setUnlocalizedName("change_block");
@@ -121,12 +119,16 @@ public class BlockChangeBlock extends BlockContainer
         if (player.isSneaking())
         {
             EnumFacing direction = side.getOpposite();
-            if (getDirectionFromState(state) != direction)
-                return world.setBlockState(pos, state.withProperty(DIRECTION, direction));
-            else return false;
+            return getDirectionFromState(state) != direction && world.setBlockState(pos, state.withProperty(DIRECTION, direction));
         } else
         {
-//            player.openGui(ToggleBlocks.instance, 1, world, x, y, z);
+//            player.openGui(ToggleBlocks.instance, 1, world, pos.getX(), pos.getY(), pos.getZ());
+            TileEntity entity = world.getTileEntity(pos);
+            if (entity != null && entity instanceof IChangeBlock)
+            {
+                IChangeBlock changeBlock = (IChangeBlock) entity;
+                changeBlock.getController().onChangeBlockActivated(player, pos, changeBlock);
+            }
             // TODO: IToggleController.openChangeBlockGui()
             return true;
         }
@@ -135,6 +137,7 @@ public class BlockChangeBlock extends BlockContainer
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack placed)
     {
+        System.out.println("On placed by!");
         if (world.isRemote) return;
         ControllerInfo info = new ControllerInfo(placed);
         if (info.initialized)

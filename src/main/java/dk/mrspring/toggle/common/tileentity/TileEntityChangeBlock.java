@@ -2,6 +2,7 @@ package dk.mrspring.toggle.common.tileentity;
 
 import dk.mrspring.toggle.api.IChangeBlock;
 import dk.mrspring.toggle.api.IToggleController;
+import dk.mrspring.toggle.common.block.BlockBase;
 import dk.mrspring.toggle.common.block.ControllerInfo;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -23,22 +24,36 @@ public class TileEntityChangeBlock extends TileEntity implements IChangeBlock
         return controller.onChangeBlockPlaced(getPos(), this);
     }
 
+    public void onDestroyed()
+    {
+        controller.onChangeBlockRemoved(getPos(), this);
+    }
+
     @Override
     public void onRegistered(IToggleController controller)
     {
-        this.controller = controller;
     }
 
     @Override
     public void onUnregistered(IToggleController controller)
     {
+    }
 
+    @Override
+    public void onControllerReload(IToggleController controller)
+    {
+        this.controller = controller;
+    }
+
+    @Override
+    public IToggleController getController()
+    {
+        return controller;
     }
 
     @Override
     public EnumFacing getDirection()
     {
-//        return BlockBase.change_block.getDirectionFromState(worldObj.getBlockState(getPos()));
-        return EnumFacing.DOWN;
+        return BlockBase.change_block.getDirectionFromState(worldObj.getBlockState(getPos()));
     }
 }
