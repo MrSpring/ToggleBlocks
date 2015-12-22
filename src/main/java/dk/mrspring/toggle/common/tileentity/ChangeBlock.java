@@ -89,17 +89,6 @@ public class ChangeBlock
         world.setBlockState(pos, BlockBase.change_block.getStateFromMeta(direction.getIndex()));
     }
 
-    public ItemStack getOverrideStack(int state)
-    {
-        return overrides[state] != null && overrides[state].overrides ? overrides[state].stack : null;
-    }
-
-    public void setOverrideStack(int state, ItemStack stack)
-    {
-        if (overrides[state] == null) overrides[state] = new StateOverride(stack, false);
-        else overrides[state].setStack(stack);
-    }
-
     private ItemStack copy(ItemStack stack)
     {
         return stack == null ? null : stack.copy();
@@ -143,14 +132,31 @@ public class ChangeBlock
         return direction;
     }
 
+    public BlockPos getPos()
+    {
+        return pos;
+    }
+
     public boolean overridesState(int state)
     {
         return overrides[state] != null && overrides[state].overrides;
     }
 
-    public BlockPos getPos()
+    public ItemStack getOverrideStack(int state)
     {
-        return pos;
+        return overrides[state] != null && overrides[state].overrides ? overrides[state].stack : null;
+    }
+
+    public void setOverrideStack(int state, ItemStack stack)
+    {
+        if (overrides[state] == null) overrides[state] = new StateOverride(stack, false);
+        else overrides[state].setStack(stack);
+    }
+
+    public void setOverridesState(int state, boolean doesOverride)
+    {
+        if (overrides[state] == null) overrides[state] = new StateOverride(null, doesOverride);
+        else overrides[state].overrides = doesOverride;
     }
 
     class StateOverride
@@ -188,7 +194,7 @@ public class ChangeBlock
         public void setStack(ItemStack stack)
         {
             this.stack = copy(stack);
-            this.stack.stackSize = 1;
+            if (this.stack != null) this.stack.stackSize = 1;
         }
     }
 }

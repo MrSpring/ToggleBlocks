@@ -215,6 +215,8 @@ public class TileEntityToggleBlock extends TileEntity implements IToggleControll
     public void onChangeBlockActivated(EntityPlayer player, BlockPos position, IChangeBlock changeBlock)
     {
         this.lastActivated = changeBlocks.get(position);
+        this.notifyChangeBlocksOfReload();
+        player.openGui(ToggleBlocks.instance, 1, getWorld(), getPos().getX(), getPos().getY(), getPos().getZ());
         // TODO
     }
 
@@ -222,7 +224,6 @@ public class TileEntityToggleBlock extends TileEntity implements IToggleControll
     public void onToggleControllerActivated(EntityPlayer player)
     {
         getWorld().markBlockForUpdate(pos);
-//        if (!getWorld().isRemote)
         player.openGui(ToggleBlocks.instance, 0, getWorld(), getPos().getX(), getPos().getY(), getPos().getZ());
     }
 
@@ -308,7 +309,7 @@ public class TileEntityToggleBlock extends TileEntity implements IToggleControll
     public void setOverrideForState(BlockPos pos, int state, boolean override)
     {
         ChangeBlock block = changeBlocks.get(pos);
-        if (block != null) block.overrides[state].overrides = override;
+        if (block != null) block.setOverridesState(state, override);
     }
 
     @Override
@@ -385,9 +386,8 @@ public class TileEntityToggleBlock extends TileEntity implements IToggleControll
     public void placeAllChangeBlocks()
     {
         for (Map.Entry<BlockPos, ChangeBlock> entry : changeBlocks.entrySet())
-        {
             entry.getValue().placeChangeBlock(getWorld(), entry.getKey(), getFakePlayer(), this);
-        }
+        notifyChangeBlocksOfReload();
     }
 
     @Override
